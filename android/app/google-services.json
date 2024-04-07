@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "464543719701",
+    "project_id": "onpensea-da55e",
+    "storage_bucket": "onpensea-da55e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464543719701:android:5395cbef7350c352c7091c",
+        "android_client_info": {
+          "package_name": "com.intech.onpensea"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBstkkjj86bkhKC8CVE433XRDJyNhbDfBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
