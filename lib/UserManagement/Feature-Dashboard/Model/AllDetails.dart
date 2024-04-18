@@ -14,7 +14,7 @@ class AllDetails {
   final String userType;
   final String createdDate;
   final String delFlg;
-  final String session;
+  final String sessionId;
   final String accessToken;
   final int power;
   final String remarks;
@@ -39,7 +39,7 @@ class AllDetails {
       required this.userType,
       required this.createdDate,
       required this.delFlg,
-      required this.session,
+      required this.sessionId,
       required this.accessToken,
       required this.power,
       required this.remarks,
@@ -65,7 +65,7 @@ class AllDetails {
         userType: json['userType'] ?? 'NA',
         createdDate: json['createdDate'] ?? 'NA',
         delFlg: json['delFlg'] ?? 'NA',
-        session: json['session'] ?? 'NA',
+        sessionId: json['sessionId'] ?? 'NA',
         accessToken: json['accessToken'] ?? 'NA',
         power: json['power'] ?? 'NA',
         remarks: json['remarks'] ?? 'NA',
@@ -91,7 +91,7 @@ class AllDetails {
         'userType': userType,
         'createdDate': createdDate,
         'delFlg': delFlg,
-        'session': session,
+        'session': sessionId,
         'accessToken': accessToken,
         'power': power,
         'remarks': remarks,

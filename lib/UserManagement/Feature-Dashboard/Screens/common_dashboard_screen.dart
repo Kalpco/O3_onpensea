@@ -193,7 +193,7 @@ class _DashboardScreen extends State<DashboardScreen> {
         ],
       ),
       drawer: DashboardDrawer(
-          walletAddress : walletAddress,
+          walletAddress: walletAddress,
           userType: userType ?? "",
           username: username ?? "",
           email: email ?? "",
@@ -290,8 +290,10 @@ class _DashboardScreen extends State<DashboardScreen> {
                   const SizedBox(
                     height: 80,
                   ),
+                  (ald!.userType == UserType.ADMIN_USER)
+                      ? YourTableWidget()
+                      : const Text(""),
 
-                  YourTableWidget(),
                   const SizedBox(
                     height: 80,
                   ),
@@ -343,13 +345,20 @@ class _DashboardScreen extends State<DashboardScreen> {
                                   )),
                         );
                       } else {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) =>
+                        //           const ScreenToDisplayAlltheCities(
+                        //             screenStatus: 'buy',
+                        //           )),
+                        // );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const ScreenToDisplayAlltheCities(
-                                    screenStatus: 'buy',
-                                  )),
+                                  const ShowAllVerifiedProperties(
+                                      screenStatus: 'buy')),
                         );
                       }
                     }, // button pressed

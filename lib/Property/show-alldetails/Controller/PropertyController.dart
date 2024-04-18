@@ -104,8 +104,8 @@ class PropertyController {
       request.fields['paymentType'] =  'Wallet';
       request.fields['remarks'] = remarks;
 
-      request.files
-          .add(await http.MultipartFile.fromPath('screenshot', imagePath));
+      // request.files
+      //     .add(await http.MultipartFile.fromPath('screenshot', imagePath));
 
       var response = await request.send();
       final respStr = await response.stream.bytesToString();

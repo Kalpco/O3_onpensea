@@ -19,6 +19,11 @@ import '../../UserManagement/Feature-Dashboard/Screens/WidgetToDisplayAlltheCiti
 import '../../UserManagement/Feature-Dashboard/Widgets/Drawer/DashboardDrawer.dart';
 import '../../config/ApiUrl.dart';
 import '../../config/CustomTheme.dart';
+import '../../Token/test.dart';
+import '../../Token/utils/shared.dart';
+import '../../Token/utils/theme.dart';
+import '../../Token/widgets/custom_home_services.dart';
+import '../../Token/widgets/custom_latest_transaction_item.dart';
 import '../Model/TokenPriceModel.dart';
 
 class TokenScreen extends StatefulWidget {
@@ -103,29 +108,29 @@ class _TokenScreenState extends State<TokenScreen> {
               backgroundColor: Colors.white,
               child: photo == null
                   ? const Icon(
-                      Icons.person,
-                      color: Colors.green,
-                    )
+                Icons.person,
+                color: Colors.green,
+              )
                   : Container(
-                      padding: const EdgeInsets.all(0), // Border width
-                      decoration: const BoxDecoration(
-                          color: Colors.transparent, shape: BoxShape.circle),
-                      child: ClipOval(
-                        child: SizedBox.fromSize(
-                            size: const Size.fromRadius(48), // Image radius
-                            child: photo == "NA"
-                                ? const CircleAvatar(
-                                    radius: 50,
-                                    backgroundImage: NetworkImage(
-                                        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"),
-                                  )
-                                : CircleAvatar(
-                                    radius: 50,
-                                    backgroundImage:
-                                        MemoryImage(base64Decode(photo!)),
-                                  )),
-                      ),
-                    ),
+                padding: const EdgeInsets.all(0), // Border width
+                decoration: const BoxDecoration(
+                    color: Colors.transparent, shape: BoxShape.circle),
+                child: ClipOval(
+                  child: SizedBox.fromSize(
+                      size: const Size.fromRadius(48), // Image radius
+                      child: photo == "NA"
+                          ? const CircleAvatar(
+                        radius: 50,
+                        backgroundImage: NetworkImage(
+                            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"),
+                      )
+                          : CircleAvatar(
+                        radius: 50,
+                        backgroundImage:
+                        MemoryImage(base64Decode(photo!)),
+                      )),
+                ),
+              ),
             ),
           ),
         ],
@@ -157,12 +162,11 @@ class _TokenScreenState extends State<TokenScreen> {
                         MaterialPageRoute(
                             builder: (context) => userType == "ADMIN"
                                 ? const ShowAllVerifyBuy(
-                                    screenStatus: "buy",
-                                  )
-                                : const ScreenToDisplayAlltheCities(
-                                    screenStatus: "buy",
-                                  )),
-                      );
+                              screenStatus: "buy",
+                            )
+                                : const ShowAllVerifiedProperties(
+                          screenStatus: 'buy'),
+                      ));
                     }, // button pressed
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -193,11 +197,11 @@ class _TokenScreenState extends State<TokenScreen> {
                         MaterialPageRoute(
                             builder: (context) => userType == "ADMIN"
                                 ? const ShowAllVerifySell(
-                                    screenStatus: "sell",
-                                  )
+                              screenStatus: "sell",
+                            )
                                 : const BoughtProperties(
-                                    screenStatus: "sell",
-                                  )),
+                              screenStatus: "sell",
+                            )),
                       );
                     }, // button pressed
                     child: Column(
@@ -229,8 +233,8 @@ class _TokenScreenState extends State<TokenScreen> {
                         MaterialPageRoute(
                             builder: (context) => userType == "ADMIN"
                                 ? ShowAllPendingProperties(
-                                    screenStatus: "buy",
-                                  )
+                              screenStatus: "buy",
+                            )
                                 : const RegisterPropertyOne()),
                       );
                     }, // button pressed
@@ -301,7 +305,11 @@ class _TokenScreenState extends State<TokenScreen> {
                 const SizedBox(
                   height: 20,
                 ),
+                buildCardBank(),
+                buildServices(context),
                 const TokenSummary(),
+                buildLatestTransaction(),
+
                 const SizedBox(
                   height: 20,
                 ),
@@ -317,7 +325,7 @@ class _TokenScreenState extends State<TokenScreen> {
                             'Sort ',
                             style: GoogleFonts.poppins(
                               textStyle:
-                                  Theme.of(context).textTheme.headlineLarge,
+                              Theme.of(context).textTheme.headlineLarge,
                               fontSize: 14,
                               color: Colors.black54,
                               fontWeight: FontWeight.w600,
@@ -343,7 +351,7 @@ class _TokenScreenState extends State<TokenScreen> {
                             ' Current (invested) ',
                             style: GoogleFonts.poppins(
                               textStyle:
-                                  Theme.of(context).textTheme.headlineLarge,
+                              Theme.of(context).textTheme.headlineLarge,
                               fontSize: 14,
                               color: Colors.black54,
                               fontWeight: FontWeight.w600,
@@ -361,15 +369,15 @@ class _TokenScreenState extends State<TokenScreen> {
                 ),
                 Center(
                     child: Text(
-                  "Verify holdings",
-                  style: GoogleFonts.poppins(
-                    textStyle: Theme.of(context).textTheme.headlineLarge,
-                    fontSize: 14,
-                    color: CustomTheme.fifthColor,
-                    fontWeight: FontWeight.w600,
-                    fontStyle: FontStyle.normal,
-                  ),
-                )),
+                      "Verify holdings",
+                      style: GoogleFonts.poppins(
+                        textStyle: Theme.of(context).textTheme.headlineLarge,
+                        fontSize: 14,
+                        color: CustomTheme.fifthColor,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.normal,
+                      ),
+                    )),
                 const SizedBox(
                   height: 100,
                 ),
@@ -377,6 +385,169 @@ class _TokenScreenState extends State<TokenScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+  Widget buildCardBank() {
+    return Container(
+      margin: const EdgeInsets.only(top: 30),
+      padding: const EdgeInsets.all(30),
+      width: double.infinity,
+      height: 220,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        image: const DecorationImage(
+          fit: BoxFit.cover,
+          image: AssetImage(
+            'assets/img_bg_card.png',
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Pulkit Singh',
+            style: whiteTextStyle.copyWith(
+              fontSize: 18,
+              fontWeight: medium,
+            ),
+          ),
+          const SizedBox(
+            height: 28,
+          ),
+          Text(
+            '****  ****  ****  1234',
+            style: whiteTextStyle.copyWith(
+              fontSize: 18,
+              fontWeight: medium,
+              letterSpacing: 4,
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Text('Balance', style: whiteTextStyle),
+          Text(
+            formatCurrency(12500),
+            style: whiteTextStyle.copyWith(
+              fontSize: 24,
+              fontWeight: semiBold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget buildLatestTransaction() {
+    return Container(
+      margin: const EdgeInsets.only(top: 30),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Latest Transaction',
+            style: blackTextStyle.copyWith(
+              fontSize: 16,
+              fontWeight: semiBold,
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(top: 14),
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: whiteColor,
+            ),
+            child: Column(
+              children: [
+                LatestTransactionItem(
+                  iconUrl: 'assets/ic_transaction_cat1.png',
+                  title: 'Top Up',
+                  time: 'Yesterday',
+                  value: '+ ${formatCurrency(450000, symbol: '')}',
+                ),
+                LatestTransactionItem(
+                  iconUrl: 'assets/ic_transaction_cat2.png',
+                  title: 'Cashback',
+                  time: 'Sep 11',
+                  value: '+ ${formatCurrency(22000, symbol: '')}',
+                ),
+                LatestTransactionItem(
+                  iconUrl: 'assets/ic_transaction_cat3.png',
+                  title: 'Withdraw',
+                  time: 'Sep 2',
+                  value: '- ${formatCurrency(60000, symbol: '')}',
+                ),
+                LatestTransactionItem(
+                  iconUrl: 'assets/ic_transaction_cat4.png',
+                  title: 'Transfer',
+                  time: 'Aug 22',
+                  value: '- ${formatCurrency(120000, symbol: '')}',
+                ),
+                LatestTransactionItem(
+                  iconUrl: 'assets/ic_transaction_cat5.png',
+                  title: 'Electric',
+                  time: 'Feb 16',
+                  value: '- ${formatCurrency(1450000, symbol: '')}',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget buildServices(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Text(
+          //   'Do Something',
+          //   style: blackTextStyle.copyWith(
+          //     fontSize: 18,
+          //     fontWeight: semiBold,
+          //   ),
+          // ),
+          const SizedBox(
+            height: 14,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CustomHomeServices(
+                iconUrl: 'assets/ic_topup.png',
+                title: 'TopUp',
+                onTap: () {
+                  Navigator.pushNamed(context, '/topup');
+                },
+              ),
+              CustomHomeServices(
+                iconUrl: 'assets/ic_send.png',
+                title: 'Send',
+                onTap: () {
+                  Navigator.pushNamed(context, '/transfer');
+                },
+              ),
+              CustomHomeServices(
+                iconUrl: 'assets/ic_withdraw.png',
+                title: 'Withdraw',
+                onTap: () {},
+              ),
+              CustomHomeServices(
+                iconUrl: 'assets/ic_more.png',
+                title: 'More',
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (context) => const MoreDialog());
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

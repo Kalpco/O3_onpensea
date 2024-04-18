@@ -10,12 +10,14 @@ import 'package:syncfusion_flutter_maps/maps.dart';
 import '../../../Checkout/Screens/CheckoutScreen.dart';
 import '../../../config/CustomTheme.dart';
 import '../../Property/Feature-ShowAllDetails/Screens/ShowAllVerifiedProperties.dart';
+import '../../UserManagement/Feature-Dashboard/Screens/common_dashboard_screen.dart';
 import '../Models/Properties.dart';
 import '../Widgets/carousel_slider.dart';
 import '../Widgets/page_wrapper.dart';
 import "../Controller/PropertyController.dart";
 import 'all_gold_screen.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PropertyDetailsScreenNew extends StatefulWidget {
   final Properties prop;
@@ -31,7 +33,8 @@ class PropertyDetailsScreenNew extends StatefulWidget {
 
 class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  late Razorpay _razorpay;
+  bool isSuccess = false;
   static TextEditingController nameController = TextEditingController();
   static TextEditingController remarksController = TextEditingController();
   bool isChecked = false;
@@ -57,9 +60,52 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   @override
   void initState() {
     super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWallet);
     nameController.text = "";
     remarksController.text = "";
     callApi();
+  }
+
+  void openCheckout(amount) async {
+    amount = amount * 100;
+    var options = {
+      'key': 'rzp_test_wUKrMpwIAok1ZY',
+      'amount': amount,
+      'name': widget.prop.propName,
+      'prefill': {'contact ': '9029995819', 'email': 'finace.chand@gmail.com'},
+      'external': {
+        'wallets': ['paytm', 'gpay', 'phonepe']
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error : e');
+    }
+  }
+
+  void handlePaymentSuccess(PaymentSuccessResponse response) {
+    Fluttertoast.showToast(
+        msg: "Payment Succesful" + response.paymentId!,
+        toastLength: Toast.LENGTH_SHORT);
+    setState(() {
+      isSuccess = true;
+    });
+  }
+
+  void handlePaymentError(PaymentFailureResponse response) {
+    Fluttertoast.showToast(
+        msg: "Payment Succesful" + response.message!,
+        toastLength: Toast.LENGTH_SHORT);
+  }
+
+  void handleExternalWallet(ExternalWalletResponse response) {
+    Fluttertoast.showToast(
+        msg: "External wallet" + response.walletName!,
+        toastLength: Toast.LENGTH_SHORT);
   }
 
   void callApi() async {
@@ -76,10 +122,11 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
 
   @override
   void dispose() {
+    super.dispose();
     _formKey.currentState!.dispose();
     nameController.dispose();
     remarksController.dispose;
-    super.dispose();
+    _razorpay.clear();
   }
 
   Future<void> getUpdatedTokenCount(String tokenName) async {
@@ -102,6 +149,15 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (isSuccess) {
+      EasyLoading.showSuccess("Payment successfull. Buy request submitted.");
+      Future.delayed(const Duration(seconds: 5), () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
+      });
+    }
+
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
@@ -890,209 +946,210 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                       //     ),
                       //
                       //     const SizedBox(height: 60),
-                          Form(
-                            key: _formKey,
-                            child: Column(
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Checkbox(
-                                      checkColor: Colors.white,
-                                      value: isChecked,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          isChecked = value!;
-                                        });
-                                      },
-                                    ),
-                                    Container(
-                                      width: 250,
-                                      child: Text(
-                                        widget.screenStatus == "buy"
-                                            ? "The purchase price will be determined within the range of -20 to"
-                                                "20 rupees above the original buying price, and a refund will be issued if the "
-                                                "buying price decreases."
-                                            : "The selling price will be computed within a range of -20 to 20 rupees based on "
-                                                "the original selling price, and an equivalent amount will be credited to the user's account",
-                                        style: GoogleFonts.poppins(
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium,
-                                          fontSize: 13,
-                                          color: Colors.black54,
-                                          fontWeight: FontWeight.w700,
-                                          fontStyle: FontStyle.normal,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 60),
-                                TextFormField(
-                                  controller: nameController,
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    print('====== $value');
-                                    if (value != null && value.length == 0) {
-                                      return 'Please Enter Token Count';
-                                    }
-                                    if (int.parse(value!) >
-                                        widget.prop.tokenBalance) {
-                                      EasyLoading.showToast(
-                                          "Token count cannot be greater than token balance");
-                                      return "Entered value greater than token balance.";
-                                    }
-
-                                    return null;
+                                Checkbox(
+                                  checkColor: Colors.white,
+                                  value: isChecked,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      isChecked = value!;
+                                    });
                                   },
-                                  decoration: const InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20.0)),
-                                          borderSide: BorderSide(
-                                              color: Colors.black, width: 2.0)),
-                                      prefixIcon: Icon(Icons.token),
-                                      hintText: '1234',
-                                      labelText: 'TOKEN COUNT'),
                                 ),
-                                const SizedBox(height: 15),
-                                TextFormField(
-                                  controller: remarksController,
-                                  keyboardType: TextInputType.multiline,
-                                  validator: (value) {
-                                    if (value != null && value.length == 0) {
-                                      return 'Please Enter Remarks';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: const InputDecoration(
-                                      enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20.0)),
-                                          borderSide: BorderSide(
-                                              color: Colors.black, width: 2.0)),
-                                      prefixIcon: Icon(Icons.message),
-                                      hintText: 'Any Remarks by Buyer',
-                                      labelText: 'REMARKS'),
-                                ),
-                                const SizedBox(height: 35),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      padding: EdgeInsets.all(16),
-                                      backgroundColor: CustomTheme.fifthColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(6.0),
-                                      ),
+                                Container(
+                                  width: 250,
+                                  child: Text(
+                                    widget.screenStatus == "buy"
+                                        ? "The purchase price will be determined within the range of -20 to"
+                                            "20 rupees above the original buying price, and a refund will be issued if the "
+                                            "buying price decreases."
+                                        : "The selling price will be computed within a range of -20 to 20 rupees based on "
+                                            "the original selling price, and an equivalent amount will be credited to the user's account",
+                                    style: GoogleFonts.poppins(
+                                      textStyle: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium,
+                                      fontSize: 13,
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.w700,
+                                      fontStyle: FontStyle.normal,
                                     ),
-                                    onPressed: () {
-                                      if (isChecked == false) {
-                                        print("false:  ");
-                                        EasyLoading.showError(
-                                            "Please accept the checkbox");
-                                        return;
-                                      }
-
-                                      if (_formKey.currentState!.validate()) {
-                                        EasyLoading.show(status: "loading...");
-
-                                        if (widget.screenStatus == "buy") {
-                                          // Navigator.push(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //     builder: (context) =>
-                                          //         CheckoutScreen(
-                                          //       propertyName:
-                                          //           widget.prop.propName,
-                                          //       tokenName:
-                                          //           widget.prop.tokenName,
-                                          //       tokenCount: nameController.text,
-                                          //       tokenPrice: widget
-                                          //           .prop.tokenPrice
-                                          //           .toString(),
-                                          //       prop: widget.prop,
-                                          //       remarks: remarksController.text,
-                                          //       screenStatus: 'buy',
-                                          //     ),
-                                          //   ),
-                                          // );
-                                        } else {
-                                          Timer(Duration(seconds: 3), () async {
-                                            var response = null;
-
-                                            response = await PropertyController
-                                                .postTheSellerRequest(
-                                                    widget.prop,
-                                                    username!,
-                                                    userId!,
-                                                    nameController.text,
-                                                    remarksController.text);
-                                            if (response == "true") {
-                                              EasyLoading.showSuccess(
-                                                  "Token Sell Request Successfull");
-                                              Timer(Duration(seconds: 2), () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(builder: (context) =>
-                                                          AllGoldScreen(
-                                                            screenStatus: widget
-                                                                .screenStatus,
-                                                          )),
-                                                );
-                                              });
-                                            } else {
-                                              EasyLoading.showError(
-                                                  "Token Buy Requested Failed");
-                                              Timer(Duration(seconds: 2), () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ShowAllVerifiedProperties(
-                                                            screenStatus: widget
-                                                                .screenStatus,
-                                                          )),
-                                                );
-                                              });
-                                            }
-                                          });
-                                        }
-                                      }
-                                    },
-                                    child: widget.screenStatus == 'sell'
-                                        ? Text(
-                                            "Sell",
-                                            style: GoogleFonts.poppins(
-                                              textStyle: Theme.of(context)
-                                                  .textTheme
-                                                  .labelLarge,
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle: FontStyle.normal,
-                                            ),
-                                          )
-                                        : Text(
-                                            'Buy',
-                                            style: GoogleFonts.poppins(
-                                              textStyle: Theme.of(context)
-                                                  .textTheme
-                                                  .labelLarge,
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                              fontStyle: FontStyle.normal,
-                                            ),
-                                          ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
+                            const SizedBox(height: 60),
+                            TextFormField(
+                              controller: nameController,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                print('====== $value');
+                                if (value != null && value.length == 0) {
+                                  return 'Please Enter Token Count';
+                                }
+                                if (int.parse(value!) >
+                                    widget.prop.tokenBalance) {
+                                  EasyLoading.showToast(
+                                      "Token count cannot be greater than token balance");
+                                  return "Entered value greater than token balance.";
+                                }
+
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)),
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 2.0)),
+                                  prefixIcon: Icon(Icons.token),
+                                  hintText: '1234',
+                                  labelText: 'TOKEN COUNT'),
+                            ),
+                            const SizedBox(height: 15),
+                            TextFormField(
+                              controller: remarksController,
+                              keyboardType: TextInputType.multiline,
+                              validator: (value) {
+                                if (value != null && value.length == 0) {
+                                  return 'Please Enter Remarks';
+                                }
+                                return null;
+                              },
+                              decoration: const InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20.0)),
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 2.0)),
+                                  prefixIcon: Icon(Icons.message),
+                                  hintText: 'Any Remarks by Buyer',
+                                  labelText: 'REMARKS'),
+                            ),
+                            const SizedBox(height: 35),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(16),
+                                  backgroundColor: CustomTheme.fifthColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6.0),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (isChecked == false) {
+                                    print("false:  ");
+                                    EasyLoading.showError(
+                                        "Please accept the checkbox");
+                                    return;
+                                  }
+
+                                  if (_formKey.currentState!.validate()) {
+                                    EasyLoading.show(status: "loading...");
+
+                                    if (widget.screenStatus == "buy") {
+
+                                      openCheckout(nameController.text!);
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) =>
+                                      //         CheckoutScreen(
+                                      //       propertyName:
+                                      //           widget.prop.propName,
+                                      //       tokenName:
+                                      //           widget.prop.tokenName,
+                                      //       tokenCount: nameController.text,
+                                      //       tokenPrice: widget
+                                      //           .prop.tokenPrice
+                                      //           .toString(),
+                                      //       prop: widget.prop,
+                                      //       remarks: remarksController.text,
+                                      //       screenStatus: 'buy',
+                                      //     ),
+                                      //   ),
+                                      // );
+                                    } else {
+                                      Timer(Duration(seconds: 3), () async {
+                                        var response = null;
+
+                                        response = await PropertyController
+                                            .postTheSellerRequest(
+                                                widget.prop,
+                                                username!,
+                                                userId!,
+                                                nameController.text,
+                                                remarksController.text);
+                                        if (response == "true") {
+                                          EasyLoading.showSuccess(
+                                              "Token Sell Request Successfull");
+                                          Timer(Duration(seconds: 2), () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AllGoldScreen(
+                                                        screenStatus:
+                                                            widget.screenStatus,
+                                                      )),
+                                            );
+                                          });
+                                        } else {
+                                          EasyLoading.showError(
+                                              "Token Buy Requested Failed");
+                                          Timer(Duration(seconds: 2), () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ShowAllVerifiedProperties(
+                                                        screenStatus:
+                                                            widget.screenStatus,
+                                                      )),
+                                            );
+                                          });
+                                        }
+                                      });
+                                    }
+                                  }
+                                },
+                                child: widget.screenStatus == 'sell'
+                                    ? Text(
+                                        "Sell",
+                                        style: GoogleFonts.poppins(
+                                          textStyle: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge,
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle: FontStyle.normal,
+                                        ),
+                                      )
+                                    : Text(
+                                        'Buy',
+                                        style: GoogleFonts.poppins(
+                                          textStyle: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge,
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontStyle: FontStyle.normal,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       //   ],
                       // ),
                     ],

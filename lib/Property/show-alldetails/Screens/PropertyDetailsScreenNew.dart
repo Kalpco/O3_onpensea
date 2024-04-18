@@ -34,6 +34,7 @@ import '../../../Property/show-alldetails/Models/Properties.dart';
 import '../../../Property/show-alldetails/Widgets/carousel_slider.dart';
 import '../../../Property/show-alldetails/Widgets/page_wrapper.dart';
 import '../../../Checkout/Screens/CheckoutScreen.dart';
+import '../../../RazorPay/RazerPay.dart';
 import '../../../config/CustomTheme.dart';
 import '../../Feature-ShowAllDetails/Screens/ShowAllVerifiedProperties.dart';
 
@@ -42,7 +43,10 @@ class PropertyDetailsScreenNew extends StatefulWidget {
   final String screenStatus;
 
   const PropertyDetailsScreenNew(
-      {super.key, required this.prop, required this.screenStatus});
+      {super.key,
+      required this.prop,
+      required this.screenStatus,
+      });
 
   @override
   State<PropertyDetailsScreenNew> createState() =>
@@ -1025,24 +1029,109 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                           return;
                                         }
 
-                                        print("token sell price: ${widget.prop.tokenPrice}");
+                                        print(
+                                            "token sell price: ${widget.prop.tokenPrice}");
 
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  PaymentMetamask(
-                                                    tokenPrice: widget.prop.tokenPrice,
-                                                    prop: widget.prop,
-                                                    name: nameController.text!,
-                                                    remarks:
-                                                        remarksController.text,
-                                                    username: username!,
-                                                    userId: userId!,
-                                                    screenstatus:
-                                                        widget.screenStatus,
-                                                  )),
-                                        );
+                                        // showModalBottomSheet(
+                                        //   context: context,
+                                        //   builder: (context) {
+                                        //     return Wrap(
+                                        //       children: [
+                                        //         ListTile(
+                                        //           leading: Icon(Icons.share),
+                                        //           title: Text('Select option'),
+                                        //
+                                        //         ),
+                                        //         ListTile(
+                                        //           leading: Icon(Icons.r_mobiledata),
+                                        //           title: Text('Razorpay'),
+                                        //           onTap: () {
+                                        //             print('select option');
+                                        //             const RazorPaypage();
+                                        //           },
+                                        //         ),
+                                        //         ListTile(
+                                        //           leading: Icon(Icons.account_circle),
+                                        //           title: Text('Metamask'),
+                                        //           onTap: () {
+                                        //             print('select option');
+                                        //           },
+                                        //         ),
+                                        //       ],
+                                        //     );
+                                        //   },
+                                        // );
+
+                                        EasyLoading.show(
+                                            status: "submitting request..");
+
+                                        // print(
+                                        //     "tokenprice in screenshot: ${image1!.path}");
+                                        print(
+                                            "sahi propid price: ${widget.prop.id}");
+                                        print(
+                                            "sahi propid price: ${widget.prop.propId}");
+
+                                        Timer(Duration(seconds: 3), () async {
+                                          var response = null;
+
+                                          response = await PropertyController
+                                              .postTheSellerRequest(
+                                                  widget.prop,
+                                                  username!,
+                                                  userId!,
+                                                  nameController.text!,
+                                                  remarksController.text!,
+                                                  "null",
+                                                  "null",
+                                                  widget.prop.tokenPrice,
+                                          );
+                                          if (response == "true") {
+                                            EasyLoading.showSuccess(
+                                                "Token Sell Request Successfull");
+                                            Timer(Duration(seconds: 2), () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ShowAllVerifiedProperties(
+                                                          screenStatus: widget.screenStatus,
+                                                        )),
+                                              );
+                                            });
+                                          } else {
+                                            EasyLoading.showError(
+                                                "Token Buy Requested Failed");
+                                            Timer(Duration(seconds: 2), () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ShowAllVerifiedProperties(
+                                                          screenStatus: widget
+                                                              .screenStatus,
+                                                        )),
+                                              );
+                                            });
+                                          }
+                                        });
+
+                                        // Navigator.push(
+                                        //   context,
+                                        //   MaterialPageRoute(
+                                        //       builder: (context) =>
+                                        //           PaymentMetamask(
+                                        //             tokenPrice: widget.prop.tokenPrice,
+                                        //             prop: widget.prop,
+                                        //             name: nameController.text!,
+                                        //             remarks:
+                                        //                 remarksController.text,
+                                        //             username: username!,
+                                        //             userId: userId!,
+                                        //             screenstatus:
+                                        //                 widget.screenStatus,
+                                        //           )),
+                                        // );
                                       }
                                     },
                                     child: widget.screenStatus == 'sell'

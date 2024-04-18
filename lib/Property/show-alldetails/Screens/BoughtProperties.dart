@@ -20,6 +20,7 @@ import '../../../Token/Screen/token_screen.dart';
 import '../../../UserManagement/Feature-Dashboard/Screens/WidgetToDisplayAlltheCities.dart';
 import '../../../UserManagement/Feature-Dashboard/Widgets/Drawer/DashboardDrawer.dart';
 import '../../../config/CustomTheme.dart';
+import '../../Feature-ShowAllDetails/Screens/ShowAllVerifiedProperties.dart';
 import '../../Feature-registerNewProperty/Screens/Forms/RegisterPropertyOne.dart';
 import '../Controller/buyer_controller.dart';
 import '../Models/buyermodel.dart';
@@ -143,9 +144,8 @@ class _BoughtPropertiesState extends State<BoughtProperties> {
                                   ? const ShowAllVerifyBuy(
                                       screenStatus: "buy",
                                     )
-                                  : const ScreenToDisplayAlltheCities(
-                                      screenStatus: "buy",
-                                    )),
+                                  : const ShowAllVerifiedProperties(
+                                      screenStatus: 'buy')),
                         );
                       }, // button pressed
                       child: Column(

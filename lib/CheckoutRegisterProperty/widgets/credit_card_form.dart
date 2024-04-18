@@ -1,12 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:text_form_field_wrapper/text_form_field_wrapper.dart';
 import 'dart:async';
+import '../../UserManagement/Feature-Dashboard/Screens/common_dashboard_screen.dart';
+import '../../UserManagement/Feature-UserLogin/Screens/login_screen.dart';
 import '../widgets/validation.dart';
 import 'checkout_page.dart';
 import '../../Property/Feature-ShowAllDetails/Models/Properties.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class CreditCardForm extends StatefulWidget {
   /// The CreditCardForm is a stateful widget containing a form and fields
@@ -117,8 +122,9 @@ class CreditCardForm extends StatefulWidget {
 }
 
 class _CreditCardFormState extends State<CreditCardForm> {
+  bool isSuccess = false;
   late final GlobalKey<FormState> _formKey; // = GlobalKey<FormState>();
-
+  late Razorpay _razorpay;
   late final GlobalKey<CardPayButtonState>? payBtnKey;
 
   CardBrand brand = CardBrand.n_a;
@@ -139,6 +145,12 @@ class _CreditCardFormState extends State<CreditCardForm> {
   @override
   void initState() {
     super.initState();
+
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWallet);
+
     if (widget.formKey != null) {
       _formKey = widget.formKey!;
     } else {
@@ -159,8 +171,70 @@ class _CreditCardFormState extends State<CreditCardForm> {
     }
   }
 
+  void openCheckout(amount) async {
+    amount = amount * 100;
+    var options = {
+      'key': 'rzp_test_wUKrMpwIAok1ZY',
+      'amount': amount,
+      'name': "Property Registration Fee",
+      'prefill': {'contact ': '9029995819', 'email': 'finace.chand@gmail.com'},
+      'external': {
+        'wallets': ['paytm', 'gpay', 'phonepe']
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error : e');
+    }
+  }
+
+  void handlePaymentSuccess(PaymentSuccessResponse response) {
+    Fluttertoast.showToast(
+        msg: "Payment Succesful" + response.paymentId!,
+        toastLength: Toast.LENGTH_SHORT);
+
+    setState(() {
+      isSuccess = true;
+    });
+  }
+
+  void handlePaymentError(PaymentFailureResponse response) {
+    String resonseFromRazorpay = response.message!;
+
+    Fluttertoast.showToast(
+        msg: "Payment Succesfull",
+        toastLength: Toast.LENGTH_SHORT);
+  }
+
+  void handleExternalWallet(ExternalWalletResponse response) {
+    Fluttertoast.showToast(
+        msg: "External wallet" + response.walletName!,
+        toastLength: Toast.LENGTH_SHORT);
+  }
+
+  @override
+  void dispose() {
+//TODO:implement dispose
+    super.dispose();
+    _razorpay.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // if (isSuccess) {
+    //   Navigator.of(context)
+    //       .push(MaterialPageRoute(builder: (context) => LoginScreen()));
+    // }
+
+    if (isSuccess) {
+      EasyLoading.showSuccess("Payment successfull. Property send for registration.");
+      Future.delayed(const Duration(seconds: 5), () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
+      });
+    }
+
     if (widget.initEmail.isNotEmpty) {
       cEmail.text = widget.initEmail;
     }
@@ -180,308 +254,324 @@ class _CreditCardFormState extends State<CreditCardForm> {
       key: _formKey,
       child: Column(
         children: [
-          if (widget.displayEmail)
-            TextFormFieldWrapper(
-              formField: TextFormField(
-                controller: cEmail,
-                textAlign: TextAlign.center,
-                enabled: !widget.lockEmail,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value!.isNotEmpty &&
-                      EmailSubmitRegexValidator().isValid(value)) return null;
-                  return "Invalid";
-                },
-                decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                    prefixIcon: Text("Email"),
-                    prefixIconConstraints:
-                        BoxConstraints(minWidth: 0, minHeight: 0),
-                    border: InputBorder.none),
-              ),
+          // if (widget.displayEmail)
+          //   TextFormFieldWrapper(
+          //     formField: TextFormField(
+          //       controller: cEmail,
+          //       textAlign: TextAlign.center,
+          //       enabled: !widget.lockEmail,
+          //       keyboardType: TextInputType.emailAddress,
+          //       validator: (value) {
+          //         if (value!.isNotEmpty &&
+          //             EmailSubmitRegexValidator().isValid(value)) return null;
+          //         return "Invalid";
+          //       },
+          //       decoration: const InputDecoration(
+          //           contentPadding:
+          //               EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+          //           prefixIcon: Text("Email"),
+          //           prefixIconConstraints:
+          //               BoxConstraints(minWidth: 0, minHeight: 0),
+          //           border: InputBorder.none),
+          //     ),
+          //   ),
+          // if (widget.displayEmail)
+          //   const SizedBox(
+          //     height: 20,
+          //   ),
+          // Row(
+          //   children: const [
+          //     Padding(
+          //       padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
+          //       child: Text('Card Information'),
+          //     ),
+          //   ],
+          // ),
+          // TextFormFieldWrapper(
+          //   position: TextFormFieldPosition.top,
+          //   formField: TextFormField(
+          //     controller: cCardNumber,
+          //     keyboardType: TextInputType.number,
+          //     validator: (value) {
+          //       if (CreditNumberSubmitRegexValidator().isValid(value!)) {
+          //         return null;
+          //       }
+          //       return 'Enter a valid card number';
+          //     },
+          //     inputFormatters: [
+          //       MaskedTextInputFormatter(
+          //         mask: brand == CardBrand.amex
+          //             ? 'xxxx xxxxxxx xxxx'
+          //             : 'xxxx xxxx xxxx xxxx',
+          //         separator: ' ',
+          //       )
+          //     ],
+          //     decoration: const InputDecoration(
+          //       hintText: '1234 1234 1234 1234',
+          //       contentPadding:
+          //           EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //       border: InputBorder.none,
+          //     ),
+          //     onChanged: (input) {
+          //       CardBrand newBrand =
+          //           CardTypeRegs.findBrand(input.replaceAll(' ', ''));
+          //       if (brand != newBrand) {
+          //         setState(() {
+          //           brand = newBrand;
+          //         });
+          //       }
+          //     },
+          //   ),
+          //   suffix: _BrandsDisplay(
+          //     brand: brand,
+          //   ),
+          // ),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: TextFormFieldWrapper(
+          //         position: TextFormFieldPosition.bottomLeft,
+          //         formField: TextFormField(
+          //           controller: cExpiry,
+          //           keyboardType: TextInputType.number,
+          //           validator: (value) {
+          //             if (CreditExpirySubmitRegexValidator().isValid(value!)) {
+          //               return null;
+          //             }
+          //             return "Invalid";
+          //           },
+          //           inputFormatters: [
+          //             MaskedTextInputFormatter(
+          //               mask: 'xx/xx',
+          //               separator: '/',
+          //             )
+          //           ],
+          //           decoration: const InputDecoration(
+          //             hintText: 'MM / YY',
+          //             contentPadding:
+          //                 EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //             border: InputBorder.none,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: TextFormFieldWrapper(
+          //         position: TextFormFieldPosition.bottomRight,
+          //         formField: TextFormField(
+          //           controller: cSecurity,
+          //           validator: (value) {
+          //             if (CreditCvvSubmitRegexValidator().isValid(value!)) {
+          //               return null;
+          //             }
+          //             return "Invalid";
+          //           },
+          //           keyboardType: TextInputType.number,
+          //           inputFormatters: [
+          //             MaskedTextInputFormatter(
+          //               mask: brand == CardBrand.amex ? 'xxxx' : 'xxx',
+          //               separator: '',
+          //             )
+          //           ],
+          //           decoration: const InputDecoration(
+          //             hintText: 'CVC',
+          //             contentPadding:
+          //                 EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //             border: InputBorder.none,
+          //           ),
+          //         ),
+          //         suffix: SizedBox(
+          //           height: 30,
+          //           width: 30,
+          //           child: isCvvFront
+          //               ? Image.asset(
+          //                   'assets/images/cvv_front.png',
+          //                 )
+          //               : Image.asset(
+          //                   'assets/images/cvv_back.png',
+          //                 ),
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // Row(
+          //   children: const [
+          //     Padding(
+          //       padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
+          //       child: Text('Name on card'),
+          //     ),
+          //   ],
+          // ),
+          // TextFormFieldWrapper(
+          //   formField: TextFormField(
+          //     controller: cName,
+          //     keyboardType: TextInputType.name,
+          //     validator: (input) {
+          //       if (input!.isNotEmpty &&
+          //           CreditNameSubmitRegexValidator().isValid(input)) {
+          //         return null;
+          //       } else {
+          //         return 'Enter a valid name';
+          //       }
+          //     },
+          //     decoration: const InputDecoration(
+          //       contentPadding:
+          //           EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //       border: InputBorder.none,
+          //     ),
+          //   ),
+          // ),
+          // Row(
+          //   children: const [
+          //     Padding(
+          //       padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
+          //       child: Text('Country or region'),
+          //     ),
+          //   ],
+          // ),
+          // TextFormFieldWrapper(
+          //   position: TextFormFieldPosition.top,
+          //   formField: DropdownButtonFormField(
+          //     value: chosenCountryIndex,
+          //     items: widget.countries
+          //         .map((e) => DropdownMenuItem(
+          //               child: Text(e),
+          //               value: widget.countries.indexOf(e),
+          //             ))
+          //         .toList(),
+          //     // controller: cCountry,
+          //     decoration: const InputDecoration(
+          //       contentPadding:
+          //           EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //       border: InputBorder.none,
+          //     ),
+          //     onChanged: (widget.countries.length > 1)
+          //         ? (o) => {
+          //               setState(() {
+          //                 chosenCountryIndex = o;
+          //               })
+          //             }
+          //         : null,
+          //   ),
+          // ),
+          // TextFormFieldWrapper(
+          //   position: TextFormFieldPosition.bottom,
+          //   formField: TextFormField(
+          //     controller: cZip,
+          //     keyboardType: TextInputType.number,
+          //     validator: (input) {
+          //       if (AddressPostalSubmitRegexValidator().isValid(input!)) {
+          //         return null;
+          //       }
+          //       return 'Enter a valid zip code';
+          //     },
+          //     inputFormatters: [
+          //       MaskedTextInputFormatter(
+          //         mask: 'xxxxx',
+          //         separator: '',
+          //       )
+          //     ],
+          //     decoration: const InputDecoration(
+          //       hintText: 'ZIP',
+          //       contentPadding:
+          //           EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //       border: InputBorder.none,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(
+          //   height: 30,
+          // ),
+          // Row(
+          //   children: const [
+          //     Padding(
+          //       padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
+          //       child: Text('Phone Number'),
+          //     ),
+          //   ],
+          // ),
+          // TextFormFieldWrapper(
+          //   position: TextFormFieldPosition.alone,
+          //   formField: TextFormField(
+          //     controller: cPhone,
+          //     keyboardType: TextInputType.number,
+          //     validator: (input) {
+          //       input = input!.replaceAll('-', '');
+          //       if (PhoneRegexValidator().isValid(input)) return null;
+          //       return 'Enter a valid phone number';
+          //     },
+          //     inputFormatters: [
+          //       MaskedTextInputFormatter(
+          //         mask: 'xxx-xxx-xxxx',
+          //         separator: '-',
+          //       )
+          //     ],
+          //     decoration: const InputDecoration(
+          //       // hintText: 'Phone',
+          //       contentPadding:
+          //           EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+          //       border: InputBorder.none,
+          //     ),
+          //   ),
+          // ),
+          // const SizedBox(
+          //   height: 30,
+          // ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.lightGreen,
+              minimumSize: const Size(double.infinity, 50),
             ),
-          if (widget.displayEmail)
-            const SizedBox(
-              height: 20,
-            ),
-          Row(
-            children: const [
-              Padding(
-                padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
-                child: Text('Card Information'),
-              ),
-            ],
-          ),
-          TextFormFieldWrapper(
-            position: TextFormFieldPosition.top,
-            formField: TextFormField(
-              controller: cCardNumber,
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (CreditNumberSubmitRegexValidator().isValid(value!)) {
-                  return null;
-                }
-                return 'Enter a valid card number';
-              },
-              inputFormatters: [
-                MaskedTextInputFormatter(
-                  mask: brand == CardBrand.amex
-                      ? 'xxxx xxxxxxx xxxx'
-                      : 'xxxx xxxx xxxx xxxx',
-                  separator: ' ',
-                )
-              ],
-              decoration: const InputDecoration(
-                hintText: '1234 1234 1234 1234',
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                border: InputBorder.none,
-              ),
-              onChanged: (input) {
-                CardBrand newBrand =
-                    CardTypeRegs.findBrand(input.replaceAll(' ', ''));
-                if (brand != newBrand) {
-                  setState(() {
-                    brand = newBrand;
-                  });
-                }
-              },
-            ),
-            suffix: _BrandsDisplay(
-              brand: brand,
+            onPressed: () => {
+              openCheckout(20),
+            },
+            // onPressed: (status == CardPayButtonStatus.ready)
+            //     ? () => widget.onPressed()
+            //     : () => {},
+            child: Text(
+              "Pay",
+              style: TextStyle(color: Colors.white),
             ),
           ),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormFieldWrapper(
-                  position: TextFormFieldPosition.bottomLeft,
-                  formField: TextFormField(
-                    controller: cExpiry,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (CreditExpirySubmitRegexValidator().isValid(value!)) {
-                        return null;
-                      }
-                      return "Invalid";
-                    },
-                    inputFormatters: [
-                      MaskedTextInputFormatter(
-                        mask: 'xx/xx',
-                        separator: '/',
-                      )
-                    ],
-                    decoration: const InputDecoration(
-                      hintText: 'MM / YY',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: TextFormFieldWrapper(
-                  position: TextFormFieldPosition.bottomRight,
-                  formField: TextFormField(
-                    controller: cSecurity,
-                    validator: (value) {
-                      if (CreditCvvSubmitRegexValidator().isValid(value!)) {
-                        return null;
-                      }
-                      return "Invalid";
-                    },
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      MaskedTextInputFormatter(
-                        mask: brand == CardBrand.amex ? 'xxxx' : 'xxx',
-                        separator: '',
-                      )
-                    ],
-                    decoration: const InputDecoration(
-                      hintText: 'CVC',
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                  suffix: SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: isCvvFront
-                        ? Image.asset(
-                            'assets/images/cvv_front.png',
-                          )
-                        : Image.asset(
-                            'assets/images/cvv_back.png',
-                          ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: const [
-              Padding(
-                padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
-                child: Text('Name on card'),
-              ),
-            ],
-          ),
-          TextFormFieldWrapper(
-            formField: TextFormField(
-              controller: cName,
-              keyboardType: TextInputType.name,
-              validator: (input) {
-                if (input!.isNotEmpty &&
-                    CreditNameSubmitRegexValidator().isValid(input)) {
-                  return null;
-                } else {
-                  return 'Enter a valid name';
-                }
-              },
-              decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          Row(
-            children: const [
-              Padding(
-                padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
-                child: Text('Country or region'),
-              ),
-            ],
-          ),
-          TextFormFieldWrapper(
-            position: TextFormFieldPosition.top,
-            formField: DropdownButtonFormField(
-              value: chosenCountryIndex,
-              items: widget.countries
-                  .map((e) => DropdownMenuItem(
-                        child: Text(e),
-                        value: widget.countries.indexOf(e),
-                      ))
-                  .toList(),
-              // controller: cCountry,
-              decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                border: InputBorder.none,
-              ),
-              onChanged: (widget.countries.length > 1)
-                  ? (o) => {
-                        setState(() {
-                          chosenCountryIndex = o;
-                        })
-                      }
-                  : null,
-            ),
-          ),
-          TextFormFieldWrapper(
-            position: TextFormFieldPosition.bottom,
-            formField: TextFormField(
-              controller: cZip,
-              keyboardType: TextInputType.number,
-              validator: (input) {
-                if (AddressPostalSubmitRegexValidator().isValid(input!)) {
-                  return null;
-                }
-                return 'Enter a valid zip code';
-              },
-              inputFormatters: [
-                MaskedTextInputFormatter(
-                  mask: 'xxxxx',
-                  separator: '',
-                )
-              ],
-              decoration: const InputDecoration(
-                hintText: 'ZIP',
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          Row(
-            children: const [
-              Padding(
-                padding: EdgeInsets.fromLTRB(4, 16, 0, 4),
-                child: Text('Phone Number'),
-              ),
-            ],
-          ),
-          TextFormFieldWrapper(
-            position: TextFormFieldPosition.alone,
-            formField: TextFormField(
-              controller: cPhone,
-              keyboardType: TextInputType.number,
-              validator: (input) {
-                input = input!.replaceAll('-', '');
-                if (PhoneRegexValidator().isValid(input)) return null;
-                return 'Enter a valid phone number';
-              },
-              inputFormatters: [
-                MaskedTextInputFormatter(
-                  mask: 'xxx-xxx-xxxx',
-                  separator: '-',
-                )
-              ],
-              decoration: const InputDecoration(
-                // hintText: 'Phone',
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 5, horizontal: 16),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-          CardPayButton(
-              key: payBtnKey,
-              initStatus: CardPayButtonStatus.ready,
-              onPressed: () {
-                bool result = _formKey.currentState!.validate();
-                if (result) {
-                  _formKey.currentState!.save();
-                  widget.onCardPay(CardFormResults(
-                      email: cEmail.text,
-                      cardNumber: cCardNumber.text.replaceAll(' ', ''),
-                      cardExpiry: cExpiry.text,
-                      cardSec: cSecurity.text,
-                      name: cName.text,
-                      country: cCountry.text,
-                      zip: cZip.text,
-                      phone: '+1${cPhone.text.replaceAll('-', '')}'));
-                }
-              },
-              propName: widget.propName,
-              address: widget.address,
-              city: widget.city,
-              pincode: widget.pincode,
-              state: widget.state,
-              propValue: widget.propValue,
-              ownerName: widget.ownerName,
-              ownerId: widget.ownerId,
-              tokenRequested: widget.tokenRequested,
-              tokenName: widget.tokenName,
-              tokenSymbol: widget.tokenSymbol,
-              tokenCapacity: widget.tokenCapacity,
-              tokenSupply: widget.tokenSupply,
-              tokenBalance: widget.tokenBalance,
-              image1: widget.image1,
-              image2: widget.image2,
-              image3: widget.image3,
-              saleDeed: widget.saleDeed,
-              userName: widget.userName,
-              screenStatus: widget.screenStatus),
+          // CardPayButton(
+          //     key: payBtnKey,
+          //     initStatus: CardPayButtonStatus.ready,
+          //     onPressed: () {
+          //       bool result = _formKey.currentState!.validate();
+          //       if (result) {
+          //         _formKey.currentState!.save();
+          //         widget.onCardPay(CardFormResults(
+          //             email: cEmail.text,
+          //             cardNumber: cCardNumber.text.replaceAll(' ', ''),
+          //             cardExpiry: cExpiry.text,
+          //             cardSec: cSecurity.text,
+          //             name: cName.text,
+          //             country: cCountry.text,
+          //             zip: cZip.text,
+          //             phone: '+1${cPhone.text.replaceAll('-', '')}'));
+          //       }
+          //     },
+          //     propName: widget.propName,
+          //     address: widget.address,
+          //     city: widget.city,
+          //     pincode: widget.pincode,
+          //     state: widget.state,
+          //     propValue: widget.propValue,
+          //     ownerName: widget.ownerName,
+          //     ownerId: widget.ownerId,
+          //     tokenRequested: widget.tokenRequested,
+          //     tokenName: widget.tokenName,
+          //     tokenSymbol: widget.tokenSymbol,
+          //     tokenCapacity: widget.tokenCapacity,
+          //     tokenSupply: widget.tokenSupply,
+          //     tokenBalance: widget.tokenBalance,
+          //     image1: widget.image1,
+          //     image2: widget.image2,
+          //     image3: widget.image3,
+          //     saleDeed: widget.saleDeed,
+          //     userName: widget.userName,
+          //     screenStatus: widget.screenStatus),
         ],
       ),
     );

@@ -205,7 +205,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       // These are example url links only. Use your own links in live code
       privacyLink: 'https://stripe.com/privacy',
       termsLink: 'https://stripe.com/payment-terms/legal',
-      note: 'Powered By Not_Stripe',
+      note: 'Powered By RazorPay',
       noteLink: 'https://stripe.com/',
     );
 
