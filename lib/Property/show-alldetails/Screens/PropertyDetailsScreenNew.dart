@@ -1101,7 +1101,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                             });
                                           } else {
                                             EasyLoading.showError(
-                                                "Token Buy Requested Failed");
+                                                "Token Sell Requested Failed");
                                             Timer(Duration(seconds: 2), () {
                                               Navigator.push(
                                                 context,

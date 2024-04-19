@@ -254,35 +254,6 @@ class _CreditCardFormState extends State<CreditCardForm> {
             msg: "${widget.propName} registered", toastLength: Toast.LENGTH_SHORT);
       }
     });
-
-    //
-    // Fluttertoast.showToast(
-    //     msg: "Payment Suc// Fluttertoast.showToast(
-    //     //     msg: "Submitting request.....please wait", toastLength: Toast.LENGTH_SHORT);cesfull.", toastLength: Toast.LENGTH_SHORT);
-
-    // Timer(Duration(seconds: 1), () async {
-    //
-    //   EasyLoading.show(status: "submitting property registration request...");
-    //
-    //   var response = null;
-    //
-    //   response = await RegisterPropertyController.registerProperty(rpm);
-    //
-    //   if (response == "true") {
-    //     Fluttertoast.showToast(
-    //         msg: "${widget.propName} registered successfully", toastLength: Toast.LENGTH_SHORT);
-    //
-    //     Timer(const Duration(seconds: 3), () {
-    //       Navigator.push(
-    //         context,
-    //         MaterialPageRoute(builder: (context) => DashboardScreen()),
-    //       );
-    //     });
-    //   } else {
-    //     Fluttertoast.showToast(
-    //         msg: "Buy request Failed", toastLength: Toast.LENGTH_SHORT);
-    //   }
-    // });
   }
 
   void handlePaymentError(PaymentFailureResponse response) {

@@ -175,8 +175,6 @@ class _CreditCardFormState extends State<CreditCardForm> {
         msg: "Submitting request.....please wait", toastLength: Toast.LENGTH_LONG);
     Timer(Duration(seconds: 1), () async {
 
-      EasyLoading.show(status: "submitting buy request...");
-
       var response = null;
 
       response = await PropertyController.postTheBuyerRequest(widget.prop!,
