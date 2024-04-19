@@ -83,6 +83,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   bool isChecked = false;
   String? username;
   String? userId;
+  String? email;
   int? tokenBalance;
 
   double? tokenPrice;
@@ -118,6 +119,8 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
     setState(() {
       username = prefs.getString('username');
       userId = prefs.getString('userId');
+      email = prefs.getString("email");
+
       print("99999999999999999999999999999999");
       print(username);
       print(userId);
@@ -159,7 +162,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
       EasyLoading.showSuccess("Payment successfull. Buy request submitted.");
       Future.delayed(const Duration(seconds: 5), () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
+            .push(MaterialPageRoute(builder: (context) => DashboardScreen(email: email!,)));
       });
     }
 
@@ -1106,7 +1109,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                         EasyLoading.show(status: "loading...");
 
                                         if (widget.screenStatus == "buy") {
-                                          openCheckout(nameController.text!);
+                                          openCheckout(widget.prop.tokenPrice);
                                           // Navigator.push(
                                           //   context,
                                           //   MaterialPageRoute(

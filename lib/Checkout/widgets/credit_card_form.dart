@@ -1,7 +1,7 @@
-import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_form_field_wrapper/text_form_field_wrapper.dart';
 import 'dart:async';
 import '../../UserManagement/Feature-Dashboard/Screens/common_dashboard_screen.dart';
@@ -11,6 +11,7 @@ import 'checkout_page.dart';
 import '../../Property/Feature-ShowAllDetails/Models/Properties.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import "../../Property/Feature-ShowAllDetails/Controller/PropertyController.dart";
 
 class CreditCardForm extends StatefulWidget {
   final String? propertyName;
@@ -97,6 +98,11 @@ class _CreditCardFormState extends State<CreditCardForm> {
   late final GlobalKey<FormState> _formKey; // = GlobalKey<FormState>();
   late Razorpay _razorpay;
   bool isSuccess = false;
+  String? username;
+  String? photo;
+  String? mobile;
+  String? email;
+  String? userType;
   late final GlobalKey<CardPayButtonState>? payBtnKey;
 
   CardBrand brand = CardBrand.n_a;
@@ -117,6 +123,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
   @override
   void initState() {
     super.initState();
+    getUsername();
 
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccess);
@@ -163,10 +170,32 @@ class _CreditCardFormState extends State<CreditCardForm> {
 
   void handlePaymentSuccess(PaymentSuccessResponse response) {
     Fluttertoast.showToast(
-        msg: "Payment Succesful" + response.paymentId!,
-        toastLength: Toast.LENGTH_SHORT);
-    setState(() {
-      isSuccess = true;
+        msg: "Payment Succesful.", toastLength: Toast.LENGTH_SHORT);
+    Fluttertoast.showToast(
+        msg: "Submitting request.....please wait", toastLength: Toast.LENGTH_LONG);
+    Timer(Duration(seconds: 1), () async {
+
+      EasyLoading.show(status: "submitting buy request...");
+
+      var response = null;
+
+      response = await PropertyController.postTheBuyerRequest(widget.prop!,
+          username!, username!, widget.tokenCount!, widget.remarks!);
+
+      if (response == "true") {
+        Fluttertoast.showToast(
+            msg: "Buy request submitted successfully", toastLength: Toast.LENGTH_SHORT);
+
+        Timer(const Duration(seconds: 3), () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DashboardScreen(email: email!,)),
+          );
+        });
+      } else {
+        Fluttertoast.showToast(
+            msg: "Buy request Failed", toastLength: Toast.LENGTH_SHORT);
+      }
     });
   }
 
@@ -189,17 +218,20 @@ class _CreditCardFormState extends State<CreditCardForm> {
     _razorpay.clear();
   }
 
+  Future<void> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username');
+      photo = prefs.getString("photo");
+      mobile = prefs.getString("mobile");
+      email = prefs.getString("email");
+      userType = prefs.getString("userType");
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
 
-    if (isSuccess) {
-      EasyLoading.showSuccess("Payment successfull. Buy request submitted.");
-      Future.delayed(const Duration(seconds: 5), () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
-      });
-    }
-    
     if (widget.initEmail.isNotEmpty) {
       cEmail.text = widget.initEmail;
     }
@@ -489,7 +521,10 @@ class _CreditCardFormState extends State<CreditCardForm> {
               minimumSize: const Size(double.infinity, 50),
             ),
             onPressed: () => {
-              openCheckout(10),
+              // callApi("", "", "", ""),
+
+
+              openCheckout((int.parse(widget.tokenCount!) * int.parse(widget.tokenPrice!.split(".")[0])) + 20),
             },
             // onPressed: (status == CardPayButtonStatus.ready)
             //     ? () => widget.onPressed()

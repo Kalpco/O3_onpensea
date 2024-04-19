@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:text_form_field_wrapper/text_form_field_wrapper.dart';
 import 'dart:async';
+import '../../Property/Feature-registerNewProperty/Controller/RegisterPropertyController.dart';
+import '../../Property/Feature-registerNewProperty/Model/RegisterPropertyModel.dart';
 import '../../UserManagement/Feature-Dashboard/Screens/common_dashboard_screen.dart';
 import '../../UserManagement/Feature-UserLogin/Screens/login_screen.dart';
 import '../widgets/validation.dart';
@@ -125,6 +128,11 @@ class _CreditCardFormState extends State<CreditCardForm> {
   bool isSuccess = false;
   late final GlobalKey<FormState> _formKey; // = GlobalKey<FormState>();
   late Razorpay _razorpay;
+  String? username;
+  String? photo;
+  String? mobile;
+  String? email;
+  String? userType;
   late final GlobalKey<CardPayButtonState>? payBtnKey;
 
   CardBrand brand = CardBrand.n_a;
@@ -145,7 +153,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
   @override
   void initState() {
     super.initState();
-
+    getUsername();
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentError);
@@ -171,6 +179,17 @@ class _CreditCardFormState extends State<CreditCardForm> {
     }
   }
 
+  Future<void> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username');
+      photo = prefs.getString("photo");
+      mobile = prefs.getString("mobile");
+      email = prefs.getString("email");
+      userType = prefs.getString("userType");
+    });
+  }
+
   void openCheckout(amount) async {
     amount = amount * 100;
     var options = {
@@ -191,20 +210,86 @@ class _CreditCardFormState extends State<CreditCardForm> {
 
   void handlePaymentSuccess(PaymentSuccessResponse response) {
     Fluttertoast.showToast(
-        msg: "Payment Succesful" + response.paymentId!,
-        toastLength: Toast.LENGTH_SHORT);
+        msg: "Payment Succesfull.", toastLength: Toast.LENGTH_SHORT);
 
-    setState(() {
-      isSuccess = true;
+    Timer(Duration(seconds: 1), () async {
+
+      Fluttertoast.showToast(
+          msg: "Submitting request.....please wait",
+          toastLength: Toast.LENGTH_LONG);
+
+      var response = await RegisterPropertyController.registerProperty(
+          widget.propName!,
+          widget.address!,
+          widget.city!,
+          widget.pincode!,
+          widget.state!,
+          widget.propValue!,
+          username!,
+          widget.ownerId!,
+          widget.tokenRequested!,
+          widget.tokenName!,
+          widget.tokenSymbol!,
+          widget.tokenCapacity!,
+          widget.tokenSupply!,
+          widget.tokenBalance!,
+          widget.image1,
+          widget.image2,
+          widget.image3,
+          widget.saleDeed,
+          username);
+
+      if (response == "true") {
+        Fluttertoast.showToast(
+            msg: "${widget.propName} registered successfully",
+            toastLength: Toast.LENGTH_SHORT);
+            Timer(const Duration(seconds: 2), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardScreen(email: email!,)),
+              );
+            });
+      } else {
+        Fluttertoast.showToast(
+            msg: "${widget.propName} registered", toastLength: Toast.LENGTH_SHORT);
+      }
     });
+
+    //
+    // Fluttertoast.showToast(
+    //     msg: "Payment Suc// Fluttertoast.showToast(
+    //     //     msg: "Submitting request.....please wait", toastLength: Toast.LENGTH_SHORT);cesfull.", toastLength: Toast.LENGTH_SHORT);
+
+    // Timer(Duration(seconds: 1), () async {
+    //
+    //   EasyLoading.show(status: "submitting property registration request...");
+    //
+    //   var response = null;
+    //
+    //   response = await RegisterPropertyController.registerProperty(rpm);
+    //
+    //   if (response == "true") {
+    //     Fluttertoast.showToast(
+    //         msg: "${widget.propName} registered successfully", toastLength: Toast.LENGTH_SHORT);
+    //
+    //     Timer(const Duration(seconds: 3), () {
+    //       Navigator.push(
+    //         context,
+    //         MaterialPageRoute(builder: (context) => DashboardScreen()),
+    //       );
+    //     });
+    //   } else {
+    //     Fluttertoast.showToast(
+    //         msg: "Buy request Failed", toastLength: Toast.LENGTH_SHORT);
+    //   }
+    // });
   }
 
   void handlePaymentError(PaymentFailureResponse response) {
     String resonseFromRazorpay = response.message!;
 
     Fluttertoast.showToast(
-        msg: "Payment Succesfull",
-        toastLength: Toast.LENGTH_SHORT);
+        msg: "Payment Succesfull", toastLength: Toast.LENGTH_SHORT);
   }
 
   void handleExternalWallet(ExternalWalletResponse response) {
@@ -222,19 +307,6 @@ class _CreditCardFormState extends State<CreditCardForm> {
 
   @override
   Widget build(BuildContext context) {
-    // if (isSuccess) {
-    //   Navigator.of(context)
-    //       .push(MaterialPageRoute(builder: (context) => LoginScreen()));
-    // }
-
-    if (isSuccess) {
-      EasyLoading.showSuccess("Payment successfull. Property send for registration.");
-      Future.delayed(const Duration(seconds: 5), () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => DashboardScreen()));
-      });
-    }
-
     if (widget.initEmail.isNotEmpty) {
       cEmail.text = widget.initEmail;
     }
@@ -524,6 +596,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
               minimumSize: const Size(double.infinity, 50),
             ),
             onPressed: () => {
+              print("register"),
               openCheckout(20),
             },
             // onPressed: (status == CardPayButtonStatus.ready)

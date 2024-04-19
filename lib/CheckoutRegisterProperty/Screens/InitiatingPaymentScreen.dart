@@ -119,7 +119,25 @@ class _InitiatingPaymentScreenState extends State<InitiatingPaymentScreen> {
 
     Timer(duration, () async {
 
-      final response = await RegisterPropertyController.registerProperty(rpm);
+      final response = await RegisterPropertyController.registerProperty(widget.propName!,
+          widget.address!,
+          widget.city!,
+          widget.pincode!,
+          widget.state!,
+          widget.propValue!,
+          username!,
+          widget.ownerId!,
+          widget.tokenRequested!,
+          widget.tokenName!,
+          widget.tokenSymbol!,
+          widget.tokenCapacity!,
+          widget.tokenSupply!,
+          widget.tokenBalance!,
+          widget.image1,
+          widget.image2,
+          widget.image3,
+          widget.saleDeed,
+          username);
 
       if (response == "true") {
         EasyLoading.showSuccess("payment successfull");
