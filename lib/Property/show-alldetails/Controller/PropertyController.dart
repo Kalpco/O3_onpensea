@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:onpensea/config/ApiUrl.dart';
 
 class PropertyController {
+
   static Future<List<Properties>> fetchProperties() async {
     final url = "${ApiUrl.API_URL_PROPERTY}prop/getPropPending?status=V";
 
