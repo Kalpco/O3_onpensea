@@ -10,11 +10,14 @@ import 'package:syncfusion_flutter_maps/maps.dart';
 import '../../../Checkout/Screens/CheckoutScreen.dart';
 import '../../../config/CustomTheme.dart';
 import '../../Property/Feature-ShowAllDetails/Screens/ShowAllVerifiedProperties.dart';
+import '../../UserManagement/Feature-Dashboard/Screens/common_dashboard_screen.dart';
 import '../Models/Properties.dart';
 import '../Widgets/carousel_slider.dart';
 import '../Widgets/page_wrapper.dart';
 import "../Controller/PropertyController.dart";
 import 'all_movie_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PropertyDetailsScreenNew extends StatefulWidget {
   final Properties prop;
@@ -31,11 +34,56 @@ class PropertyDetailsScreenNew extends StatefulWidget {
 class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  late Razorpay _razorpay;
+  bool isSuccess = false;
+  TextEditingController amtController = TextEditingController();
+
+  void openCheckout(amount) async {
+    amount = amount * 100;
+    var options = {
+      'key': 'rzp_test_wUKrMpwIAok1ZY',
+      'amount': amount,
+      'name': 'Pulkit',
+      'prefill': {'contact ': '1234567890', 'email': 'test@gmail.com'},
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error : e');
+    }
+  }
+
+  void handlePaymentSuccess(PaymentSuccessResponse response) {
+    Fluttertoast.showToast(
+        msg: "Payment Succesful" + response.paymentId!,
+        toastLength: Toast.LENGTH_SHORT);
+    setState(() {
+      isSuccess = true;
+    });
+  }
+
+  void handlePaymentError(PaymentFailureResponse response) {
+    Fluttertoast.showToast(
+        msg: "Payment Succesful" + response.message!,
+        toastLength: Toast.LENGTH_SHORT);
+  }
+
+  void handleExternalWallet(ExternalWalletResponse response) {
+    Fluttertoast.showToast(
+        msg: "External wallet" + response.walletName!,
+        toastLength: Toast.LENGTH_SHORT);
+  }
+
+
   static TextEditingController nameController = TextEditingController();
   static TextEditingController remarksController = TextEditingController();
   bool isChecked = false;
   String? username;
   String? userId;
+  String? email;
   int? tokenBalance;
 
   double? tokenPrice;
@@ -56,6 +104,10 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   @override
   void initState() {
     super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWallet);
     nameController.text = "";
     remarksController.text = "";
     callApi();
@@ -67,6 +119,8 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
     setState(() {
       username = prefs.getString('username');
       userId = prefs.getString('userId');
+      email = prefs.getString("email");
+
       print("99999999999999999999999999999999");
       print(username);
       print(userId);
@@ -75,10 +129,12 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
 
   @override
   void dispose() {
+    super.dispose();
     _formKey.currentState!.dispose();
     nameController.dispose();
     remarksController.dispose;
-    super.dispose();
+
+    _razorpay.clear();
   }
 
   Future<void> getUpdatedTokenCount(String tokenName) async {
@@ -101,6 +157,16 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (isSuccess) {
+      EasyLoading.showSuccess("Payment successfull. Buy request submitted.");
+      Future.delayed(const Duration(seconds: 5), () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => DashboardScreen(email: email!,)));
+      });
+    }
+
+
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
 
@@ -1043,6 +1109,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                         EasyLoading.show(status: "loading...");
 
                                         if (widget.screenStatus == "buy") {
+                                          openCheckout(widget.prop.tokenPrice);
                                           // Navigator.push(
                                           //   context,
                                           //   MaterialPageRoute(

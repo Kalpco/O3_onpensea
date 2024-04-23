@@ -187,7 +187,14 @@ class _OtpScreen4 extends State<OtpScreen4> {
           passwordControllerTextField(size),
           //this is the gender controller
           SizedBox(
-            height: size.height * 0.03,
+            height: size.height * 0.01,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text("Do you wish to connect metamask? You can register without metamask?."),
+          ),
+          SizedBox(
+            height: 10,
           ),
           W3MConnectWalletButton(service: _w3mService),
           SizedBox(
@@ -494,7 +501,7 @@ class _OtpScreen4 extends State<OtpScreen4> {
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
 
-      request.fields['walletAddress'] = walletAddress ! ?? "NA";
+      request.fields['walletAddress'] = walletAddress! ?? "NA";
       request.fields['name'] = widget.name;
       request.fields['fatherName'] = widget.fatherName;
       request.fields['geneder'] = widget.gender;

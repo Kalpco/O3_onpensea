@@ -430,9 +430,10 @@ class _ShowAllPendingPropertiesTokenViewState
     );
   }
 
-  Widget appBarActionButton(AppbarActionType type) {
-    IconData icon = Icons.chevron_left;
+  Widget appBarActionButton(AppbarActionType type, String email) {
 
+    IconData icon = Icons.chevron_left;
+    String emailP = email;
     if (type == AppbarActionType.trailing) {
       icon = Icons.search;
     }
@@ -444,9 +445,10 @@ class _ShowAllPendingPropertiesTokenViewState
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(),
         onPressed: () {
+          String email = emailP;
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            MaterialPageRoute(builder: (context) => const DashboardScreen(email: "singhhpulkit@gmail.com",)),
           );
         },
         icon: Icon(icon, color: Colors.black),
@@ -474,7 +476,7 @@ class _ShowAllPendingPropertiesTokenViewState
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                appBarActionButton(AppbarActionType.leading),
+                appBarActionButton(AppbarActionType.leading, email!),
                 // appBarActionButton(AppbarActionType.trailing),
               ],
             ),

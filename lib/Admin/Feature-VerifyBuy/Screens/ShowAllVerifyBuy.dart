@@ -446,7 +446,7 @@ class _ShowAllVerifyBuyViewState extends State<ShowAllVerifyBuy> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DashboardScreen()),
+            MaterialPageRoute(builder: (context) => const DashboardScreen(email: "singhhpulkit@gmail.com",)),
           );
         },
         icon: Icon(icon, color: Colors.black),

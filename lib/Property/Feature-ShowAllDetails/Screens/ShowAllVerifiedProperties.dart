@@ -141,9 +141,8 @@ class _ShowAllVerifiedPropertiesViewState
                                   ? const ShowAllVerifyBuy(
                                       screenStatus: "buy",
                                     )
-                                  : const ScreenToDisplayAlltheCities(
-                                      screenStatus: "buy",
-                                    )),
+                                  : const ShowAllVerifiedProperties(
+                                  screenStatus: 'buy')),
                         );
                       }, // button pressed
                       child: Column(

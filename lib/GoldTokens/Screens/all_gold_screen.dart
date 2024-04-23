@@ -415,9 +415,8 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                                 ? const ShowAllVerifyBuy(
                                     screenStatus: "buy",
                                   )
-                                : const ScreenToDisplayAlltheCities(
-                                    screenStatus: "buy",
-                                  )),
+                                : const ShowAllVerifiedProperties(
+                                screenStatus: 'buy')),
                       );
                     }, // button pressed
                     child: Column(
@@ -425,7 +424,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                       children: const <Widget>[
                         Icon(Icons.bubble_chart),
                         SizedBox(
-                          height: 3,
+                          height: 2,
                         ),
 
                         /// icon
@@ -461,7 +460,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                       children: const <Widget>[
                         Icon(Icons.sell),
                         SizedBox(
-                          height: 3,
+                          height: 2,
                         ), // icon
                         Text("Sell"),
 
@@ -495,7 +494,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                       children: const <Widget>[
                         Icon(Icons.house),
                         SizedBox(
-                          height: 3,
+                          height: 2,
                         ),
 
                         /// icon
@@ -525,7 +524,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                       children: const <Widget>[
                         Icon(Icons.devices_other),
                         SizedBox(
-                          height: 3,
+                          height: 2,
                         ), // icon
                         Text("Holdings"), // text
                       ],

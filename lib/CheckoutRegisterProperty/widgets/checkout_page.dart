@@ -359,272 +359,272 @@ class CheckoutPage extends StatelessWidget {
                 child: Column(
                   children: [
                     if (displayNativePay) const SizedBox(height: _spacing * 2),
-                    if (displayNativePay)
-                      Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  // minimumSize: const Size(double.infinity, 50),
-                                ),
-                                onPressed: () {
-                                  if (onNativePay != null) {
-                                    onNativePay!();
-                                  }
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                      height: 18,
-                                      width: 18,
-                                      child: Image.asset(
-                                        isApple
-                                            ? 'assets/images/apple-32.png'
-                                            : 'assets/images/G_mark_small.png',
-                                      ),
-                                    ),
-                                    Text(
-                                      'Pay',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: isApple
-                                              ? FontWeight.w500
-                                              : FontWeight.w400,
-                                          color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  // minimumSize: const Size(double.infinity, 50),
-                                ),
-                                onPressed: () {
-                                  if (onNativePay != null) {
-                                    onNativePay!();
-                                  }
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                      height: 18,
-                                      width: 18,
-                                      child: Image.asset(
-                                        isApple
-                                            ? 'assets/images/apple-32.png'
-                                            : 'assets/images/phonepeIcon.png',
-                                      ),
-                                    ),
-                                    Text(
-                                      'Phone Pay',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: isApple
-                                              ? FontWeight.w500
-                                              : FontWeight.w400,
-                                          color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  // minimumSize: const Size(double.infinity, 50),
-                                ),
-                                onPressed: () {
-                                  if (onNativePay != null) {
-                                    onNativePay!();
-                                  }
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      margin:
-                                          const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                      height: 18,
-                                      width: 18,
-                                      child: Image.asset(
-                                        isApple
-                                            ? 'assets/images/apple-32.png'
-                                            : 'assets/images/upiIcon.jpg',
-                                      ),
-                                    ),
-                                    Text(
-                                      'UPI',
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: isApple
-                                              ? FontWeight.w500
-                                              : FontWeight.w400,
-                                          color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    if (_displayOrCash)
-                      const SizedBox(
-                        height: _spacing,
-                      ),
-                    if (_displayOrCash)
-                      Row(
-                        children: const [
-                          Expanded(
-                            child: Divider(
-                              thickness: _dividerThickness,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: _padding),
-                            child: Text('Or pay with Internet Banking'),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              thickness: _dividerThickness,
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (displayCashPay) const SizedBox(height: _spacing),
-                    if (displayCashPay)
-                      Column(
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              minimumSize: const Size(double.infinity, 50),
-                            ),
-                            onPressed: () {
-                              if (onCashPay != null) {
-                                onCashPay!();
-                              }
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                                  height: 32,
-                                  width: 32,
-                                  child: Image.asset(
-                                    'assets/images/pay_option_cash.png', //assets/images/pay_option_cash.png
-                                  ),
-                                ),
-                                Text(
-                                  'Internet Banking',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: isApple
-                                          ? FontWeight.w500
-                                          : FontWeight.w400,
-                                      color: Colors.white),
-                                )
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              hint: Text(
-                                "Select your bank",
-                                style: GoogleFonts.poppins(
-                                  textStyle:
-                                      Theme.of(context).textTheme.displayLarge,
-                                  fontSize: 20,
-                                  color: Colors.black38,
-                                  fontWeight: FontWeight.w400,
-                                  fontStyle: FontStyle.normal,
-                                ),
-                              ),
-                              items: <String>[
-                                'IDBI',
-                                'CENTRAL BANK OF INDIA',
-                                'AXIS BANK',
-                                'KOTAK BANK'
-                              ].map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(
-                                    value,
-                                    style: GoogleFonts.poppins(
-                                      textStyle: Theme.of(context)
-                                          .textTheme
-                                          .displayLarge,
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w400,
-                                      fontStyle: FontStyle.normal,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (_) {
-
-                              },
-                            ),
-                          )
-                        ],
-                      ),
-                    if (_displayCashPrice)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 12.0, bottom: 8.0),
-                        child: Text(
-                          'Discounted price of',
-                          style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey,
-                              fontSize: 12),
-                        ),
-                      ),
-                    if (_displayCashPrice)
-                      Text(
-                        '\$${cashPrice!.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                            fontStyle: FontStyle.italic, color: Colors.grey),
-                      ),
-                    if (_displayOrCard)
-                      const SizedBox(
-                        height: _spacing,
-                      ),
-                    if (_displayOrCard)
-                      Row(
-                        children: const [
-                          Expanded(
-                            child: Divider(
-                              thickness: _dividerThickness,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: _padding),
-                            child: Text('Or pay with Card'),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              thickness: _dividerThickness,
-                            ),
-                          ),
-                        ],
-                      ),
-                    const SizedBox(
-                      height: _spacing,
-                    ),
+                    // if (displayNativePay)
+                    //   Column(
+                    //     children: [
+                    //       Row(
+                    //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    //         children: [
+                    //           ElevatedButton(
+                    //             style: ElevatedButton.styleFrom(
+                    //               backgroundColor: Colors.black,
+                    //               // minimumSize: const Size(double.infinity, 50),
+                    //             ),
+                    //             onPressed: () {
+                    //               if (onNativePay != null) {
+                    //                 onNativePay!();
+                    //               }
+                    //             },
+                    //             child: Row(
+                    //               mainAxisAlignment: MainAxisAlignment.center,
+                    //               children: [
+                    //                 Container(
+                    //                   margin:
+                    //                       const EdgeInsets.fromLTRB(0, 0, 1, 0),
+                    //                   height: 18,
+                    //                   width: 18,
+                    //                   child: Image.asset(
+                    //                     isApple
+                    //                         ? 'assets/images/apple-32.png'
+                    //                         : 'assets/images/G_mark_small.png',
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   'Pay',
+                    //                   style: TextStyle(
+                    //                       fontSize: 14,
+                    //                       fontWeight: isApple
+                    //                           ? FontWeight.w500
+                    //                           : FontWeight.w400,
+                    //                       color: Colors.white),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //           ElevatedButton(
+                    //             style: ElevatedButton.styleFrom(
+                    //               backgroundColor: Colors.black,
+                    //               // minimumSize: const Size(double.infinity, 50),
+                    //             ),
+                    //             onPressed: () {
+                    //               if (onNativePay != null) {
+                    //                 onNativePay!();
+                    //               }
+                    //             },
+                    //             child: Row(
+                    //               mainAxisAlignment: MainAxisAlignment.center,
+                    //               children: [
+                    //                 Container(
+                    //                   margin:
+                    //                       const EdgeInsets.fromLTRB(0, 0, 1, 0),
+                    //                   height: 18,
+                    //                   width: 18,
+                    //                   child: Image.asset(
+                    //                     isApple
+                    //                         ? 'assets/images/apple-32.png'
+                    //                         : 'assets/images/phonepeIcon.png',
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   'Phone Pay',
+                    //                   style: TextStyle(
+                    //                       fontSize: 14,
+                    //                       fontWeight: isApple
+                    //                           ? FontWeight.w500
+                    //                           : FontWeight.w400,
+                    //                       color: Colors.white),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //           ElevatedButton(
+                    //             style: ElevatedButton.styleFrom(
+                    //               backgroundColor: Colors.black,
+                    //               // minimumSize: const Size(double.infinity, 50),
+                    //             ),
+                    //             onPressed: () {
+                    //               if (onNativePay != null) {
+                    //                 onNativePay!();
+                    //               }
+                    //             },
+                    //             child: Row(
+                    //               mainAxisAlignment: MainAxisAlignment.center,
+                    //               children: [
+                    //                 Container(
+                    //                   margin:
+                    //                       const EdgeInsets.fromLTRB(0, 0, 1, 0),
+                    //                   height: 18,
+                    //                   width: 18,
+                    //                   child: Image.asset(
+                    //                     isApple
+                    //                         ? 'assets/images/apple-32.png'
+                    //                         : 'assets/images/upiIcon.jpg',
+                    //                   ),
+                    //                 ),
+                    //                 Text(
+                    //                   'UPI',
+                    //                   style: TextStyle(
+                    //                       fontSize: 14,
+                    //                       fontWeight: isApple
+                    //                           ? FontWeight.w500
+                    //                           : FontWeight.w400,
+                    //                       color: Colors.white),
+                    //                 ),
+                    //               ],
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ],
+                    //   ),
+                    // if (_displayOrCash)
+                    //   const SizedBox(
+                    //     height: _spacing,
+                    //   ),
+                    // if (_displayOrCash)
+                    //   Row(
+                    //     children: const [
+                    //       Expanded(
+                    //         child: Divider(
+                    //           thickness: _dividerThickness,
+                    //         ),
+                    //       ),
+                    //       Padding(
+                    //         padding: EdgeInsets.symmetric(horizontal: _padding),
+                    //         child: Text('Or pay with Internet Banking'),
+                    //       ),
+                    //       Expanded(
+                    //         child: Divider(
+                    //           thickness: _dividerThickness,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // if (displayCashPay) const SizedBox(height: _spacing),
+                    // if (displayCashPay)
+                    //   Column(
+                    //     children: [
+                    //       ElevatedButton(
+                    //         style: ElevatedButton.styleFrom(
+                    //           backgroundColor: Colors.green,
+                    //           minimumSize: const Size(double.infinity, 50),
+                    //         ),
+                    //         onPressed: () {
+                    //           if (onCashPay != null) {
+                    //             onCashPay!();
+                    //           }
+                    //         },
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.center,
+                    //           children: [
+                    //             Container(
+                    //               margin: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                    //               height: 32,
+                    //               width: 32,
+                    //               child: Image.asset(
+                    //                 'assets/images/pay_option_cash.png', //assets/images/pay_option_cash.png
+                    //               ),
+                    //             ),
+                    //             Text(
+                    //               'Internet Banking',
+                    //               style: TextStyle(
+                    //                   fontSize: 18,
+                    //                   fontWeight: isApple
+                    //                       ? FontWeight.w500
+                    //                       : FontWeight.w400,
+                    //                   color: Colors.white),
+                    //             )
+                    //           ],
+                    //         ),
+                    //       ),
+                    //       const SizedBox(height: 20),
+                    //       Padding(
+                    //         padding: const EdgeInsets.all(8.0),
+                    //         child: DropdownButton<String>(
+                    //           isExpanded: true,
+                    //           hint: Text(
+                    //             "Select your bank",
+                    //             style: GoogleFonts.poppins(
+                    //               textStyle:
+                    //                   Theme.of(context).textTheme.displayLarge,
+                    //               fontSize: 20,
+                    //               color: Colors.black38,
+                    //               fontWeight: FontWeight.w400,
+                    //               fontStyle: FontStyle.normal,
+                    //             ),
+                    //           ),
+                    //           items: <String>[
+                    //             'IDBI',
+                    //             'CENTRAL BANK OF INDIA',
+                    //             'AXIS BANK',
+                    //             'KOTAK BANK'
+                    //           ].map((String value) {
+                    //             return DropdownMenuItem<String>(
+                    //               value: value,
+                    //               child: Text(
+                    //                 value,
+                    //                 style: GoogleFonts.poppins(
+                    //                   textStyle: Theme.of(context)
+                    //                       .textTheme
+                    //                       .displayLarge,
+                    //                   fontSize: 20,
+                    //                   color: Colors.black,
+                    //                   fontWeight: FontWeight.w400,
+                    //                   fontStyle: FontStyle.normal,
+                    //                 ),
+                    //               ),
+                    //             );
+                    //           }).toList(),
+                    //           onChanged: (_) {
+                    //
+                    //           },
+                    //         ),
+                    //       )
+                    //     ],
+                    //   ),
+                    // if (_displayCashPrice)
+                    //   const Padding(
+                    //     padding: EdgeInsets.only(top: 12.0, bottom: 8.0),
+                    //     child: Text(
+                    //       'Discounted price of',
+                    //       style: TextStyle(
+                    //           fontStyle: FontStyle.italic,
+                    //           color: Colors.grey,
+                    //           fontSize: 12),
+                    //     ),
+                    //   ),
+                    // if (_displayCashPrice)
+                    //   Text(
+                    //     '\$${cashPrice!.toStringAsFixed(2)}',
+                    //     style: const TextStyle(
+                    //         fontStyle: FontStyle.italic, color: Colors.grey),
+                    //   ),
+                    // if (_displayOrCard)
+                    //   const SizedBox(
+                    //     height: _spacing,
+                    //   ),
+                    // if (_displayOrCard)
+                    //   Row(
+                    //     children: const [
+                    //       Expanded(
+                    //         child: Divider(
+                    //           thickness: _dividerThickness,
+                    //         ),
+                    //       ),
+                    //       Padding(
+                    //         padding: EdgeInsets.symmetric(horizontal: _padding),
+                    //         child: Text('Or pay with Card'),
+                    //       ),
+                    //       Expanded(
+                    //         child: Divider(
+                    //           thickness: _dividerThickness,
+                    //         ),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // const SizedBox(
+                    //   height: _spacing,
+                    // ),
                     CreditCardForm(
                       formKey: formKey,
                       onCardPay: (CardFormResults results) =>

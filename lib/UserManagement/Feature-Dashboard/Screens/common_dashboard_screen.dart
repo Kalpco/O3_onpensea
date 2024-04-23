@@ -32,7 +32,7 @@ import 'WidgetToDisplayAlltheCities.dart';
 class DashboardScreen extends StatefulWidget {
   final String? email;
 
-  const DashboardScreen({super.key, this.email = "singhhpulkit@gmail.com"});
+  const DashboardScreen({super.key, required this.email});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreen();
@@ -193,7 +193,7 @@ class _DashboardScreen extends State<DashboardScreen> {
         ],
       ),
       drawer: DashboardDrawer(
-          walletAddress : walletAddress,
+          walletAddress: walletAddress,
           userType: userType ?? "",
           username: username ?? "",
           email: email ?? "",
@@ -290,8 +290,9 @@ class _DashboardScreen extends State<DashboardScreen> {
                   const SizedBox(
                     height: 80,
                   ),
+                 YourTableWidget(),
 
-                  YourTableWidget(),
+
                   const SizedBox(
                     height: 80,
                   ),
@@ -343,13 +344,20 @@ class _DashboardScreen extends State<DashboardScreen> {
                                   )),
                         );
                       } else {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) =>
+                        //           const ScreenToDisplayAlltheCities(
+                        //             screenStatus: 'buy',
+                        //           )),
+                        // );
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const ScreenToDisplayAlltheCities(
-                                    screenStatus: 'buy',
-                                  )),
+                                  const ShowAllVerifiedProperties(
+                                      screenStatus: 'buy')),
                         );
                       }
                     }, // button pressed
@@ -464,7 +472,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => userType == "ADMIN"
-                                ? const DashboardScreen()
+                                ? const DashboardScreen(email: "contact.adityamall@gmail.com",)
                                 : const TokenScreen()),
                       );
                     }, // button pressed

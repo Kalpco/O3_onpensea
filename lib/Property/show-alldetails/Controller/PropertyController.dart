@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:onpensea/config/ApiUrl.dart';
 
 class PropertyController {
+
   static Future<List<Properties>> fetchProperties() async {
     final url = "${ApiUrl.API_URL_PROPERTY}prop/getPropPending?status=V";
 
@@ -104,8 +105,8 @@ class PropertyController {
       request.fields['paymentType'] =  'Wallet';
       request.fields['remarks'] = remarks;
 
-      request.files
-          .add(await http.MultipartFile.fromPath('screenshot', imagePath));
+      // request.files
+      //     .add(await http.MultipartFile.fromPath('screenshot', imagePath));
 
       var response = await request.send();
       final respStr = await response.stream.bytesToString();

@@ -8,6 +8,7 @@ import 'package:onpensea/Property/show-alldetails/Models/buyermodel.dart';
 import '../../../UserManagement/Feature-Dashboard/Widgets/Drawer/DashboardDrawer.dart';
 import '../../../config/CustomTheme.dart';
 import '../../../config/wallet_connect.dart';
+import '../Widgets/Countdown.dart';
 import '../Widgets/page_wrapper.dart';
 import '../../../widgets/CustomButton.dart';
 import 'BoughtProperties.dart';
