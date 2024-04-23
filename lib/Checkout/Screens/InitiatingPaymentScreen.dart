@@ -171,7 +171,7 @@ class _InitiatingPaymentScreenState extends State<InitiatingPaymentScreen> {
                         children: const <Widget>[
                           Icon(Icons.bubble_chart),
                           SizedBox(
-                            height: 3,
+                            height: 2,
                           ),
 
                           /// icon
@@ -207,7 +207,7 @@ class _InitiatingPaymentScreenState extends State<InitiatingPaymentScreen> {
                         children: const <Widget>[
                           Icon(Icons.sell),
                           SizedBox(
-                            height: 3,
+                            height: 2,
                           ), // icon
                           Text("Sell"),
 
@@ -241,7 +241,7 @@ class _InitiatingPaymentScreenState extends State<InitiatingPaymentScreen> {
                         children: const <Widget>[
                           Icon(Icons.house),
                           SizedBox(
-                            height: 3,
+                            height: 2,
                           ),
 
                           /// icon
@@ -265,7 +265,7 @@ class _InitiatingPaymentScreenState extends State<InitiatingPaymentScreen> {
                         children: const <Widget>[
                           Icon(Icons.devices_other),
                           SizedBox(
-                            height: 3,
+                            height: 2,
                           ), // icon
                           Text("Others"), // text
                         ],

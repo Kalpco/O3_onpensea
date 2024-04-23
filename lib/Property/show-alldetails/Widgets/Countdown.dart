@@ -127,18 +127,18 @@ class _CountdownState extends State<Countdown> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UploadScreenshot(
-                                  tokenPrice: widget.tokenPrice,
-                                  prop: widget.prop,
-                                  name: widget.name,
-                                  remarks: widget.remarks,
-                                  username: widget.username,
-                                  userId: widget.userId,
-                                  screenstatus: widget.screenstatus,
-                                )));
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => UploadScreenshot(
+                        //           tokenPrice: widget.tokenPrice,
+                        //           prop: widget.prop,
+                        //           name: widget.name,
+                        //           remarks: widget.remarks,
+                        //           username: widget.username,
+                        //           userId: widget.userId,
+                        //           screenstatus: widget.screenstatus,
+                        //         )));
                       },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(

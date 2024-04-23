@@ -276,9 +276,8 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                     MaterialPageRoute(
                         builder: (context) => widget.userType == "ADMIN"
                             ? const ShowAllVerifyBuy(screenStatus: "buy")
-                            : const ScreenToDisplayAlltheCities(
-                                screenStatus: 'buy',
-                              )),
+                            : const ShowAllVerifiedProperties(
+                            screenStatus: 'buy')),
                   );
                 }),
 
