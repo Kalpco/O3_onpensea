@@ -7,6 +7,7 @@ import 'package:onpensea/UserManagement/Feature-UserLogin/Controller/LoginContro
 import '../../../UserManagement/Feature-UserRegistration/Screens/RegistrationScreen.dart';
 import '../../Feature-Dashboard/Screens/common_dashboard_screen.dart';
 import '../../../config/CustomTheme.dart';
+import '../../Feature-UserRegistration/Screens/UserInfoScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -20,7 +21,7 @@ class _LoginScreen extends State<LoginScreen> {
   TextEditingController passController = TextEditingController();
 
   @override
-  void initState(){
+  void initState() {
     EasyLoading.dismiss();
   }
 
@@ -329,7 +330,7 @@ class _LoginScreen extends State<LoginScreen> {
                     ..onTap = () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => RegistrationScreen()),
+                              builder: (context) => const UserInfoScreen()),
                         )),
             ],
           ),

@@ -18,6 +18,7 @@ class CustomButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(15.0),
         ),
         backgroundColor: CustomTheme.fifthColor,
+        foregroundColor: Colors.white,
         textStyle: GoogleFonts.inter(
           fontSize: 16.0,
           color: Colors.white,

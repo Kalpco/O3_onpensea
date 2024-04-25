@@ -175,10 +175,11 @@ class _UserInfoScreen extends State<UserInfoScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    backgroundColor: Colors.purple.shade900,
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.purple.shade800,
                     textStyle: GoogleFonts.inter(
                       fontSize: 16.0,
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

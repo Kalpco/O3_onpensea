@@ -9,7 +9,7 @@
     </queries>
 
     <application
-        android:label="O3"
+        android:label="Kalpco"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
