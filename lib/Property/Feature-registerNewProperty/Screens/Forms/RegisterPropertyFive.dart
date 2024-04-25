@@ -150,6 +150,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
                         style: ElevatedButton.styleFrom(
                           fixedSize: const Size(100, 50),
                           backgroundColor: Colors.blueGrey,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0),
                           ),
@@ -166,6 +167,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
                         style: ElevatedButton.styleFrom(
                           fixedSize: const Size(100, 50),
                           backgroundColor: Colors.blueGrey,
+                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0),
                           ),
@@ -181,6 +183,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
                     : ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           fixedSize: const Size(100, 50),
+                          foregroundColor: Colors.white,
                           backgroundColor: Colors.blueGrey,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(50.0),
@@ -244,6 +247,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
                   style: ElevatedButton.styleFrom(
                     fixedSize: const Size(300, 50),
                     backgroundColor: Colors.blueGrey,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50.0),
                     ),
@@ -371,6 +375,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
                             borderRadius: BorderRadius.circular(15.0),
                           ),
                           backgroundColor: Colors.purple.shade900,
+                          foregroundColor: Colors.white,
                           textStyle: GoogleFonts.inter(
                             fontSize: 16.0,
                             color: Colors.white,

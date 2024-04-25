@@ -190,7 +190,7 @@ class _OtpScreen4 extends State<OtpScreen4> {
             height: size.height * 0.01,
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(28, 12, 24, 0),
             child: Text("Do you wish to connect metamask? You can register without metamask?."),
           ),
           SizedBox(
@@ -198,7 +198,7 @@ class _OtpScreen4 extends State<OtpScreen4> {
           ),
           W3MConnectWalletButton(service: _w3mService),
           SizedBox(
-            height: size.height * 0.15,
+            height: size.height * 0.1,
           ),
 
           // SizedBox(
@@ -277,6 +277,7 @@ class _OtpScreen4 extends State<OtpScreen4> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     backgroundColor: Colors.purple.shade900,
+                    foregroundColor: Colors.white,
                     textStyle: GoogleFonts.inter(
                       fontSize: 16.0,
                       color: Colors.white,
