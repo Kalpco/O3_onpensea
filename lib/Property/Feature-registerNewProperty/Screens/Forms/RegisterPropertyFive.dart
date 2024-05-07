@@ -78,7 +78,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _getImageFromCamera1() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     setState(() {
       image1 = image as XFile?;
@@ -86,7 +86,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
   }
 
   Future<void> _getImageFromCamera2() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     setState(() {
       image2 = image as XFile?;
@@ -94,7 +94,7 @@ class _RegisterPropertyFive extends State<RegisterPropertyFive> {
   }
 
   Future<void> _getImageFromCamera3() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     setState(() {
       image3 = image as XFile?;

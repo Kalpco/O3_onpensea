@@ -27,20 +27,20 @@ import '../Models/Properties.dart';
 
 enum AppbarActionType { leading, trailing }
 
-class AllGoldScreen extends StatefulWidget {
+class AllFacevalueScreen extends StatefulWidget {
   final String screenStatus;
   final String? categoryType;
 
-  const AllGoldScreen(
+  const AllFacevalueScreen(
       {super.key, required this.screenStatus, this.categoryType});
 
   @override
   State<StatefulWidget> createState() {
-    return _AllGoldScreenState();
+    return _AllFacevalueScreen();
   }
 }
 
-class _AllGoldScreenState extends State<AllGoldScreen> {
+class _AllFacevalueScreen extends State<AllFacevalueScreen> {
   //late List<Properties> propList;
   String? username;
   String? photo;
@@ -83,19 +83,19 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
 
   static List<Properties> propertyList = [
     Properties(
-        id: "MV055",
-        metalType: "gold",
-        propName: "Gold",
+        id: "MV88",
+        nftType: "bat",
+        propName: "Nafisa Ali",
         address: "MUMBAI",
         city: "MUMBAI",
         pinCode: "001",
         state: "MH",
-        propValue: 2,
-        ownerName: "Kalyan Jewllers",
-        ownerId: "MVQ22",
+        propValue: 1000000,
+        ownerName: "Nafisa Ali productions",
+        ownerId: "MVQ11",
         tokenRequested: 0,
-        tokenName: "GLDKJ",
-        tokenSymbol: "GLDKJ",
+        tokenName: "Nafisa Ali",
+        tokenSymbol: "Nafisa Ali",
         tokenCap: 100,
         tokenSupply: 100,
         tokenBalance: 100,
@@ -115,68 +115,30 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
         propImage3: "",
         propImage4: "",
         propImage5: "",
-        propImage1Byte: "assets/images/metals/gold.jpg",
-        propImage2Byte: "assets/images/metals/goldTwo.jpg",
-        propImage3Byte: "assets/images/metals/gold.jpg",
+        propImage1Byte: "assets/images/facevalue/NA.jpg",
+        propImage2Byte: "assets/images/facevalue/NA1.webp",
+        propImage3Byte: "assets/images/facevalue/NA2.jpg",
         propImage4Byte: "",
         propImage5Byte: "",
         remakrs: "",
-        tokenPrice: 1),
+        tokenPrice: 10000),
     Properties(
-        id: "MV999",
-        propName: "Silver",
+        nftType: "Om Prakash",
+        id: "MV0221",
+        propName: "Om Prakash",
         address: "MUMBAI",
         city: "MUMBAI",
         pinCode: "001",
         state: "MH",
         propValue: 1000000,
-        ownerName: "Kanishk Jewllers",
-        ownerId: "MVQ211",
+        ownerName: "Om Prakash",
+        ownerId: "MVQ113",
         tokenRequested: 0,
-        tokenName: "SKJ",
-        tokenSymbol: "SKJ",
-        tokenCap: 200,
-        tokenSupply: 200,
-        tokenBalance: 200,
-        propRegisteredDate: "11-12-2023",
-        propOnO3CreatedDate: "",
-        delFlg: "",
-        status: "",
-        verifiedBy: "",
-        verifiedDate: "",
-        docSaleDeed: "",
-        propDoc1: "",
-        propDoc2: "",
-        propDoc3: "",
-        propDoc4: "",
-        propImage1: "",
-        propImage2: "",
-        propImage3: "",
-        propImage4: "",
-        propImage5: "",
-        propImage1Byte: "assets/images/metals/silver.webp",
-        propImage2Byte: "assets/images/metals/silverThree.jpeg",
-        propImage3Byte: "assets/images/metals/silverTwo.jpg",
-        propImage4Byte: "",
-        propImage5Byte: "",
-        remakrs: "",
-        tokenPrice: 1, metalType: 'silver'),
-    Properties(
-        id: "MV00133",
-        propName: "Diamond",
-        address: "MUMBAI",
-        city: "MUMBAI",
-        pinCode: "001",
-        state: "MH",
-        propValue: 1000000,
-        ownerName: "Sattu Diamonds Pvt",
-        ownerId: "MVQ122",
-        tokenRequested: 0,
-        tokenName: "DSDP",
-        tokenSymbol: "DSDP",
-        tokenCap: 1000,
-        tokenSupply: 1000,
-        tokenBalance: 1000,
+        tokenName: "Om Prakash",
+        tokenSymbol: "Om Prakash",
+        tokenCap: 400,
+        tokenSupply: 400,
+        tokenBalance: 400,
         propRegisteredDate: "01-12-2023",
         propOnO3CreatedDate: "",
         delFlg: "",
@@ -193,27 +155,27 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
         propImage3: "",
         propImage4: "",
         propImage5: "",
-        propImage1Byte: "assets/images/metals/diamond.jpg",
-        propImage2Byte: "assets/images/metals/diamond.webp",
-        propImage3Byte: "assets/images/metals/diamondThree.webp",
+        propImage1Byte: "assets/images/facevalue/OP.jpg",
+        propImage2Byte: "assets/images/facevalue/OP1.jpg",
+        propImage3Byte: "assets/images/facevalue/OP2.webp",
         propImage4Byte: "",
         propImage5Byte: "",
         remakrs: "",
-        tokenPrice: 1, metalType: 'diamond'),
+        tokenPrice: 30000),
     Properties(
-        id: "MV5501",
-        metalType: 'copper',
-        propName: "Copper",
+        nftType: "OM",
+        id: "MV0551",
+        propName: "OM",
         address: "MUMBAI",
         city: "MUMBAI",
         pinCode: "001",
         state: "MH",
         propValue: 1000000,
-        ownerName: "Hanuman Jewllers",
-        ownerId: "MVQ144",
+        ownerName: "OM",
+        ownerId: "MVQ311",
         tokenRequested: 0,
-        tokenName: "CHJ",
-        tokenSymbol: "CHJ",
+        tokenName: "OM",
+        tokenSymbol: "OM",
         tokenCap: 100,
         tokenSupply: 100,
         tokenBalance: 100,
@@ -233,13 +195,93 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
         propImage3: "",
         propImage4: "",
         propImage5: "",
-        propImage1Byte: "assets/images/metals/copper.jpg",
-        propImage2Byte: "assets/images/metals/copperTwo.jpg",
-        propImage3Byte: "assets/images/metals/copperThree.png",
+        propImage1Byte: "assets/images/facevalue/OR.jpg",
+        propImage2Byte: "assets/images/facevalue/OR2.jpg",
+        propImage3Byte: "assets/images/facevalue/OR2.jpg",
         propImage4Byte: "",
         propImage5Byte: "",
         remakrs: "",
-        tokenPrice: 1),
+        tokenPrice: 40000),
+    Properties(
+        nftType: "Paresh Raval",
+        id: "MV0031",
+        propName: "Paresh Raval",
+        address: "MUMBAI",
+        city: "MUMBAI",
+        pinCode: "001",
+        state: "MH",
+        propValue: 1000000,
+        ownerName: "Paresh Raval",
+        ownerId: "MVQ311",
+        tokenRequested: 0,
+        tokenName: "Paresh Raval",
+        tokenSymbol: "Paresh Raval",
+        tokenCap: 300,
+        tokenSupply: 300,
+        tokenBalance: 300,
+        propRegisteredDate: "01-12-2023",
+        propOnO3CreatedDate: "",
+        delFlg: "",
+        status: "",
+        verifiedBy: "",
+        verifiedDate: "",
+        docSaleDeed: "",
+        propDoc1: "",
+        propDoc2: "",
+        propDoc3: "",
+        propDoc4: "",
+        propImage1: "",
+        propImage2: "",
+        propImage3: "",
+        propImage4: "",
+        propImage5: "",
+        propImage1Byte: "assets/images/facevalue/PR1.jpg",
+        propImage2Byte: "assets/images/facevalue/PR2.jpg",
+        propImage3Byte: "assets/images/facevalue/PR2.jpg",
+        propImage4Byte: "",
+        propImage5Byte: "",
+        remakrs: "",
+        tokenPrice: 40000),
+    Properties(
+        nftType: "PR",
+        id: "MV044",
+        propName: "PR",
+        address: "MUMBAI",
+        city: "MUMBAI",
+        pinCode: "001",
+        state: "MH",
+        propValue: 1000000,
+        ownerName: "PR",
+        ownerId: "MVQ131",
+        tokenRequested: 0,
+        tokenName: "PR",
+        tokenSymbol: "PR",
+        tokenCap: 400,
+        tokenSupply: 400,
+        tokenBalance: 400,
+        propRegisteredDate: "01-12-2023",
+        propOnO3CreatedDate: "",
+        delFlg: "",
+        status: "",
+        verifiedBy: "",
+        verifiedDate: "",
+        docSaleDeed: "",
+        propDoc1: "",
+        propDoc2: "",
+        propDoc3: "",
+        propDoc4: "",
+        propImage1: "",
+        propImage2: "",
+        propImage3: "",
+        propImage4: "",
+        propImage5: "",
+        propImage1Byte: "assets/images/facevalue/PRS.jpg",
+        propImage2Byte: "assets/images/facevalue/PRS2.jpg",
+        propImage3Byte: "assets/images/facevalue/PRS1.jpg",
+        propImage4Byte: "",
+        propImage5Byte: "",
+        remakrs: "",
+        tokenPrice: 10000),
     // Properties(
     //     id: "MV001",
     //     propName: "Animal",
@@ -280,18 +322,19 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
     //     remakrs: "",
     //     tokenPrice: 10000),
     // Properties(
-    //     id: "MV001",
-    //     propName: "Animal",
+    //     nftType: "bat",
+    //     id: "MV02801",
+    //     propName: "Bat",
     //     address: "MUMBAI",
     //     city: "MUMBAI",
     //     pinCode: "001",
     //     state: "MH",
     //     propValue: 1000000,
-    //     ownerName: "T-SERIES",
-    //     ownerId: "MVQ11",
+    //     ownerName: "Batman",
+    //     ownerId: "MVQ131",
     //     tokenRequested: 0,
-    //     tokenName: "ANML",
-    //     tokenSymbol: "ANML",
+    //     tokenName: "BT",
+    //     tokenSymbol: "BT",
     //     tokenCap: 100,
     //     tokenSupply: 100,
     //     tokenBalance: 100,
@@ -311,48 +354,9 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
     //     propImage3: "",
     //     propImage4: "",
     //     propImage5: "",
-    //     propImage1Byte: "assets/images/movies/animal.jpg",
-    //     propImage2Byte: "assets/images/movies/animalTwo.jpg",
-    //     propImage3Byte: "assets/images/movies/animalThree.jpg",
-    //     propImage4Byte: "",
-    //     propImage5Byte: "",
-    //     remakrs: "",
-    //     tokenPrice: 10000),
-    // Properties(
-    //     id: "MV001",
-    //     propName: "Animal",
-    //     address: "MUMBAI",
-    //     city: "MUMBAI",
-    //     pinCode: "001",
-    //     state: "MH",
-    //     propValue: 1000000,
-    //     ownerName: "T-SERIES",
-    //     ownerId: "MVQ11",
-    //     tokenRequested: 0,
-    //     tokenName: "ANML",
-    //     tokenSymbol: "ANML",
-    //     tokenCap: 100,
-    //     tokenSupply: 100,
-    //     tokenBalance: 100,
-    //     propRegisteredDate: "01-12-2023",
-    //     propOnO3CreatedDate: "",
-    //     delFlg: "",
-    //     status: "",
-    //     verifiedBy: "",
-    //     verifiedDate: "",
-    //     docSaleDeed: "",
-    //     propDoc1: "",
-    //     propDoc2: "",
-    //     propDoc3: "",
-    //     propDoc4: "",
-    //     propImage1: "",
-    //     propImage2: "",
-    //     propImage3: "",
-    //     propImage4: "",
-    //     propImage5: "",
-    //     propImage1Byte: "assets/images/movies/animal.jpg",
-    //     propImage2Byte: "assets/images/movies/animalTwo.jpg",
-    //     propImage3Byte: "assets/images/movies/animalThree.jpg",
+    //     propImage1Byte: "assets/images/nfts/bat.webp",
+    //     propImage2Byte: "assets/images/nfts/batTwo.png",
+    //     propImage3Byte: "assets/images/nfts/batThree.png",
     //     propImage4Byte: "",
     //     propImage5Byte: "",
     //     remakrs: "",
@@ -541,7 +545,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
         flexibleSpace: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            gradient: CustomTheme.customLinearGradientForGold,
+            gradient: CustomTheme.customLinearGradientForNft,
           ),
         ),
         title: Text(
@@ -607,10 +611,10 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xffFFD700),
-                  Color(0xffFFD700),
-                  Color(0xffFFD700),
-                  Color(0xffFFD700),
+                  Colors.black,
+                  Colors.black87,
+                  Colors.black54,
+                  Colors.black38,
                   Colors.white,
                   Colors.white70,
                   Colors.white60,
@@ -700,27 +704,26 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
         } else if (index == 1) {
           setState(() {
             propertyList =
-                filterPropertiesByActor(originalPropertyList, "gold");
+                filterPropertiesByActor(originalPropertyList, "bat");
           });
         } else if (index == 2) {
           setState(() {
             propertyList =
-                filterPropertiesByActor(originalPropertyList, "diamond");
+                filterPropertiesByActor(originalPropertyList, "mouse");
           });
         } else if (index == 3) {
           setState(() {
             propertyList =
-                filterPropertiesByActor(originalPropertyList, "silver");
+                filterPropertiesByActor(originalPropertyList, "penguen");
           });
         } else if (index == 4) {
           setState(() {
             propertyList =
-                filterPropertiesByActor(originalPropertyList, "copper");
+                filterPropertiesByActor(originalPropertyList, "gods");
           });
         } else if (index == 5) {
           setState(() {
-            propertyList =
-                filterPropertiesByActor(originalPropertyList, "");
+            propertyList = filterPropertiesByActor(originalPropertyList, "monkey");
           });
         } else {
           // Handle other icon clicks or resetting the list if needed
@@ -732,9 +735,9 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
 
   // Function to filter properties by actorName
   List<Properties> filterPropertiesByActor(
-      List<Properties> originalList, String metalType) {
+      List<Properties> originalList, String nftType) {
     return originalList
-        .where((property) => property.metalType == metalType)
+        .where((property) => property.nftType == nftType)
         .toList();
   }
 
@@ -745,7 +748,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "Metal categories",
+            "Nfts categories",
             style: GoogleFonts.poppins(
               textStyle: Theme.of(context).textTheme.labelLarge,
               fontSize: 24,
@@ -809,7 +812,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                         children: [
                           widget.screenStatus == 'sell'
                               ? Text(
-                                  'New Gold avail..',
+                                  'New Nfts avail..',
                                   style: GoogleFonts.poppins(
                                     textStyle:
                                         Theme.of(context).textTheme.labelLarge,
@@ -820,7 +823,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                                   ),
                                 )
                               : Text(
-                                  'New Gold avail.. ',
+                                  'New Nfts avail.. ',
                                   style: GoogleFonts.poppins(
                                     textStyle:
                                         Theme.of(context).textTheme.labelLarge,

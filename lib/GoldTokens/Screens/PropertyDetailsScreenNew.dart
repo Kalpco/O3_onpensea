@@ -73,7 +73,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   void openCheckout(amount) async {
     amount = amount * 100;
     var options = {
-      'key': 'rzp_test_wUKrMpwIAok1ZY',
+      'key': 'rzp_live_5fpmFBZvv8QIEr',
       'amount': amount,
       'name': widget.prop.propName,
       'prefill': {'contact ': '9029995819', 'email': 'finace.chand@gmail.com'},
