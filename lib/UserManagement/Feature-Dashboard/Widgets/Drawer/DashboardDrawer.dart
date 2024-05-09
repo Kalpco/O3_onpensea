@@ -18,6 +18,7 @@ import '../../../../GoldTokens/Screens/all_gold_screen.dart';
 import '../../../../Property/Feature-ShowAllDetails/Screens/ShowAllVerifiedProperties.dart';
 import '../../../../Property/Feature-registerNewProperty/Screens/Forms/RegisterPropertyOne.dart';
 import '../../../../Property/show-alldetails/Screens/BoughtProperties.dart';
+import '../../../../facevalue/Screens/all_Facevalue_screen.dart';
 import '../../../../utils/utils.dart';
 import '../../../Feature-UserLogin/Screens/login_screen.dart';
 import '../../Model/AllDetails.dart';
@@ -254,6 +255,21 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                                 categoryType: "nfts",
                                 screenStatus: 'buy',
                               )),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                DrawerItem(
+                  "Face Value",
+                  Icons.token,
+                      () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AllFacevalueScreen(
+                            categoryType: "nfts",
+                            screenStatus: 'buy',
+                          )),
                     );
                   },
                 ),
