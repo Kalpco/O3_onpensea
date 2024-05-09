@@ -28,7 +28,7 @@ class PropertyController {
       String userId, String tokenRequested, String remarks) async {
     String isBuyerRequestSaved = "false";
     print("==============================================================");
-    print("in buy property....................");
+    print("in buy property.....................");
     print("username: $username | userId: $userId");
     try {
       final urlApi = "${ApiUrl.API_URL_BUYER}buyer/buyRequest";
