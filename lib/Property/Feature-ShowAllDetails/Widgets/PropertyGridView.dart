@@ -51,8 +51,8 @@ class PropertyGridView extends StatelessWidget {
   }
 
   Widget _gridItemBody(Properties prop) {
-    String? bytesList;
-    bytesList = prop.propImage1Byte;
+    //String? bytesList;
+    //bytesList = prop.propImage1Byte;
 
     return Container(
       padding: const EdgeInsets.all(8),
@@ -62,10 +62,11 @@ class PropertyGridView extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.0),
-        child: Image.memory(
-          base64.decode(bytesList),
-          fit: BoxFit.fill,
-        ),
+        child: Image.asset(prop.propImage1Byte)
+        // child: Image.memory(
+        //   base64.decode(bytesList),
+        //   fit: BoxFit.fill,
+        // ),
       ),
     );
   }
