@@ -90,7 +90,7 @@ class Properties {
     required this.propImage5Byte,
     required this.remakrs,
     required this.tokenPrice,
-required this.movieType
+    required this.movieType
 
   });
 
