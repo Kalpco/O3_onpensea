@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_maps/maps.dart';
 import '../../../Checkout/Screens/CheckoutScreen.dart';
+import '../../../UserManagement/Feature-Dashboard/Screens/common_dashboard_screen.dart';
 import '../../../config/CustomTheme.dart';
 import '../Models/Properties.dart';
 import '../Widgets/carousel_slider.dart';
@@ -35,6 +36,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   bool isChecked = false;
   String? username;
   String? userId;
+  String? email;
   int? tokenBalance;
 
   double? tokenPrice;
@@ -66,6 +68,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
     setState(() {
       username = prefs.getString('username');
       userId = prefs.getString('userId');
+      email = prefs.getString("email");
       print("99999999999999999999999999999999");
       print(username);
       print(userId);
@@ -1034,10 +1037,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          ShowAllVerifiedProperties(
-                                                            screenStatus: widget
-                                                                .screenStatus,
-                                                          )),
+                                                          DashboardScreen(email: email,)),
                                                 );
                                               });
                                             } else {
