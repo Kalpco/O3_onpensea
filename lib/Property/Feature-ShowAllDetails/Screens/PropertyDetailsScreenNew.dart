@@ -995,8 +995,6 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                       }
 
                                       if (_formKey.currentState!.validate()) {
-                                        EasyLoading.show(status: "loading...");
-
                                         if (widget.screenStatus == "buy") {
                                           Navigator.push(
                                             context,

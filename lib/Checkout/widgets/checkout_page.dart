@@ -168,7 +168,7 @@ class CheckoutPage extends StatelessWidget {
     const double _collapsedAppBarHeight = 100;
     double tokenprice = double.parse(tokenPrice!);
     double tokencount = double.parse(tokenCount!);
-    int total = (tokenprice * tokencount).round() + 20;
+    int total = (tokenprice * tokencount).round() + ((prop?.id == "O3-Prop-187") ? 1 : 20);
 
     // reference to whether or not the sliverAppBar is open or closed
     bool _isOpen = false;

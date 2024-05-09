@@ -93,7 +93,7 @@ class _ShowAllVerifiedPropertiesViewState
       city: "testcity",
       pinCode: "123456",
       state: "teststate",
-      propValue: 1000000,
+      propValue: 1,
       ownerName: "testuser",
       ownerId: "testuser",
       tokenRequested: 100000,
