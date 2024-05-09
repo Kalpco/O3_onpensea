@@ -75,7 +75,7 @@ class PropertyGridView extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         padding: const EdgeInsets.all(10),
-        height: 60,
+        height: 95,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -102,34 +102,44 @@ class PropertyGridView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 5),
-            Row(
-              children: [
-                Text(
-                  prop != null
-                      ? "\u{20B9} ${prop.propValue}"
-                      : "\u{20B9} ${prop.propValue}",
-                  style: GoogleFonts.poppins(
-                    textStyle: Theme.of(context).textTheme.labelLarge,
-                    fontSize: 10,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                    fontStyle: FontStyle.normal,
+            SizedBox(
+              height: 50, // Adjust the height as needed
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        prop != null
+                            ? "\u{20B9} ${prop.propValue}"
+                            : "\u{20B9} ${prop.propValue}",
+                        style: GoogleFonts.poppins(
+                          textStyle: Theme.of(context).textTheme.labelLarge,
+                          fontSize: 10,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        prop != null
+                            ? "${prop.ownerName}" // Assuming ownerName is the property that holds the owner's name
+                            : "", // You can decide what to show if prop is null
+                        style: TextStyle(
+                          color: Colors.black, // Adjust styling as needed
+                          fontWeight: FontWeight.normal,
+                          fontSize: 10, // Adjust font size as needed
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 3),
-                // Visibility(
-                //   visible: prop != null ? true : false,
-                //   child: Text(
-                //     "\u{20B9}${prop.tokenSupply}",
-                //     style: const TextStyle(
-                //       decoration: TextDecoration.lineThrough,
-                //       color: Colors.grey,
-                //       fontWeight: FontWeight.normal,
-                //     ),
-                //   ),
-                // )
-              ],
+                  const SizedBox(width: 1), // Add spacing between price and owner name
+                ],
+              ),
             )
+
           ],
         ),
       ),

@@ -154,7 +154,7 @@ class _ShowAllVerifiedPropertiesViewState
                           ),
 
                           /// icon
-                          Text("Buy"), // text
+                          Text("Buy",style: TextStyle(fontSize: 10),), // text
                         ],
                       ),
                     ),
@@ -188,7 +188,7 @@ class _ShowAllVerifiedPropertiesViewState
                           SizedBox(
                             height: 3,
                           ), // icon
-                          Text("Sell"),
+                          Text("Sell",style: TextStyle(fontSize: 10),),
 
                           /// text
                         ],
@@ -224,7 +224,7 @@ class _ShowAllVerifiedPropertiesViewState
                           ),
 
                           /// icon
-                          Text("Property"), // text
+                          Text("Property",style: TextStyle(fontSize: 10),), // text
                         ],
                       ),
                     ),
@@ -252,7 +252,7 @@ class _ShowAllVerifiedPropertiesViewState
                           SizedBox(
                             height: 3,
                           ), // icon
-                          Text("Holdings"), // text
+                          Text("Dashboard",style: TextStyle(fontSize: 10),), // text
                         ],
                       ),
                     ),

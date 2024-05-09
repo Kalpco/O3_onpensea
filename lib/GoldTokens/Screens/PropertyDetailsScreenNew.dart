@@ -71,7 +71,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
   }
 
   void openCheckout(amount) async {
-    amount = amount * 100;
+    amount = amount * 1;
     var options = {
       'key': 'rzp_live_5fpmFBZvv8QIEr',
       'amount': amount,
@@ -188,6 +188,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                     children: [
                       Text(
                         widget.prop.propName,
+
                         style: GoogleFonts.poppins(
                           textStyle: Theme.of(context).textTheme.headlineLarge,
                           fontSize: 34,
@@ -1012,7 +1013,7 @@ class _PropertyDetailsScreenNewState extends State<PropertyDetailsScreenNew> {
                                           color: Colors.black, width: 2.0)),
                                   prefixIcon: Icon(Icons.token),
                                   hintText: '1234',
-                                  labelText: 'TOKEN COUNT'),
+                                  labelText: 'ADD AMOUNT2'),
                             ),
                             const SizedBox(height: 15),
                             TextFormField(

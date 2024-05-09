@@ -479,7 +479,7 @@ class _AllMovieScreenState extends State<AllMovieScreen> {
                         ),
 
                         /// icon
-                        Text("Buy"), // text
+                        Text("Buy",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -513,7 +513,7 @@ class _AllMovieScreenState extends State<AllMovieScreen> {
                         SizedBox(
                           height: 2,
                         ), // icon
-                        Text("Sell"),
+                        Text("Sell",style: TextStyle(fontSize: 10),),
 
                         /// text
                       ],
@@ -549,7 +549,7 @@ class _AllMovieScreenState extends State<AllMovieScreen> {
                         ),
 
                         /// icon
-                        Text("Property"), // text
+                        Text("Property",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -577,7 +577,7 @@ class _AllMovieScreenState extends State<AllMovieScreen> {
                         SizedBox(
                           height: 2,
                         ), // icon
-                        Text("Holdings"), // text
+                        Text("Dashboard",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),

@@ -177,7 +177,7 @@ class _TokenScreenState extends State<TokenScreen> {
                         ),
 
                         /// icon
-                        Text("Buy"), // text
+                        Text("Buy",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -211,7 +211,7 @@ class _TokenScreenState extends State<TokenScreen> {
                         SizedBox(
                           height: 1,
                         ), // icon
-                        Text("Sell"),
+                        Text("Sell",style: TextStyle(fontSize: 10),),
 
                         /// text
                       ],
@@ -247,7 +247,7 @@ class _TokenScreenState extends State<TokenScreen> {
                         ),
 
                         /// icon
-                        Text("Property"), // text
+                        Text("Property",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -275,7 +275,7 @@ class _TokenScreenState extends State<TokenScreen> {
                         SizedBox(
                           height: 1,
                         ), // icon
-                        Text("Holdings"), // text
+                        Text("Dashboard",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -407,7 +407,7 @@ class _TokenScreenState extends State<TokenScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pulkit Singh',
+            username!,
             style: whiteTextStyle.copyWith(
               fontSize: 18,
               fontWeight: medium,

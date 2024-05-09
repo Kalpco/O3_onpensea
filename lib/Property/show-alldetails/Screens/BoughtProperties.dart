@@ -157,7 +157,7 @@ class _BoughtPropertiesState extends State<BoughtProperties> {
                           ),
 
                           /// icon
-                          Text("Buy"), // text
+                          Text("Buy",style: TextStyle(fontSize: 10),), // text
                         ],
                       ),
                     ),
@@ -191,7 +191,7 @@ class _BoughtPropertiesState extends State<BoughtProperties> {
                           SizedBox(
                             height: 3,
                           ), // icon
-                          Text("Sell"),
+                          Text("Sell",style: TextStyle(fontSize: 10),),
 
                           /// text
                         ],
@@ -227,7 +227,7 @@ class _BoughtPropertiesState extends State<BoughtProperties> {
                           ),
 
                           /// icon
-                          Text("Property"), // text
+                          Text("Property",style: TextStyle(fontSize: 10),), // text
                         ],
                       ),
                     ),
@@ -255,7 +255,7 @@ class _BoughtPropertiesState extends State<BoughtProperties> {
                           SizedBox(
                             height: 3,
                           ), // icon
-                          Text("Holdings"), // text
+                          Text("Dashboard",style: TextStyle(fontSize: 10),), // text
                         ],
                       ),
                     ),
