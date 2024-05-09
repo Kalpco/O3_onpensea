@@ -165,6 +165,7 @@ class _OtpScreen3 extends State<OtpScreen3> {
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                     backgroundColor: Colors.purple.shade900,
+                    foregroundColor: Colors.white,
                     textStyle: GoogleFonts.inter(
                       fontSize: 16.0,
                       color: Colors.white,

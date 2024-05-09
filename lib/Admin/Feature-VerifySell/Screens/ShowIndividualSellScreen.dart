@@ -51,11 +51,13 @@ class ShowIndividualSellScreen extends StatelessWidget {
                       width: double.infinity,
                       height: double.infinity,
                       child: ElevatedButton(
-                        style:
-                            ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                        ),
                         onPressed: () {
-                          var duration = Duration(seconds: 2);
-                          var durationOne = Duration(seconds: 3);
+                          var duration = const Duration(seconds: 2);
+                          var durationOne = const Duration(seconds: 3);
                           EasyLoading.show(status: 'Rejecting...');
                           Timer(durationOne, () {
                             SellerController.approveSeller(
@@ -100,7 +102,7 @@ class ShowIndividualSellScreen extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: CustomTheme.fifthColor,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.0),
+                            borderRadius: BorderRadius.circular(24.0),
                           ),
                         ),
                         onPressed: () {

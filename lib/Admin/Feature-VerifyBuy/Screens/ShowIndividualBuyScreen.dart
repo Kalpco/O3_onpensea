@@ -51,7 +51,7 @@ class ShowIndividualBuyScreen extends StatelessWidget {
                       height: double.infinity,
                       child: ElevatedButton(
                         style:
-                            ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                            ElevatedButton.styleFrom(backgroundColor: Colors.redAccent,foregroundColor: Colors.white,),
                         onPressed: () {
                           var duration = Duration(seconds: 2);
                           var durationOne = Duration(seconds: 3);
@@ -108,7 +108,7 @@ class ShowIndividualBuyScreen extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: CustomTheme.fifthColor,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6.0),
+                            borderRadius: BorderRadius.circular(24.0),
                           ),
                         ),
                         onPressed: () {
