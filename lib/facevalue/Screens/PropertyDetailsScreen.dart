@@ -55,6 +55,7 @@ class PropertyDetailsScreen extends StatelessWidget {
           onRatingUpdate: (_) {},
         ),
         Text(
+
           "(4500 Reviews)",
           style: Theme.of(context)
               .textTheme
