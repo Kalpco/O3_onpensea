@@ -189,14 +189,14 @@ class _OtpScreen4 extends State<OtpScreen4> {
           SizedBox(
             height: size.height * 0.01,
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 12, 24, 0),
-            child: Text("Do you wish to connect metamask? You can register without metamask?."),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.fromLTRB(28, 12, 24, 0),
+          //   child: Text("Do you wish to connect metamask? You can register without metamask?."),
+          // ),
           SizedBox(
             height: 10,
           ),
-          W3MConnectWalletButton(service: _w3mService),
+          // W3MConnectWalletButton(service: _w3mService),
           SizedBox(
             height: size.height * 0.1,
           ),

@@ -203,42 +203,8 @@ class _DashboardScreen extends State<DashboardScreen> {
           ? SingleChildScrollView(
               child: Column(
                 children: [
-                  countDetails == null
-                      ? const SizedBox(
-                          width: 100,
-                          height: 300,
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        )
-                      : YesWidget(
-                          totalTokenPrice: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedTxnCount"
-                                      : "totalTokenPrice"]
-                              .toString(),
-                          totalBuyCount: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedBuyCount"
-                                      : "totalBuyCount"]
-                              .toString(),
-                          totalPropCount: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedPropertyCount"
-                                      : "totalPropCount"]
-                              .toString(),
-                          totalSellCount: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedSellCount"
-                                      : "totalSellCount"]
-                              .toString(),
-                          totalTokeHoldigs: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedTokenProcessedCount"
-                                      : "totalTokeHoldigs"]
-                              .toString(),
-                          userType: ald!.userType,
-                        ),
+                  const YourNewLife(),
+
                   const SizedBox(height: 20),
                   // const MetaMaskLoginScreen(),
                   const SizedBox(
@@ -252,41 +218,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  transactionDetails == null
-                      ? SizedBox()
-                      : RecentTransactions(
-                          transactionDetails: transactionDetails!,
-                        ),
-                  countDetails == null
-                      ? SizedBox()
-                      : MyPieChart(
-                          totalTokenPrice: userType == "ADMIN"
-                              ? countDetails!
-                                  .first["totalAdminProcessedTxnCount"]
-                                  .toString()
-                              : "",
-                          totalBuyCount: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedBuyCount"
-                                      : "totalBuyCount"]
-                              .toString(),
-                          totalPropCount: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedPropertyCount"
-                                      : "totalPropCount"]
-                              .toString(),
-                          totalSellCount: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedSellCount"
-                                      : "totalSellCount"]
-                              .toString(),
-                          totalTokeHoldigs: countDetails!.first[
-                                  ald!.userType == "ADMIN"
-                                      ? "totalAdminProcessedTokenProcessedCount"
-                                      : "totalTokeHoldigs"]
-                              .toString(),
-                          userType: ald!.userType,
-                        ),
+
                   const SizedBox(
                     height: 80,
                   ),
@@ -300,7 +232,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                   const SizedBox(
                     height: 60,
                   ),
-                  const YourNewLife(),
+                  // const YourNewLife(),
                   const SizedBox(
                     height: 60,
                   ),
@@ -311,6 +243,77 @@ class _DashboardScreen extends State<DashboardScreen> {
                   const ScrollItem(),
                   const SizedBox(
                     height: 70,
+                  ),
+                  countDetails == null
+                      ? const SizedBox(
+                    width: 100,
+                    height: 300,
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                      : YesWidget(
+                    totalTokenPrice: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedTxnCount"
+                        : "totalTokenPrice"]
+                        .toString(),
+                    totalBuyCount: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedBuyCount"
+                        : "totalBuyCount"]
+                        .toString(),
+                    totalPropCount: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedPropertyCount"
+                        : "totalPropCount"]
+                        .toString(),
+                    totalSellCount: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedSellCount"
+                        : "totalSellCount"]
+                        .toString(),
+                    totalTokeHoldigs: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedTokenProcessedCount"
+                        : "totalTokeHoldigs"]
+                        .toString(),
+                    userType: ald!.userType,
+                  ),
+                  transactionDetails == null
+                      ? SizedBox()
+                      : RecentTransactions(
+                    transactionDetails: transactionDetails!,
+                  ),
+                  countDetails == null
+                      ? SizedBox()
+                      : MyPieChart(
+                    totalTokenPrice: userType == "ADMIN"
+                        ? countDetails!
+                        .first["totalAdminProcessedTxnCount"]
+                        .toString()
+                        : "",
+                    totalBuyCount: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedBuyCount"
+                        : "totalBuyCount"]
+                        .toString(),
+                    totalPropCount: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedPropertyCount"
+                        : "totalPropCount"]
+                        .toString(),
+                    totalSellCount: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedSellCount"
+                        : "totalSellCount"]
+                        .toString(),
+                    totalTokeHoldigs: countDetails!.first[
+                    ald!.userType == "ADMIN"
+                        ? "totalAdminProcessedTokenProcessedCount"
+                        : "totalTokeHoldigs"]
+                        .toString(),
+                    userType: ald!.userType,
                   ),
                 ],
               ),
@@ -370,7 +373,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                         ),
 
                         /// icon
-                        Text("Buy"), // text
+                        Text("Buy",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -410,7 +413,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                         SizedBox(
                           height: 3,
                         ), // icon
-                        Text("Sell"),
+                        Text("Sell",style: TextStyle(fontSize: 10),),
 
                         /// text
                       ],
@@ -453,7 +456,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                         ),
 
                         /// icon
-                        Text("Property"), // text
+                        Text("Property",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -484,7 +487,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                           height: 3,
                         ),
                         // icon
-                        Text(userType == "ADMIN" ? "Others" : "Holdings"),
+                        Text(userType == "ADMIN" ? "Others" : "Dashboard",style: TextStyle(fontSize: 10),),
                         // text
                       ],
                     ),

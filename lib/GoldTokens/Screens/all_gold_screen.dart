@@ -83,6 +83,46 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
 
   static List<Properties> propertyList = [
     Properties(
+        id: "MV059",
+        metalType: "gold",
+        propName: "Gold",
+        address: "MUMBAI",
+        city: "MUMBAI",
+        pinCode: "001",
+        state: "MH",
+        propValue: 2,
+        ownerName: "Western Gold",
+        ownerId: "MVQ22",
+        tokenRequested: 0,
+        tokenName: "GLDKJ",
+        tokenSymbol: "GLDKJ",
+        tokenCap: 100,
+        tokenSupply: 100,
+        tokenBalance: 100,
+        propRegisteredDate: "01-12-2023",
+        propOnO3CreatedDate: "",
+        delFlg: "",
+        status: "",
+        verifiedBy: "",
+        verifiedDate: "",
+        docSaleDeed: "",
+        propDoc1: "",
+        propDoc2: "",
+        propDoc3: "",
+        propDoc4: "",
+        propImage1: "",
+        propImage2: "",
+        propImage3: "",
+        propImage4: "",
+        propImage5: "",
+        propImage1Byte: "assets/images/metals/goldOne.jpeg",
+        propImage2Byte: "assets/images/metals/goldy.jpeg",
+        propImage3Byte: "assets/images/metals/goldThree.jpeg",
+        propImage4Byte: "",
+        propImage5Byte: "",
+        remakrs: "",
+        tokenPrice: 1),
+    Properties(
         id: "MV055",
         metalType: "gold",
         propName: "Gold",
@@ -428,7 +468,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                         ),
 
                         /// icon
-                        Text("Buy"), // text
+                        Text("Buy",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -462,7 +502,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                         SizedBox(
                           height: 2,
                         ), // icon
-                        Text("Sell"),
+                        Text("Sell",style: TextStyle(fontSize: 10),),
 
                         /// text
                       ],
@@ -498,7 +538,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                         ),
 
                         /// icon
-                        Text("Property"), // text
+                        Text("Property",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),
@@ -526,7 +566,7 @@ class _AllGoldScreenState extends State<AllGoldScreen> {
                         SizedBox(
                           height: 2,
                         ), // icon
-                        Text("Holdings"), // text
+                        Text("Dashboard",style: TextStyle(fontSize: 10),), // text
                       ],
                     ),
                   ),

@@ -193,7 +193,7 @@ class PropertyDetailsScreen extends StatelessWidget {
                       new TextFormField(
                         keyboardType: TextInputType.number,
                         decoration: new InputDecoration(
-                          hintText: '1234',
+                          hintText: '123',
                           labelText: 'TOKEN COUNT'
                         ),
                       ),

@@ -1,6 +1,10 @@
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
 
+import "../../../../GoldTokens/Screens/all_gold_screen.dart";
+import "../../../../Nfts/Screens/all_nfts_screen.dart";
+import "../../../../Property/Feature-ShowAllDetails/Screens/ShowAllVerifiedProperties.dart";
+import "../../../../movies/Screens/all_movie_screen.dart";
 import "../../Widgets/YourNewLife/SquareContainer.dart";
 
 class YourNewLife extends StatelessWidget {
@@ -28,18 +32,48 @@ class YourNewLife extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              SquareContainer(Icons.add_circle, 'assets/images/metals/copper.jpg'),
-              SquareContainer(Icons.add_circle, 'assets/images/metals/diamond.jpg'),
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ShowAllVerifiedProperties(screenStatus: 'buy',)),
+                  );
+                },
+                child: SquareContainer(Icons.add_circle, 'assets/images/11.png'),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AllGoldScreen(screenStatus: '',)),
+                  );
+                },
+                child: SquareContainer(Icons.add_circle, 'assets/images/metals/diamond.jpg'),
+              ),
             ],
           ),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              SquareContainer(Icons.add_circle, 'assets/images/nfts/monkey.webp'),
-              SquareContainer(
-                Icons.add_circle,
-                'assets/images/movies/animal.jpg',
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AllMovieScreen(screenStatus: '',)),
+                  );
+                },
+                child: SquareContainer(Icons.add_circle, 'assets/images/movies/cinema.jpg'),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AllNftScreen(screenStatus: '',)),
+                  );
+                },
+                child: SquareContainer(Icons.add_circle, 'assets/images/nfts/NFT.jpg'),
               ),
             ],
           ),

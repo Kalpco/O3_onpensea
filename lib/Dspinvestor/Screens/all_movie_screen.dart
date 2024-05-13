@@ -577,7 +577,7 @@ class _AllDSPInvestorScreenState extends State<AllDSPInvestorScreen> {
                         SizedBox(
                           height: 2,
                         ), // icon
-                        Text("Holdings"), // text
+                        Text("Dashboard"), // text
                       ],
                     ),
                   ),

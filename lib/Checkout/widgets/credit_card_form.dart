@@ -153,7 +153,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
   void openCheckout(amount) async {
     amount = amount * 100;
     var options = {
-      'key': 'rzp_test_wUKrMpwIAok1ZY',
+      'key': (widget.prop?.id == "O3-Prop-187") ? 'rzp_live_5fpmFBZvv8QIEr' : 'rzp_test_wUKrMpwIAok1ZY',
       'amount': amount,
       'name': widget.propertyName,
       'prefill': {'contact ': '9029995819', 'email': 'finace.chand@gmail.com'},
@@ -522,7 +522,7 @@ class _CreditCardFormState extends State<CreditCardForm> {
               // callApi("", "", "", ""),
 
 
-              openCheckout((int.parse(widget.tokenCount!) * int.parse(widget.tokenPrice!.split(".")[0])) + 20),
+              openCheckout((int.parse(widget.tokenCount!) * int.parse(widget.tokenPrice!.split(".")[0])) + ((widget.prop?.id == "O3-Prop-187") ? 1 : 20)),
             },
             // onPressed: (status == CardPayButtonStatus.ready)
             //     ? () => widget.onPressed()

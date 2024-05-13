@@ -37,10 +37,7 @@ class _CarouselSliderState extends State<CarouselSlider> {
             itemBuilder: (_, index) {
               return FittedBox(
                   fit: BoxFit.contain,
-                  child: Image.memory(
-                    base64.decode(widget.items[index]),
-                    scale: 15,
-                  ));
+                  child: Image.asset(widget.items[index]));
             },
           ),
         ),
