@@ -1,0 +1,58 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import '../Model/wrapperTransactionResponseDTO.dart';
+
+class WalletApiService {
+  Future<void> postWalletData(int userId, int investmentId) async {
+    final url = Uri.parse(
+        'http://103.108.12.222:11001/kalpco/version/v0.01/wallet?userId=$userId&investmentId=$investmentId');
+    print('test -> ${url}');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      print('Response: ${response.body}');
+      if (response.statusCode == 200) {
+        // Success
+        print('Response: ${response.body}');
+      } else {
+        // Error handling
+        print('Failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Exception handling
+      print('Error: $e');
+    }
+  }
+
+  Future<WalletTransactionWrapperDTO?> fetchWalletTransactions(
+      int userId) async {
+    final url = Uri.parse(
+        'http://103.108.12.222:11001/kalpco/version/v0.01/wallet?userId=$userId');
+    print(url);
+    try {
+      final response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+      });
+      print('test -> ${response.body}');
+      if (response.statusCode == 200) {
+        // Parse the JSON response
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        return WalletTransactionWrapperDTO.fromJson(jsonResponse);
+      } else {
+        // Error handling
+        print('Failed with status code: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      // Exception handling
+      print('Error: $e');
+      return null;
+    }
+  }
+}
