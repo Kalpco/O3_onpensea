@@ -3,6 +3,8 @@ import "package:flutter/rendering.dart";
 import "package:get/get.dart";
 import "package:get/get_core/src/get_main.dart";
 import "package:google_fonts/google_fonts.dart";
+import "package:onpensea/features/authentication/screens/login/login.dart";
+import "package:onpensea/features/authentication/screens/signUp/signup.dart";
 import "package:onpensea/features/scheme/Screens/widgets/custom_appbar.dart";
 import "package:onpensea/features/scheme/Screens/widgets/faqs_widget.dart";
 import "package:onpensea/features/scheme/Screens/widgets/feature_widget.dart";
@@ -17,6 +19,7 @@ import "package:video_player/video_player.dart";
 
 import "../../../utils/constants/colors.dart";
 import "../../Portfolio/description.dart";
+import "../../authentication/screens/login/Controller/LoginController.dart";
 import "../models/investment_response_model.dart";
 import "ProductOrderFailSummaryPage.dart";
 import "ProductOrderSuccessSummaryPage.dart";
@@ -41,6 +44,8 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
 
   bool toggleIcon = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final loginController = Get.find<LoginController>();
 
   toggleIconState(bool value) {
     setState(() {
@@ -120,14 +125,12 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
                     side: const BorderSide(width: 0, color: Colors.white),
                   ),
                   onPressed: () {
-                    if (widget.singleInvestment.investmentType == "schemes") {
-                      _openModal();
-                    } else {
+                    if (loginController.userData["userId"] == 0) {
                       showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
                           title: Text(
-                            "Contact us",
+                            "Alert",
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -135,7 +138,7 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
                             ),
                           ),
                           content: Text(
-                            "9987734001",
+                            "Please Register to purchase",
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -145,13 +148,16 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {
-                                Navigator.of(ctx).pop();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                                );
                               },
                               child: Container(
                                 color: const Color(0xffB80000),
                                 padding: const EdgeInsets.all(14),
                                 child: Text(
-                                  "okay",
+                                  "Go to Register",
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -160,13 +166,76 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
                                 ),
                               ),
                             ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(ctx).pop(); // Close the dialog
+                              },
+                              child: Container(
+                                color: Colors.grey.shade300,
+                                padding: const EdgeInsets.all(14),
+                                child: Text(
+                                  "Cancel",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       );
+
+                    } else {
+                      if (widget.singleInvestment.investmentType == "schemes") {
+                        _openModal();
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: Text(
+                              "Contact us",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            content: Text(
+                              "9987734001",
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                                child: Container(
+                                  color: const Color(0xffB80000),
+                                  padding: const EdgeInsets.all(14),
+                                  child: Text(
+                                    "okay",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     }
                   },
                   child: Text(
-                    (widget.singleInvestment.investmentType == "schemes")
+                    (widget.singleInvestment.investmentType == "schemes".toLowerCase())
                         ? "Purchase Scheme"
                         : "Contact us",
                     style: GoogleFonts.poppins(
@@ -260,7 +329,6 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
                       const SizedBox(height: 20),
                       const GetInTouch(),
                       const SizedBox(height: 20),
-
                     ],
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'dart:convert';
 
 import '../Model/wrapperTransactionResponseDTO.dart';
@@ -7,7 +8,7 @@ import '../Model/wrapperTransactionResponseDTO.dart';
 class WalletApiService {
   Future<void> postWalletData(int userId, int investmentId) async {
     final url = Uri.parse(
-        'http://103.108.12.222:11001/kalpco/version/v0.01/wallet?userId=$userId&investmentId=$investmentId');
+        '${ApiConstants.WALLET_BASE_URL}?userId=$userId&investmentId=$investmentId');
     print('test -> ${url}');
     try {
       final response = await http.post(
@@ -33,7 +34,7 @@ class WalletApiService {
   Future<WalletTransactionWrapperDTO?> fetchWalletTransactions(
       int userId) async {
     final url = Uri.parse(
-        'http://103.108.12.222:11001/kalpco/version/v0.01/wallet?userId=$userId');
+        '${ApiConstants.WALLET_BASE_URL}?userId=$userId');
     print(url);
     try {
       final response = await http.get(url, headers: {

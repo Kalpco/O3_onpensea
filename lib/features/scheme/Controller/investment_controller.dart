@@ -1,3 +1,4 @@
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/scheme/models/investment_response_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,7 +8,8 @@ class InvestmentController {
   Future<InvestmentResponseModel?> getAllInvestments() async {
     var client = http.Client();
     var uri = Uri.parse(
-        "http://103.108.12.222:11003/investments/kalpco/v0.01/investments");
+        ApiConstants.INVESTMENTMS_URL!);
+
     var response = await client.get(uri);
 
     if (response.statusCode == 200) {
@@ -20,8 +22,7 @@ class InvestmentController {
 
   static Future<http.Response> postInvestmentHistoryDetails(
       Map<String, dynamic> investmentHistoryDetails) async {
-    const String baseUrl = 'http://103.108.12.222:11003/investments/kalpco/v0.01/investments';
-    final url = Uri.parse('$baseUrl/transaction-history');
+    final url = Uri.parse('${ApiConstants.INVESTMENTMS_URL!}/transaction-history');
     try {
       final response = await http.post(
         url,

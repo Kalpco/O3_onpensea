@@ -2,15 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/scheme/models/investment_response_model.dart';
-import '../../../commons/config/ApiUrl.dart';
 import '../../../utils/constants/sizes.dart';
 import '../../Home/widgets/DividerWithAvatar.dart';
 import '../Screens/widgets/AllOpenContainerWrapperNew.dart';
-import '../Widgets/OpenContainerWrapperNew.dart';
 
 class SchemeGridView extends StatelessWidget {
-
   SchemeGridView({
     super.key,
     required this.allInvestments,
@@ -26,7 +24,7 @@ class SchemeGridView extends StatelessWidget {
           child: CachedNetworkImage(
             fit: BoxFit.fill,
             imageUrl:
-                "${ApiUrl.INVESTMENT_SCHEME}${singleInvestment.investmentImage01}",
+                "${ApiConstants.INVESTMENTMS_URL}${singleInvestment.investmentImage01}",
             placeholder: (context, url) => const Center(
               child: CircularProgressIndicator(color: Colors.grey),
             ),

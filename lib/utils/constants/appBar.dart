@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:onpensea/features/Home/Screens/HomeScreen.dart';
 import 'package:onpensea/utils/constants/circularIcon.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
@@ -34,7 +35,7 @@ class U_AppBar extends StatelessWidget implements PreferredSizeWidget{
     child:AppBar(
       automaticallyImplyLeading:false,
       leading:showBackArrow 
-      ? IconButton(onPressed:() => Get.back(),icon: Icon(Iconsax.arrow_left, color: dark ? U_Colors.dark : U_Colors.whiteColor))
+      ? IconButton(onPressed:() => Get.to(() => HomeScreen()),icon: Icon(Iconsax.arrow_left, color: dark ? U_Colors.dark : U_Colors.whiteColor))
       :leadingIcon != null
       ?IconButton(onPressed: leadingOnPressed, icon: Icon(leadingIcon))
       :null,

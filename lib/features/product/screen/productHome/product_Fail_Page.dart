@@ -5,7 +5,7 @@ import 'package:onpensea/features/product/models/products.dart';
 import 'package:onpensea/features/product/models/order_api_success.dart';
 import 'package:onpensea/features/product/screen/productBottomBar/bottom_bar.dart';
 import 'package:onpensea/utils/constants/colors.dart';
-// import 'package:kalpco/utils/constants/divider_with_avator.dart';
+// import 'package:onpensea/utils/constants/divider_with_avator.dart';
 import 'package:onpensea/utils/constants/images_path.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
 

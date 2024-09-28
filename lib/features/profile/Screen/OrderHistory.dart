@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import '../../../utils/constants/colors.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import '../../../utils/constants/api_constants.dart';
+import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
 
 class OrderHistory extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class _OrderHistoryState extends State<OrderHistory> {
   Future<void> _fetchOrderHistory() async {
     try {
       final response = await _dio.get(
-          'http://103.108.12.222:11001/kalpco/v1.0.0/transactions/users/${loginController.userData['userId']}');
+          '${API_CONSTANTS_1.ApiConstants.TRANSACTION_BASE_URL}/users/${loginController.userData['userId']}');
 
       if (response.statusCode == 200) {
         final data = response.data['productTransactionDTOList'];

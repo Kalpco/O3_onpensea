@@ -45,7 +45,7 @@ class ProductExpandTile extends StatelessWidget {
                           children: [
                             Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('Weight (in carats)',style: const TextStyle(fontWeight: FontWeight.bold),)),
+                              child: Center(child: Text('Gold weight ',style: const TextStyle(fontWeight: FontWeight.bold),)),
                             ),
                             Padding(
                               padding: EdgeInsets.all(8.0),
@@ -53,7 +53,7 @@ class ProductExpandTile extends StatelessWidget {
                             ),
                           ],
                         ),
-                         TableRow(
+                        TableRow(
                           children: [
                             Divider(),
                             Divider(),
@@ -63,25 +63,7 @@ class ProductExpandTile extends StatelessWidget {
                           children: [
                             Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('Type',style :const TextStyle(fontWeight: FontWeight.bold),)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text(product.gemsDTO?.typeOfStone ?? 'NA')),
-                            ),
-                          ],
-                        ),
-                         TableRow(
-                          children: [
-                            Divider(),
-                            Divider(),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('Purity',style :const TextStyle(fontWeight: FontWeight.bold),)),
+                              child: Center(child: Text('Gold Purity',style :const TextStyle(fontWeight: FontWeight.bold),)),
                             ),
                             Padding(
                               padding: EdgeInsets.all(8.0),
@@ -90,6 +72,25 @@ class ProductExpandTile extends StatelessWidget {
                             ),
                           ],
                         ),
+                         TableRow(
+                          children: [
+                            Divider(),
+                            Divider(),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: Text('Diamond Type',style :const TextStyle(fontWeight: FontWeight.bold),)),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: Text(product.gemsDTO?.typeOfStone ?? 'NA')),
+                            ),
+                          ],
+                        ),
+
                         TableRow(
                           children: [
                             Divider(),
@@ -100,7 +101,7 @@ class ProductExpandTile extends StatelessWidget {
                           children: [
                             Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('No. of small diamonds',style :const TextStyle(fontWeight: FontWeight.bold),)),
+                              child: Center(child: Text('No. of diamonds',style :const TextStyle(fontWeight: FontWeight.bold),)),
                             ),
                             Padding(
                               padding: EdgeInsets.all(8.0),
@@ -118,7 +119,7 @@ class ProductExpandTile extends StatelessWidget {
                           children: [
                             Padding(
                               padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('Wt. of small diamonds',style :const TextStyle(fontWeight: FontWeight.bold),)),
+                              child: Center(child: Text('Wt. of diamonds',style :const TextStyle(fontWeight: FontWeight.bold),)),
                             ),
                             Padding(
                               padding: EdgeInsets.all(8.0),
@@ -126,42 +127,42 @@ class ProductExpandTile extends StatelessWidget {
                             ),
                           ],
                         ),
-                        TableRow(
-                          children: [
-                            Divider(),
-                            Divider(),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('No. of solitare',style :const TextStyle(fontWeight: FontWeight.bold),)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text(product.gemsDTO?.noOfSolitareDiamond?.toString() ?? 'NA')),
-                            ),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            Divider(),
-                            Divider(),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text('Wt. of Solitare',style :const TextStyle(fontWeight: FontWeight.bold),)),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: Text((product.gemsDTO?.weightOfSolitareDiamond?.toString() ?? 'NA') + ' ct')),
-                            ),
-                          ],
-                        ),
+                        // TableRow(
+                        //   children: [
+                        //     Divider(),
+                        //     Divider(),
+                        //   ],
+                        // ),
+                        // TableRow(
+                        //   children: [
+                        //     Padding(
+                        //       padding: EdgeInsets.all(8.0),
+                        //       child: Center(child: Text('No. of solitare',style :const TextStyle(fontWeight: FontWeight.bold),)),
+                        //     ),
+                        //     Padding(
+                        //       padding: EdgeInsets.all(8.0),
+                        //       child: Center(child: Text(product.gemsDTO?.noOfSolitareDiamond?.toString() ?? 'NA')),
+                        //     ),
+                        //   ],
+                        // ),
+                        // TableRow(
+                        //   children: [
+                        //     Divider(),
+                        //     Divider(),
+                        //   ],
+                        // ),
+                        // TableRow(
+                        //   children: [
+                        //     Padding(
+                        //       padding: EdgeInsets.all(8.0),
+                        //       child: Center(child: Text('Wt. of Solitare',style :const TextStyle(fontWeight: FontWeight.bold),)),
+                        //     ),
+                        //     Padding(
+                        //       padding: EdgeInsets.all(8.0),
+                        //       child: Center(child: Text((product.gemsDTO?.weightOfSolitareDiamond?.toString() ?? 'NA') + ' ct')),
+                        //     ),
+                        //   ],
+                        // ),
 
                       ],
                     ),

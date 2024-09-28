@@ -10,12 +10,13 @@ class FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: Colors.amber[50],
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Ensures text starts from the top
         children: [
           Icon(
             icon,
@@ -26,11 +27,17 @@ class FeatureCard extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.poppins(fontSize: 10, fontWeight: FontWeight.w400),
+              style: GoogleFonts.poppins(
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+              ),
+              softWrap: true,  // Allows text to wrap if it's too long for one line
             ),
           ),
         ],
       ),
     );
+
+
   }
 }

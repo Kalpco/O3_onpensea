@@ -27,6 +27,8 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
 
+  bool _isPasswordVisible = false; // Add this state variable to toggle password visibility
+
   final loginController = Get.put(LoginController());
 
   @override
@@ -61,11 +63,20 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: U_Sizes.inputFieldSpaceBtw),
             TextFormField(
               controller: passController,
-              obscureText: true, // Ensure password field is obscured
-              decoration: const InputDecoration(
+              obscureText: !_isPasswordVisible, // Use the state variable to toggle visibility
+              decoration: InputDecoration(
                 prefixIcon: Icon(Iconsax.password_check),
                 labelText: "Password",
-                suffixIcon: Icon(Iconsax.eye_slash),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible ? Iconsax.eye : Iconsax.eye_slash, // Toggle icon based on state
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible; // Toggle visibility
+                    });
+                  },
+                ),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -74,30 +85,16 @@ class _LoginFormState extends State<LoginForm> {
                 return null;
               },
             ),
-            const SizedBox(height: U_Sizes.inputFieldSpaceBtw / 1),
-            // const SizedBox(height: U_Sizes.inputFieldSpaceBtw / 1),
-            //Remember me and forget password
+            const SizedBox(height: U_Sizes.inputFieldSpaceBtw),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Row(
-                //   children: [
-                //     Checkbox(
-                //       value: true,
-                //       onChanged: (value) {},
-                //       activeColor: U_Colors.yaleBlue,
-                //     ),
-                //     const Text(U_TextStrings.rememberMe)
-                //   ],
-                // ),
                 TextButton(
                   onPressed: () => Get.to(() => ForgotPasswordScreen()),
                   child: Text(U_TextStrings.forgotPassword),
-                )
+                ),
               ],
             ),
-            // const SizedBox(height: U_Sizes.spaceBwtSections),
-            // Sign-in
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -109,8 +106,8 @@ class _LoginFormState extends State<LoginForm> {
                       String password = passController.text;
 
                       bool success =
-                          await LoginController.verifyUserCredentials(
-                              email, password);
+                      await LoginController.verifyUserCredentials(
+                          email, password);
 
                       if (success) {
                         Get.to(() => NavigationMenu());
@@ -152,7 +149,6 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
             const SizedBox(height: U_Sizes.spaceBwtSections),
-            // Create account
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -167,23 +163,24 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ),
             ),
-            // SizedBox(
-            //   width: double.infinity,
-            //   child: ElevatedButton(
-            //     onPressed: () => loginController.guestLogin(),
-            //     child: Text(
-            //       U_TextStrings.LoginGuest,
-            //       style: TextStyle(color: U_Colors.yaleBlue),
-            //     ),
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: U_Colors.whiteColor,
-            //       side: BorderSide(color: U_Colors.yaleBlue),
-            //     ),
-            //   ),
-            // ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => loginController.guestLogin(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: U_Colors.whiteColor,
+                  side: const BorderSide(color: U_Colors.yaleBlue),
+                ),
+                child: const Text(
+                  U_TextStrings.LoginGuest,
+                  style: TextStyle(color: U_Colors.yaleBlue),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+

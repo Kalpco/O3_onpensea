@@ -215,7 +215,7 @@ class _BarChartSampleState extends State<BarChartSample> {
       return "This scheme is closed and money has been redeemed into the wallet.";
     } else {
       if (lastPaymentObject != null) {
-        return "Last payment was made on ${lastPaymentObject['date']} by Kalpco Consulting Pvt Ltd.";
+        return "This month installment paid on ${lastPaymentObject['date']}.";
       } else {
         return "No payments have been made yet.";
       }

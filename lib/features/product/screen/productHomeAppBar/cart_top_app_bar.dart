@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/product/screen/productHomeAppBar/cart_home_app_bar.dart';
 import '../../../../navigation_menu.dart';
 import '../../../../utils/constants/colors.dart';
@@ -21,12 +22,17 @@ class CartTopAppBar extends StatefulWidget {
 
 class _CartTopAppBarState extends State<CartTopAppBar> {
   String? profileImageUrl;
+  String? userType;
+
   final loginController = Get.find<LoginController>();
   final navController = Get.find<NavigationController>();
+
 
   // Initialize the body parameter
   @override
   void initState() {
+    userType = loginController.userData['userType'];
+    print("userType:$userType");
     super.initState();
     _setProfileImage();
   }
@@ -34,7 +40,7 @@ class _CartTopAppBarState extends State<CartTopAppBar> {
   void _setProfileImage() {
     final photoUrl = loginController.userData['photoUrl'];
     profileImageUrl =
-        'http://103.108.12.222:11000/kalpco/version/v0.01$photoUrl';
+        '${ApiConstants.USERS_URL}$photoUrl';
   }
 
   void _showFullScreenImage(BuildContext context) {

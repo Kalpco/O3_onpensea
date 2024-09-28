@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onpensea/commons/config/ApiUrl.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 
 import '../../../../commons/styles/custom_border_radius.dart';
 
@@ -44,7 +44,7 @@ class SummaryPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               child: CachedNetworkImage(
                 imageUrl:
-                    "${ApiUrl.INVESTMENT_SCHEME}${logo}",
+                    "${ApiConstants.INVESTMENTMS_URL}/$logo",
                 fit: BoxFit.fill,
                 width: 40,
                 height: 40,

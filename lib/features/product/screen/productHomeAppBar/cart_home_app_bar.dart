@@ -28,7 +28,7 @@ class CartHomeAppBar extends StatelessWidget {
             children: [
               SizedBox(width: 5), // Add some space between the icon and the text
               Text(
-                "back",
+                "Back",
                 style: TextStyle(
                   color: U_Colors.whiteColor,
                 ),

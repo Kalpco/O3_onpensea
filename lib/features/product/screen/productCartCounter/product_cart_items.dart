@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:onpensea/features/product/screen/productCartCounter/product_cart_verify_icon.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/images_path.dart';
-// import 'package:kalpco/utils/constants/product_cart_verified_icon.dart';
+// import 'package:onpensea/utils/constants/product_cart_verified_icon.dart';
 import 'package:onpensea/utils/constants/product_title.dart';
 import 'package:onpensea/utils/constants/roundedImage.dart';
 import 'package:onpensea/utils/constants/sizes.dart';

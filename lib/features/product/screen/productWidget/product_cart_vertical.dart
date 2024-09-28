@@ -77,7 +77,7 @@ class ProductCartVertical extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        product.productOwnerName!,
+                        "Purity: ${product.purity!.toString()} K",
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: Theme.of(context).textTheme.labelMedium,

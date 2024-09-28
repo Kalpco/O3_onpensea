@@ -4,10 +4,17 @@ import 'package:onpensea/utils/constants/images_path.dart';
 
 import '../productHome/product_SubCategory_Page.dart';
 
-class ProductHomeCategory extends StatelessWidget {
+class ProductHomeCategory extends StatefulWidget {
+  // final String? productCategory,typeOfStone;
+
+   // ProductHomeCategory({required this.productCategory, required this.typeOfStone});
 
 
+  @override
+  State<ProductHomeCategory> createState() => _ProductHomeCategoryState();
+}
 
+class _ProductHomeCategoryState extends State<ProductHomeCategory> {
   @override
   Widget build(BuildContext context) {
 
@@ -32,7 +39,7 @@ class ProductHomeCategory extends StatelessWidget {
         }),
     );
   }
-  
+
     void _handleTap(BuildContext context, String param) async {
       Navigator.push(
         context,

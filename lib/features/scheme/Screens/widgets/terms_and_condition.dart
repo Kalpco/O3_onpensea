@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+
+// import 'package:webview_flutter/webview_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/investment_response_model.dart';
@@ -127,9 +128,8 @@ class TermsFullPageState extends State<TermsFullPage> {
           ),
         ),
       ),
-      body: const WebView(
-        initialUrl: 'https://www.kalpco.com/terms-and-conditions.html',
-        javascriptMode: JavascriptMode.unrestricted,
+      body: const Center(
+        child: Text("hello"),
       ),
     );
   }

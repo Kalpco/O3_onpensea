@@ -14,7 +14,8 @@ class ProductPrice extends StatelessWidget{
   final int maxLines;
   final bool isLarge;
   final bool lineThrough;
-  
+
+
   @override
   Widget build(BuildContext context) {
     return Text(

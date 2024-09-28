@@ -39,7 +39,7 @@ class RatingnShare extends StatelessWidget {
 
   Future<void> _showShareDialog(BuildContext context) async {
     final String appLink = 'https://play.google.com/store/apps/details?id=com.intech.onpensea&hl=en';
-    final String message = 'Check out app: $appLink';
+    final String message = 'Check out Kalpco app';
 
     // Share the app link and message using the share dialog
     await FlutterShare.share(title: 'Share App', text: message, linkUrl: appLink);

@@ -20,46 +20,49 @@ class SignUpScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: const Image(
-                height: 100,
-                image: AssetImage(U_ImagePath.kalpcoLogo),
-                width: 150,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: const Image(
+                  height: 100,
+                  image: AssetImage(U_ImagePath.kalpcoLogo),
+                  width: 150,
+                ),
               ),
-            ),
-            SizedBox(height: 10,),
+              SizedBox(height: 10,),
 
-            /// Title
+              /// Title
 
-            Center(
-              child: Text(
-                U_TextStrings.signUpTitle,
-                style: Theme.of(context).textTheme.headlineSmall,
+              Center(
+                child: Text(
+                  U_TextStrings.signUpTitle,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
               ),
-            ),
-            const SizedBox(height: U_Sizes.spaceBwtSections),
+              const SizedBox(height: U_Sizes.spaceBwtSections),
 
-            ///form
+              ///form
 
-            SignUpForm(dark: dark),
+              SignUpForm(dark: dark),
 
-            const SizedBox(
-              height: U_Sizes.spaceBtwItems,
-            ),
+              const SizedBox(
+                height: U_Sizes.spaceBtwItems,
+              ),
 
-            /// Divider
-            // W_Divider(dark: dark),
+              /// Divider
+              // W_Divider(dark: dark),
 
-            // const SizedBox(
-            //   height: U_Sizes.spaceBwtSections,
-            // ),
+              // const SizedBox(
+              //   height: U_Sizes.spaceBwtSections,
+              // ),
 
-            /// social buttons
-            // const W_SocialButtons()
-          ],
+              /// social buttons
+              // const W_SocialButtons()
+            ],
+          ),
         ),
       ),
     );

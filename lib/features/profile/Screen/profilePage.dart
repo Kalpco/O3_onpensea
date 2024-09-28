@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/authentication/screens/login/login.dart';
 import 'package:onpensea/features/product/screen/productHomeAppBar/common_top_bar.dart';
 import '../../../navigation_menu.dart';
@@ -25,19 +26,24 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _userTypeController = TextEditingController();
 
   final navController = Get.find<NavigationController>();
   final Dio _dio = Dio();
   String? profileImageUrl;
+  String? userType;
+
 
   @override
   void initState() {
+
+
     super.initState();
     final loginController = Get.find<LoginController>();
     _nameController.text = loginController.userData['name'] ?? '';
     _emailController.text = loginController.userData['email'] ?? '';
     _phoneController.text = loginController.userData['mobileNo'] ?? '';
-    _addressController.text = loginController.userData['address'] ?? '';
+    // _addressController.text = loginController.userData['address'] ?? '';
     _lastNameController.text = loginController.userData['lastName'] ?? '';
 
     _setProfileImage();
@@ -50,14 +56,27 @@ class _ProfilePageState extends State<ProfilePage> {
     _phoneController.dispose();
     _addressController.dispose();
     _lastNameController.dispose();
+    _userTypeController.dispose();
+
     super.dispose();
   }
 
   void _setProfileImage() {
     final loginController = Get.find<LoginController>();
     String photoUrl = loginController.userData['photoUrl'];
+
+    print('photourl: $photoUrl');
     profileImageUrl =
-        'http://103.108.12.222:11000/kalpco/version/v0.01$photoUrl';
+        '${ApiConstants.USERS_URL}$photoUrl';
+    print("api: ${ApiConstants.USERS_URL}");
+    print("profile image: $profileImageUrl");
+
+
+
+
+    userType = loginController.userData['userType'];
+    print("userType:$userType");
+
     setState(() {});
   }
 
@@ -97,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Perform the PUT request to update the user profile
     try {
       final response = await _dio.put(
-        'http://103.108.12.222:11000/kalpco/version/v0.01/users/${loginController.userData['userId']}',
+        '${ApiConstants.USERS_URL}/${loginController.userData['userId']}',
         data: updatedData,
       );
 
@@ -257,8 +276,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                placeholder: (context, url) => const CircularProgressIndicator(),
               ),
               Positioned(
                 top: 30,
@@ -413,6 +432,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
+              if(userType=="A")
+              ListTile(
+                leading: Icon(Icons.admin_panel_settings),
+                title: Text('Admin(profilePage)'),
+                onTap: () {
+
+                },
+              ),
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Logout'),
@@ -432,7 +459,7 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           children: [
             GestureDetector(
-              onLongPress: () => _showFullScreenImage(context),
+              onTap: () => _showFullScreenImage(context),
               child: profileImageUrl != null
                   ? CachedNetworkImage(
                       imageUrl: profileImageUrl!,

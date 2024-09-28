@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
-import '../../../commons/config/ApiUrl.dart';
 
 class CarouselSlider extends StatefulWidget {
   const CarouselSlider({
@@ -42,7 +41,7 @@ class _CarouselSliderState extends State<CarouselSlider> {
                   child: CachedNetworkImage(
                     fit: BoxFit.fill,
                     imageUrl:
-                        "${ApiUrl.INVESTMENT_SCHEME}${widget.items[index]}",
+                        "${ApiConstants.INVESTMENTMS_URL}${widget.items[index]}",
                     placeholder: (context, url) =>
                         const CircularProgressIndicator(color: Colors.grey,),
                     errorWidget: (context, url, error) =>

@@ -1,8 +1,8 @@
 // import 'package:cached_network_image/cached_network_image.dart';
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
-// import 'package:kalpco/features/product/models/products.dart';
-// import 'package:kalpco/utils/constants/sizes.dart';
+// import 'package:onpensea/features/product/models/products.dart';
+// import 'package:onpensea/utils/constants/sizes.dart';
 // import 'package:photo_view/photo_view.dart';
 
 // class ImageSliderController extends GetxController{

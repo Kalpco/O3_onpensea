@@ -18,7 +18,7 @@ class U_TextStrings {
 
 //Form Text
   static const String firstName = "First Name";
-  static const String pincode = "pincode";
+  static const String pincode = "Pincode";
   static const String lastName = "Last Name";
   static const String fatherName = "father Name";
   static const String email = "Email";

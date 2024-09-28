@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:onpensea/commons/config/api_constants.dart';
 
 class TranactionOrderAPI {
-  static const String _baseUrl = 'http://103.108.12.222:11001/kalpco/v1.0.0';
+  static String _baseUrl = '${ApiConstants.TRANSACTION_BASE_URL}';
 
   static Future<http.Response> postTransactionDetails(Map<String, dynamic> transactionDetails) async {
-    final url = Uri.parse('$_baseUrl/transactions');
+    final url = Uri.parse('$_baseUrl');
 
     try {
       final response = await http.post(

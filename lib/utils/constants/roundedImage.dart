@@ -47,7 +47,7 @@ class U_RoundedImage extends StatelessWidget {
           // child: Image(fit:fit,image: isNetworkImage ? NetworkImage(imageUrl):AssetImage(imageUrl) as ImageProvider),
           child: isNetworkImage ? CachedNetworkImage(imageUrl: imageUrl,fit: fit,
             progressIndicatorBuilder: (context,url,downloadProgress) => Center(
-              child: CircularProgressIndicator(value: downloadProgress.progress,color: U_Colors.yaleBlue),
+              child: CircularProgressIndicator(value: downloadProgress?.progress,color: U_Colors.yaleBlue),
             ),
             errorWidget: (context,url,error) => Icon(Icons.error),
           )

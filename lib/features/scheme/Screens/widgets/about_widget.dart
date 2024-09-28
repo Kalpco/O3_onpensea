@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onpensea/commons/config/ApiUrl.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:video_player/video_player.dart';
 
 class AboutWidget extends StatefulWidget {
@@ -50,7 +50,7 @@ class _AboutWidgetState extends State<AboutWidget> {
                     : 16 / 9,
                 child: widget.investmentType == "scheme"
                     ? Image.network(
-                        '${ApiUrl.INVESTMENT_SCHEME}${widget.imageUrl}',
+                        '${ApiConstants.INVESTMENTMS_URL}${widget.imageUrl}',
                         // Replace with your image asset
                         fit: BoxFit.cover,
                       )

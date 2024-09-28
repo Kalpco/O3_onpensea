@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onpensea/commons/config/ApiUrl.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 
 import '../../../../commons/styles/custom_border_radius.dart';
 import '../../../scheme/Widgets/Skeleton.dart';
@@ -139,7 +139,7 @@ class VisitStoreWidget extends StatelessWidget {
                         elevation: 1,
                         child: CachedNetworkImage(
                           imageUrl:
-                              "${ApiUrl.INVESTMENT_SCHEME}$jewellerShopImage",
+                              "${ApiConstants.INVESTMENTMS_URL}/$jewellerShopImage",
                           placeholder: (context, url) => const Skeleton(
                             width: double.infinity,
                             height: 189,

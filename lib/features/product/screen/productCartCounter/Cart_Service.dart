@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:onpensea/commons/config/api_constants.dart';
 
 import 'Cart_Item.dart';
 
 class CartService {
-  static const String baseUrl = 'http://103.108.12.222:11004/kalpco/carts/';
+  static String baseUrl = '${ApiConstants.CART_BASE_URL}';
 
   Future<Cart> fetchCartItems(String userId) async {
     final response = await http.get(Uri.parse('$baseUrl$userId'));

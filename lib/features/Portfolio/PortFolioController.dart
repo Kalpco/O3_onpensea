@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'dart:convert';
 
 import '../authentication/screens/login/Controller/LoginController.dart';
@@ -11,7 +12,7 @@ class PortFolioController {
 
     var client = http.Client();
     var uri = Uri.parse(
-        "http://103.108.12.222:11005/kalpco/v0.01/portfolio/users/$userId");
+        "${ApiConstants.PORTFOLIO_URL}/users/$userId");
     try {
       var response = await client.get(uri);
       if (response.statusCode == 200) {

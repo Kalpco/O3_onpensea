@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/enums.dart';
-// import 'package:kalpco/utils/constants/product_brand_title_text.dart';
+// import 'package:onpensea/utils/constants/product_brand_title_text.dart';
 import 'package:onpensea/utils/constants/product_title.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
 

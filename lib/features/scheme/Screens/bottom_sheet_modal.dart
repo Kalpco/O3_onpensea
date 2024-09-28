@@ -57,6 +57,8 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
   late Razorpay _razorpay;
   static TextEditingController amountController = TextEditingController();
 
+
+
   @override
   void initState() {
     _toggleIcon = widget.toggleIcon;

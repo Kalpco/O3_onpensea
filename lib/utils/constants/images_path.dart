@@ -5,6 +5,10 @@ class U_ImagePath {
   static const String kalpcoLogo = "assets/logos/KALPCO_splash.png";
   static const String kalpcoLoginLogo = "assets/logos/KALPCO.png";
 
+  //Add product
+  static const String addLogo = "assets/logos/add.png";
+
+
   //App logo
   static const String darkAppLogo = "assets/logos/TIT-BEAT_dark.png";
   static const String lightAppLogo = "assets/logos/TIT-BEAT.png";

@@ -1,8 +1,10 @@
+import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
+
 class ApiConstants {
   static const String apiKey = "";
   // static const String baseUrl="http://127.0.0.1:11003/kalpco/v0.01";
 
-  static const String baseUrl="http://103.108.12.222:11002/kalpco/v0.01";
+  static String baseUrl="${API_CONSTANTS_1.ApiConstants.PRODUCTS_BASE_URL}";
   static const String postProductApi="/products/merchant/1/M/catalog";
 
   //razorpay authentication key and id

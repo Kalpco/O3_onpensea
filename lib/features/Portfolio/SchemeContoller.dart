@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'dart:convert';
 
 import '../authentication/screens/login/Controller/LoginController.dart';
@@ -12,7 +13,7 @@ class SchemeContoller {
     final loginController = Get.find<LoginController>(); // Access the LoginController
     int userId = loginController.userData['userId'];
     var client = http.Client();
-    var uri = Uri.parse("http://103.108.12.222:11005/kalpco/v0.01/portfolio/users/$userId/investment/$investmentId");
+    var uri = Uri.parse("${ApiConstants.PORTFOLIO_URL}/users/$userId/investment/$investmentId");
 
     var response = await client.get(uri);
     if (response.statusCode == 200) {

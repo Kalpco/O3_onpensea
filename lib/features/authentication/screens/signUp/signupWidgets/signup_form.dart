@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:iconsax/iconsax.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/commons/widgets/login_signup/form_divider.dart';
 import 'package:onpensea/commons/widgets/login_signup/social_buttons.dart';
 import 'package:onpensea/features/authentication/screens/signUp/verify_email.dart';
@@ -16,6 +17,7 @@ import 'package:onpensea/utils/constants/sizes.dart';
 import 'package:onpensea/utils/constants/text_strings.dart';
 import 'package:onpensea/utils/helper/helper_functions.dart';
 import '../../../../../commons/widgets/success_screen/success_screen.dart';
+import '../../login/login.dart';
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key, required this.dark});
@@ -33,6 +35,9 @@ class _SignUpFormState extends State<SignUpForm> {
   // final TextEditingController _fatherNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+
+  final TextEditingController _pincodeController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneNoController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
@@ -42,6 +47,7 @@ class _SignUpFormState extends State<SignUpForm> {
   final TextEditingController _aadharController = TextEditingController();
   final TextEditingController _panController = TextEditingController();
   final TextEditingController _companynameController = TextEditingController();
+
   final TextEditingController _GSTNumberController = TextEditingController();
   final TextEditingController _companyAddressController =
   TextEditingController();
@@ -55,9 +61,11 @@ class _SignUpFormState extends State<SignUpForm> {
 
   File? _image;
   bool isVerified = false;
-
+  bool _isChecked = false;
   int? _generatedOtp;
   int? _enteredOtp;
+  bool _isPasswordVisible = false;
+
 
   final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
 
@@ -176,7 +184,7 @@ class _SignUpFormState extends State<SignUpForm> {
       _isLoading.value = true;
       try {
         final url =
-        Uri.parse('http://103.108.12.222:11000/kalpco/version/v0.01/users');
+        Uri.parse(ApiConstants.USERS_URL!);
         final request = http.MultipartRequest('POST', url);
 
         request.fields['name'] = _firstNameController.text;
@@ -189,6 +197,9 @@ class _SignUpFormState extends State<SignUpForm> {
         request.fields['gender'] =
         _selectedGender != null ? _selectedGender![0] : '';
         request.fields['city'] = _cityController.text;
+
+        request.fields['pincode'] = _pincodeController.text;
+
         request.fields['state'] = _stateController.text;
         request.fields['aadharNo'] = _aadharController.text;
         request.fields['panNo'] = _panController.text;
@@ -202,7 +213,7 @@ class _SignUpFormState extends State<SignUpForm> {
 
         if (_image != null) {
           request.files
-              .add(await http.MultipartFile.fromPath('photo', _image!.path));
+              .add(await http.MultipartFile.fromPath('photoUrl', _image!.path));
         }
 
         final response = await request.send();
@@ -313,6 +324,32 @@ class _SignUpFormState extends State<SignUpForm> {
               return null;
             },
           ),
+
+
+
+
+          const SizedBox(
+            height: U_Sizes.inputFieldSpaceBtw,
+          ),
+          TextFormField(
+            controller: _pincodeController,
+            decoration: const InputDecoration(
+              labelText: U_TextStrings.pincode,
+              prefixIcon: Icon(Icons.pin_drop),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your pincode';
+              }
+              return null;
+            },
+          ),
+
+
+
+
+
+
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),
@@ -350,10 +387,20 @@ class _SignUpFormState extends State<SignUpForm> {
           ),
           TextFormField(
             controller: _passwordController,
-            decoration: const InputDecoration(
+            obscureText: !_isPasswordVisible, // Toggle visibility based on state
+            decoration: InputDecoration(
               labelText: U_TextStrings.password,
               prefixIcon: Icon(Iconsax.password_check),
-              suffixIcon: Icon(Iconsax.eye_slash),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Iconsax.eye : Iconsax.eye_slash,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible; // Toggle password visibility
+                  });
+                },
+              ),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -361,7 +408,6 @@ class _SignUpFormState extends State<SignUpForm> {
               }
               return null;
             },
-            obscureText: true,
           ),
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
@@ -383,16 +429,31 @@ class _SignUpFormState extends State<SignUpForm> {
                 },
               ),
               Positioned(
-                right: 0,
-                top: 8,
-                child: GestureDetector(
-                  onTap: _sendOTP,
+                right: 12,
+                top: 10,
+                child: OutlinedButton(
+                  onPressed: _sendOTP,
+                  style: OutlinedButton.styleFrom(
+                    side: isVerified
+                        ? BorderSide.none
+                        : BorderSide(
+                      color: isVerified
+                          ? Colors.green
+                          : Colors.grey.shade500,
+                      width: 2.0,
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
                   child: Text(
                     isVerified ? 'Verified' : 'Verify Now',
                     style: TextStyle(
-                      color: isVerified ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: isVerified ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                 ),
               ),
@@ -417,15 +478,31 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),
+          // TextFormField(
+          //   controller: _aadharController,
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.aadhar,
+          //     prefixIcon: Icon(Iconsax.card_tick),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your Aadhar';
+          //     }
+          //     return null;
+          //   },
+          // ),
+          const SizedBox(
+            height: U_Sizes.inputFieldSpaceBtw,
+          ),
           TextFormField(
-            controller: _aadharController,
+            controller: _panController,
             decoration: const InputDecoration(
-              labelText: U_TextStrings.aadhar,
-              prefixIcon: Icon(Iconsax.card_tick),
+              labelText: U_TextStrings.pan,
+              prefixIcon: Icon(Iconsax.home),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter your Aadhar';
+                return 'Please enter your Pan';
               }
               return null;
             },
@@ -433,49 +510,33 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),
-          // TextFormField(
-          //   controller: _panController,
-          //   decoration: const InputDecoration(
-          //     labelText: U_TextStrings.pan,
-          //     prefixIcon: Icon(Iconsax.home),
-          //   ),
-          //   validator: (value) {
-          //     if (value == null || value.isEmpty) {
-          //       return 'Please enter your Pan';
-          //     }
-          //     return null;
-          //   },
-          // ),
-          // const SizedBox(
-          //   height: U_Sizes.inputFieldSpaceBtw,
-          // ),
-          // DropdownButtonFormField<String>(
-          //   decoration: const InputDecoration(
-          //     labelText: U_TextStrings.userType,
-          //     prefixIcon: Icon(Iconsax.home),
-          //   ),
-          //   value: _selectedUserType,
-          //   items: _userTypes.map((String userType) {
-          //     return DropdownMenuItem<String>(
-          //       value: userType,
-          //       child: Text(userType),
-          //     );
-          //   }).toList(),
-          //   onChanged: (newValue) {
-          //     setState(() {
-          //       _selectedUserType = newValue;
-          //     });
-          //   },
-          //   validator: (value) {
-          //     if (value == null || value.isEmpty) {
-          //       return 'Please select a user type';
-          //     }
-          //     return null;
-          //   },
-          // ),
-          // const SizedBox(
-          //   height: U_Sizes.inputFieldSpaceBtw,
-          // ),
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(
+              labelText: U_TextStrings.userType,
+              prefixIcon: Icon(Iconsax.home),
+            ),
+            value: _selectedUserType,
+            items: _userTypes.map((String userType) {
+              return DropdownMenuItem<String>(
+                value: userType,
+                child: Text(userType),
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              setState(() {
+                _selectedUserType = newValue;
+              });
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please select a user type';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(
+            height: U_Sizes.inputFieldSpaceBtw,
+          ),
           // TextFormField(
           //   controller: _companynameController,
           //   decoration: const InputDecoration(
@@ -552,8 +613,12 @@ class _SignUpFormState extends State<SignUpForm> {
                 height: 24,
                 child: Checkbox(
                   activeColor: U_Colors.yaleBlue,
-                  value: true,
-                  onChanged: (value) {},
+                  value: _isChecked, // Use the state variable
+                  onChanged: (value) {
+                    setState(() {
+                      _isChecked = value!; // Update the state variable
+                    });
+                  },
                 ),
               ),
               const SizedBox(
@@ -614,6 +679,13 @@ class _SignUpFormState extends State<SignUpForm> {
               onPressed: _register,
             ),
           ),
+          TextButton(onPressed: (){Get.to(() => const LoginScreen());}, child: Text(
+            "Already a customer? Login",
+            style: TextStyle(
+              color: U_Colors.yaleBlue,
+              decoration: TextDecoration.underline,
+            ),
+          ),)
         ],
       ),
     );
