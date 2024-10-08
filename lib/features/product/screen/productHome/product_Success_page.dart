@@ -15,12 +15,14 @@ class ProductOrderSuccessSummaryPage extends StatefulWidget {
   final String paymentId;
   final ProductResponseDTO product;
   final RazorpaySuccessResponseDTO order;
+  final int addressId;
 
   ProductOrderSuccessSummaryPage({
     Key? key,
     required this.paymentId,
     required this.order,
     required this.product,
+    required this.addressId
   }) : super(key: key);
 
   @override
@@ -68,7 +70,6 @@ class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSumm
             Icons.arrow_back,
           ),
         ),
-        centerTitle: true,
         title: Text("Order Summary", style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       resizeToAvoidBottomInset: false,
@@ -223,18 +224,49 @@ class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSumm
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(vertical: 12.0),
-                                  margin: EdgeInsets.symmetric(horizontal: 20.0),
-                                  width: MediaQuery.of(context).size.width,
-                                  child: Text(
-                                    "Address :                       ${userData['address'] ?? 'N/A'}",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
+                                // Container(
+                                //   padding: EdgeInsets.symmetric(vertical: 12.0),
+                                //   margin: EdgeInsets.symmetric(horizontal: 20.0),
+                                //   width: MediaQuery.of(context).size.width,
+                                //   child: Builder(
+                                //     builder: (context) {// The address ID you are looking for
+                                //       List<dynamic> addresses = userData['addresses'] ?? []; // Fetch the addresses
+                                //       String addressToDisplay;
+                                //
+                                //       // Find the address with the specified addressId
+                                //       var filteredAddress = addresses.firstWhere(
+                                //             (address) => address['id'] == widget.addressId,
+                                //         orElse: () => null,
+                                //       );
+                                //
+                                //       // Set the address to display or 'N/A' if not found
+                                //       addressToDisplay = filteredAddress != null
+                                //           ? "Address : ${filteredAddress['address']}"
+                                //           : "Address : N/A";
+                                //
+                                //       return Text(
+                                //         addressToDisplay,
+                                //         style: TextStyle(
+                                //           fontWeight: FontWeight.bold,
+                                //           fontSize: 15,
+                                //         ),
+                                //       );
+                                //     },
+                                //   ),
+                                // ),
+
+                                // Container(
+                                //   padding: EdgeInsets.symmetric(vertical: 12.0),
+                                //   margin: EdgeInsets.symmetric(horizontal: 20.0),
+                                //   width: MediaQuery.of(context).size.width,
+                                //   child: Text(
+                                //     "Address :                       ${userData['address'] ?? 'N/A'}",
+                                //     style: TextStyle(
+                                //       fontWeight: FontWeight.bold,
+                                //       fontSize: 15,
+                                //     ),
+                                //   ),
+                                // ),
                                 Container(
                                   padding: EdgeInsets.symmetric(vertical: 12.0),
                                   margin: EdgeInsets.symmetric(horizontal: 20.0),

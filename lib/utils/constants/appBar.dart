@@ -12,6 +12,8 @@ import 'package:onpensea/utils/constants/sizes.dart';
 import 'package:onpensea/utils/device/device_utility.dart';
 import 'package:onpensea/utils/helper/helper_functions.dart';
 
+import '../../navigation_menu.dart';
+
 class U_AppBar extends StatelessWidget implements PreferredSizeWidget{
   const U_AppBar({
     super.key,
@@ -35,7 +37,7 @@ class U_AppBar extends StatelessWidget implements PreferredSizeWidget{
     child:AppBar(
       automaticallyImplyLeading:false,
       leading:showBackArrow 
-      ? IconButton(onPressed:() => Get.to(() => HomeScreen()),icon: Icon(Iconsax.arrow_left, color: dark ? U_Colors.dark : U_Colors.whiteColor))
+      ? IconButton(onPressed:() => Get.to(() => NavigationMenu()),icon: Icon(Iconsax.arrow_left, color: dark ? U_Colors.dark : U_Colors.whiteColor))
       :leadingIcon != null
       ?IconButton(onPressed: leadingOnPressed, icon: Icon(leadingIcon))
       :null,

@@ -30,9 +30,9 @@ import '../../models/products.dart';
 
 class ProductHomeScreen extends StatefulWidget {
   const ProductHomeScreen(
-      {super.key, this.category, this.subCategory, this.typeOfStone});
+      {super.key, this.productCategory, this.subCategory, this.typeOfStone});
 
-  final String? category;
+  final String? productCategory;
   final String? subCategory;
   final String? typeOfStone;
 
@@ -52,16 +52,14 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
   bool isLoading = false;
   bool hasMoreData = true; // Track if more data is available
 
-  List<ProductResponseDTO> filterPropertiesByActor(
-      List<ProductResponseDTO> productList, String productSubCategory) {
-    return productList
-        .where((product) => product.productSubCategory == productSubCategory)
-        .toList();
-  }
 
   @override
   void initState() {
     super.initState();
+   // futureProducts = ProductService().fetchProducts(widget.productCategory,widget.typeOfStone);
+   //  userType = loginController.userData['userType'];
+   //  print(widget.typeOfStone);
+   //  print("++++++++++++++++++++++++++++++++++++");
     loaderFunction(); // Load the first page of products
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -79,7 +77,7 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
       isLoading = true;
     });
     try {
-      final response = await fetchProducts(pageNo, pageSize);
+      final response = await ProductService().fetchProducts(widget.productCategory,widget.typeOfStone,pageNo, pageSize);
       setState(() {
         print("pageNo: $pageNo");
         pageNo++; // Increment page number
@@ -104,25 +102,24 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
     });
   }
 
-  Future<ProductWrapperResponseDTO> fetchProducts(
-      int pageNo, int pageSize) async {
-    final String apiUrl =
-        'http://o3uat.kalpco.in/products/kalpco/v1.0.0/products/merchant/5/U/catalog?pageNo=$pageNo&size=20';
-    final response = await http.get(Uri.parse(apiUrl));
-
-    if (response.statusCode == 200) {
-      return ProductWrapperResponseDTO.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load products');
-    }
-
-  }
+  // Future<ProductWrapperResponseDTO> fetchProducts(
+  //     int pageNo, int pageSize) async {
+  //   final String apiUrl =
+  //       'http://o3uat.kalpco.in/products/kalpco/v1.0.0/products/merchant/5/U/catalog?pageNo=$pageNo&size=20';
+  //   final response = await http.get(Uri.parse(apiUrl));
+  //
+  //   if (response.statusCode == 200) {
+  //     return ProductWrapperResponseDTO.fromJson(json.decode(response.body));
+  //   } else {
+  //     throw Exception('Failed to load products');
+  //   }
+  //
+  // }
 
   @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SingleChildScrollView(
         controller: scrollController,
         child: Container(
@@ -166,7 +163,7 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                           ),
                           const SizedBox(height: U_Sizes.spaceBtwItems),
                           // Categories list
-                          ProductHomeCategory(),
+                          ProductHomeCategory(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone),
                         ],
                       ),
                     ),
@@ -188,19 +185,30 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                         },
                       ),
                       if (isLoading)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: SizedBox(
-                              height: 60.0, // Adjust height
-                              width: 60.0, // Adjust width
-                              child: CircularProgressIndicator(
-                                strokeWidth:
-                                5.0, // Optional: Adjust the thickness
-                              ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min, // Ensure the column takes only the space it needs
+                              children: [
+                                Text(
+                                  "Hang on, loading data...",
+                                  style: TextStyle(
+                                    fontSize: 16.0, // Adjust the text size as needed
+                                    fontWeight: FontWeight.bold,
+                                    color: U_Colors.yaleBlue, // Optional: Color to match your theme
+                                  ),
+                                ),
+                                SizedBox(height: 10.0), // Add some space between the text and loader
+                                CircularProgressIndicator(
+                                  color: U_Colors.yaleBlue,
+                                  strokeWidth: 5.0, // Optional: Adjust the thickness
+                                ),
+                              ],
                             ),
                           ),
-                        ),
+                        )
+
                     ],
                   ),
                 ),
@@ -209,6 +217,12 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
           ),
         ),
       ),
+        floatingActionButton: (userType == "U" || userType == "M" || userType == "G")
+            ? CustomFloatingActionButton(
+          onPressed: () => _showDialog(context),
+        ) : addProductActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
     );
   }
 

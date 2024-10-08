@@ -1,22 +1,35 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:onpensea/utils/constants/colors.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
+import 'dart:convert';  // For jsonEncode
 class AddProduct extends StatefulWidget {
   @override
-  AddProductFormState createState()  => AddProductFormState();
+  AddProductFormState createState() => AddProductFormState();
 }
 
 class AddProductFormState extends State<AddProduct> {
   // Define form key for name of the form
   final formKey = GlobalKey<FormState>();
 
-  final TextEditingController name = TextEditingController();
-  final TextEditingController description = TextEditingController();
-  final TextEditingController goldWeight = TextEditingController();
-  final TextEditingController goldPurity = TextEditingController();
+  final TextEditingController productName = TextEditingController();
+  final TextEditingController productDescription = TextEditingController();
+  final TextEditingController productWeight = TextEditingController();
+  final TextEditingController purity = TextEditingController();
   final TextEditingController noOfSolitaires = TextEditingController();
   final TextEditingController productSize = TextEditingController();
+  final TextEditingController productOwnerName = TextEditingController();
+  final TextEditingController productPrice = TextEditingController();
+  final TextEditingController productQuantity = TextEditingController();
+  final TextEditingController noOfSmallStones = TextEditingController();
+  final TextEditingController weightOfSmallStones = TextEditingController();
+  final TextEditingController clarityOfSolitareDiamond = TextEditingController();
+  final TextEditingController productMakingChargesPercentage = TextEditingController();
+  final TextEditingController imageController = TextEditingController();
+
 
   // Dropdown selected values
   String? selectedProductCategory;
@@ -37,52 +50,110 @@ class AddProductFormState extends State<AddProduct> {
     List<XFile> xfilePick = pickedFile;
     setState(
       () {
+        selectedImages.clear();// To clear previous image
+        List<String> imageNames = []; //To get images name
         if (xfilePick.isNotEmpty) {
           for (var i = 0; i < xfilePick.length; i++) {
             selectedImages.add(File(xfilePick[i].path));
+            imageNames.add(xfilePick[i].name);
           }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Nothing is selected'),
-            backgroundColor: Colors.green,
-          ));
+          imageController.text = imageNames.join(', '); // Join names with commas
         }
+        // else {
+        //   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        //     content: Text('Nothing is selected'),
+        //     backgroundColor: Colors.lightBlueAccent,
+        //   ));
+        // }
       },
     );
   }
 
-  void submitForm() {
-    if (formKey.currentState!.validate()) {
-      print("Product Category: $selectedProductCategory");
-      print("Sub Category: $selectedSubCategory");
-      print("Name: ${name.text}");
-      print("Description: ${description.text}");
-      print("Gold Weight: ${goldWeight.text}");
-      print("No. of Solitaires: ${noOfSolitaires.text}");
-      print("Gold Purity: ${goldPurity.text}");
-      print("Diamond Type: $selectedDiamondType");
-      print("Product Size: ${productSize.text}");
+  Future<void> submitForm() async {
+    if (formKey.currentState!.validate())
+    {
+      try {
+        final url = Uri.parse(
+            'http://172.16.16.28:11002/products/kalpco/v1.0.0/products/merchant/2/M/catalog');
+        final request = http.MultipartRequest('POST', url);
 
-      // can clear the fields after submission if needed.
-      name.clear();
-      description.clear();
-      goldWeight.clear();
-      goldPurity.clear();
-      noOfSolitaires.clear();
-      productSize.clear();
+        request.fields['productName'] = productName.text;
+        request.fields['productDescription'] = productDescription.text;
+        request.fields['productOwnerName'] = productOwnerName.text;
+        request.fields['productCategory'] = selectedProductCategory!;
+        request.fields['productSubCategory'] = selectedSubCategory!;
+        request.fields['productSize'] = productSize.text;
+        request.fields['productWeight'] = productWeight.text;
+        request.fields['purity'] = purity.text;
+        request.fields['productPrice'] = productPrice.text;
+        request.fields['productQuantity'] = productQuantity.text;
+        request.fields['productMakingChargesPercentage'] = productMakingChargesPercentage.text;
+        //For gems DTO
+        Map<String, dynamic> gemsDTO = {
+          'noOfSmallStones': noOfSmallStones.text,
+          'weightOfSmallStones': weightOfSmallStones.text,
+          'clarityOfSolitareDiamond': clarityOfSolitareDiamond.text,
+          'typeOfStone': selectedDiamondType,
+        };
+        request.fields['gemsDTO'] = jsonEncode(gemsDTO);
 
-      setState(() {
-        selectedProductCategory = null;
-        selectedSubCategory = null;
-        selectedDiamondType = null;
-      });
+        if (selectedImages != null) {
+          for (File image in selectedImages) {
+            request.files.add(
+                await http.MultipartFile.fromPath('productImageUri', image!.path));
+          }
+        }
 
-      // Show a snackbar or dialog after submission
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Product Has Been Added Successfully')));
+        final response = await request.send();
+
+        if (response.statusCode == 201)
+        {
+          clearFields();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Product Has Been Added Successfully')),
+          );
+        }
+      }
+      catch (e) {
+        print('Error during registration: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred during registration')),
+        );
+      }
     }
   }
+  void clearFields() {
+    // Clear gemsDTO-related fields
+    noOfSmallStones.clear();
+    weightOfSmallStones.clear();
+    clarityOfSolitareDiamond.clear();
 
+    //Clear remainning fields
+    productName.clear();
+    productDescription.clear();
+    productWeight.clear();
+    purity.clear();
+    noOfSolitaires.clear();
+    productSize.clear();
+    productOwnerName.clear();
+    productPrice.clear();
+    productQuantity.clear();
+    noOfSmallStones.clear();
+    weightOfSmallStones.clear();
+    clarityOfSolitareDiamond.clear();
+    productMakingChargesPercentage.clear();
+    imageController.clear();
+
+    // Clear the dropdown selections (assuming they are nullable strings)
+    setState(() {
+      selectedProductCategory = null;
+      selectedSubCategory = null;
+      selectedDiamondType = null;
+    });
+
+
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,7 +216,7 @@ class AddProductFormState extends State<AddProduct> {
 
                 // Name Field
                 TextFormField(
-                  controller: name,
+                  controller: productName,
                   decoration: InputDecoration(
                     labelText: 'Product Name',
                     border: OutlineInputBorder(),
@@ -161,7 +232,7 @@ class AddProductFormState extends State<AddProduct> {
 
                 // Description Field
                 TextFormField(
-                  controller: description,
+                  controller: productDescription,
                   decoration: InputDecoration(
                     labelText: 'Product Description',
                     border: OutlineInputBorder(),
@@ -178,12 +249,12 @@ class AddProductFormState extends State<AddProduct> {
 
                 // Gold Weight Field
                 TextFormField(
-                  controller: goldWeight,
+                  controller: productWeight,
                   decoration: InputDecoration(
-                    labelText: 'Gold Weight (grams)',
+                    labelText: 'Gold Weight ',
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter gold weight';
@@ -192,10 +263,9 @@ class AddProductFormState extends State<AddProduct> {
                   },
                 ),
                 SizedBox(height: 16.0),
-
                 // Gold Purity Field
                 TextFormField(
-                  controller: goldPurity,
+                  controller: purity,
                   decoration: InputDecoration(
                     labelText: 'Gold Purity (%)',
                     border: OutlineInputBorder(),
@@ -208,8 +278,88 @@ class AddProductFormState extends State<AddProduct> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16.0),
 
+                SizedBox(height: 16.0),
+                // Gold Purity Field
+                TextFormField(
+                  controller: productOwnerName,
+                  decoration: InputDecoration(
+                    labelText: 'Product Owner Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter product owner name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: productSize,
+                  decoration: InputDecoration(
+                    labelText: 'Product Size',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter product size';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: productPrice,
+                  decoration: InputDecoration(
+                    labelText: 'Product Price',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter product Price';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: productQuantity,
+                  decoration: InputDecoration(
+                    labelText: 'Product Quantity',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter product Quantity';
+                    }
+                    return null;
+                  },
+                ),
+
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: productMakingChargesPercentage,
+                  decoration: InputDecoration(
+                    labelText: 'Product Making Charges Percentage',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter product making charges in percentage';
+                    }
+                    return null;
+                  },
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}$')), // Allow only two digits
+                  ],
+                ),
+
+                SizedBox(height: 16.0),
                 // No. of Solitaires Field
                 TextFormField(
                   controller: noOfSolitaires,
@@ -221,6 +371,37 @@ class AddProductFormState extends State<AddProduct> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter the number of solitaires';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                // No. of Solitaires Field
+                TextFormField(
+                  controller: weightOfSmallStones,
+                  decoration: InputDecoration(
+                    labelText: 'Weight Of SmallStones',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the weight of smallstoness';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                // No. of Solitaires Field
+                TextFormField(
+                  controller: clarityOfSolitareDiamond,
+                  decoration: InputDecoration(
+                    labelText: 'Clarity Of Solitare Diamond',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the clarity of solitare diamond';
                     }
                     return null;
                   },
@@ -249,36 +430,42 @@ class AddProductFormState extends State<AddProduct> {
                 ),
                 SizedBox(height: 16.0),
                 // Product Size Field
+                // SizedBox(
+                //   width: 500,
+                //   height: 50,
+                //   child: ElevatedButton(
+                //     style: ButtonStyle(
+                //         backgroundColor: MaterialStateProperty.all(Colors.green)),
+                //     child: const Text('Select images from gallery',
+                //         style: TextStyle(
+                //           fontSize:
+                //               18, // Increase the font size to make the text larger
+                //           fontWeight:
+                //               FontWeight.bold, // Optional: Make text bold
+                //         )),
+                //     onPressed: getImages, // Calls the getImages function
+                //   ),
+                // ),
                 TextFormField(
-                  controller: productSize,
+                  controller: imageController,
                   decoration: InputDecoration(
-                    labelText: 'Product Size',
-                    border: OutlineInputBorder(),
+                    labelText: 'Photo',
+                    prefixIcon: IconButton(
+                      icon: Icon(Iconsax.image),
+                      onPressed: getImages,
+                    ),
                   ),
+                  readOnly: true, // Make the field read-only
+                  showCursor: true, // Allow the cursor to be visible
+                  enableInteractiveSelection: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter the product size';
+                      return 'Please select product images';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: 16.0),
-                SizedBox(
-                  width: 500,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.green)),
-                    child: const Text('Select images from gallery',
-                        style: TextStyle(
-                          fontSize:
-                              18, // Increase the font size to make the text larger
-                          fontWeight:
-                              FontWeight.bold, // Optional: Make text bold
-                        )),
-                    onPressed: getImages, // Calls the getImages function
-                  ),
-                ),
+
                 SizedBox(height: 25.0),
 
                 Row(
@@ -291,8 +478,10 @@ class AddProductFormState extends State<AddProduct> {
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
+                            side: BorderSide.none,
+                            backgroundColor: U_Colors.satinSheenGold,
                             padding: EdgeInsets.symmetric(
-                                vertical: 15.0, horizontal: 20.0),
+                                vertical: 14.0, horizontal: 18.0),
                             minimumSize: Size(120, 38),
                           ),
                           child: Text('Cancel'),
@@ -303,13 +492,15 @@ class AddProductFormState extends State<AddProduct> {
                       onPressed: submitForm,
                       child: Text('Submit'),
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: U_Colors.yaleBlue,
+                        side: BorderSide.none,
                         padding: EdgeInsets.symmetric(
-                            vertical: 15.0, horizontal: 20.0),
+                            vertical: 14.0, horizontal: 18.0),
                         minimumSize: Size(120, 38),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -321,10 +512,6 @@ class AddProductFormState extends State<AddProduct> {
   @override
   void dispose() {
     // Clean up the controllers when the widget is disposed
-    name.dispose();
-    description.dispose();
-    goldWeight.dispose();
-    goldPurity.dispose();
     noOfSolitaires.dispose();
     productSize.dispose();
     super.dispose();

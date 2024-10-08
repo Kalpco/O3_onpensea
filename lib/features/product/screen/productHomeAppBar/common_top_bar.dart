@@ -8,7 +8,6 @@ import '../../../../utils/constants/colors.dart';
 import '../../../Home/Screens/HomeScreen.dart';
 import '../../../authentication/screens/login/Controller/LoginController.dart';
 import '../../../authentication/screens/login/login.dart';
-
 import '../../../profile/Screen/OrderHistory.dart';
 import '../../../profile/Screen/myWallet.dart';
 import '../productCartCounter/cart_counter_icon.dart';
@@ -261,16 +260,7 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                   Get.to(() => NavigationMenu());
                 },
               ),
-              // ListTile(
-              //   leading: Icon(Icons.local_activity),
-              //   title: Text('Loans'),
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => LoansScreen()),
-              //     );
-              //   },
-              // ),
+
               if (loginController.userData["userId"] == 0)
                 ListTile(
                   leading: Icon(Icons.arrow_back_rounded),

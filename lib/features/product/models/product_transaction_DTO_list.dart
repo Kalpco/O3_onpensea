@@ -17,6 +17,7 @@ class ProductTransactionDTO {
   DateTime? createDate;
   DateTime? updateDate;
   int? userId;
+  int? userAddressId;
   String? productPic;
   String? deliveryStatus;
   String? productName;
@@ -44,7 +45,8 @@ class ProductTransactionDTO {
     this.productName,
     this.productPic,
     this.productQuantity,
-    this.userId
+    this.userId,
+    this.userAddressId
   });
 
   factory ProductTransactionDTO.fromJson(Map<String, dynamic> json) => ProductTransactionDTO(
@@ -70,6 +72,7 @@ class ProductTransactionDTO {
     productPic: json["productPic"],
     productQuantity: json["productQuantity"],
     userId: json["userId"],
+    userAddressId: json["userAddressId"]
 
   );
 
@@ -96,5 +99,6 @@ class ProductTransactionDTO {
     "productName": productName,
     "productQuantity": productQuantity,
     "userId": userId,
+    "userAddressId":userAddressId
   };
 }

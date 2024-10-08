@@ -93,4 +93,7 @@ class U_TextStrings {
   static const String productRating = "Product Rating";
   static const String productComment = "Product Comment";
   static const String upload = "Upload";
+  static const String noProductFound = "Launching Soon ...";
+
+
 }

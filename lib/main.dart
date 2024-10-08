@@ -4,6 +4,7 @@ import 'app.dart';
 import 'features/product/controller/wishlistController.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
  // Import your update checker
+//hacker
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

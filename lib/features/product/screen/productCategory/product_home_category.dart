@@ -5,9 +5,9 @@ import 'package:onpensea/utils/constants/images_path.dart';
 import '../productHome/product_SubCategory_Page.dart';
 
 class ProductHomeCategory extends StatefulWidget {
-  // final String? productCategory,typeOfStone;
+  final String? productCategory,typeOfStone;
 
-   // ProductHomeCategory({required this.productCategory, required this.typeOfStone});
+   ProductHomeCategory({required this.productCategory, required this.typeOfStone});
 
 
   @override
@@ -44,7 +44,7 @@ class _ProductHomeCategoryState extends State<ProductHomeCategory> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ProductSubCategoryDetailPage(productSubCategory: param.toUpperCase()),
+          builder: (context) => ProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param.toUpperCase()),
         ),
       );
 

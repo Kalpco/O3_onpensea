@@ -41,13 +41,13 @@ class _AddAddressFormState extends State<AddAddressForm> {
     if (response.statusCode == 200) {
       // Successfully added the address
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Address added successfully')),
+        SnackBar(content: Text('Address added successfully'),backgroundColor: Colors.green,),
       );
       Navigator.pop(context); // Close the modal
     } else {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add address. Please try again.')),
+        SnackBar(content: Text('Failed to add address. Please try again.'),backgroundColor: Colors.red),
       );
     }
   }
@@ -84,6 +84,7 @@ class _AddAddressFormState extends State<AddAddressForm> {
             ),
             SizedBox(height: 10),
             TextFormField(
+                maxLength: 6,
               decoration: InputDecoration(labelText: 'Pincode'),
               onSaved: (value) => pincode = value,
               validator: (value) {
@@ -123,7 +124,7 @@ class _AddAddressFormState extends State<AddAddressForm> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    //_addAddress(); // Call the function to send the data to the API
+                    _addAddress(); // Call the function to send the data to the API
                   }
                 },
                 style: ElevatedButton.styleFrom(

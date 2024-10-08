@@ -93,7 +93,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
             builder: (context) => ProductOrderSuccessSummaryPage(
                 paymentId: response.paymentId!,
                 order: razorpaySuccessResponseDTO,
-                investment: widget.investment)),
+                investment: widget.investment, addressId: 0,)),
       );
     } else {
       // Handle capture payment failure

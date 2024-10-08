@@ -18,7 +18,9 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final dark = U_Helper.isDarkMode(context);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text("Sign Up Here"),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -27,9 +29,9 @@ class SignUpScreen extends StatelessWidget {
             children: [
               Center(
                 child: const Image(
-                  height: 100,
-                  image: AssetImage(U_ImagePath.kalpcoLogo),
-                  width: 150,
+                  height: 200,
+                  image: AssetImage(U_ImagePath.kalpcoUpdatedLogo),
+                  // width: 150,
                 ),
               ),
               SizedBox(height: 10,),

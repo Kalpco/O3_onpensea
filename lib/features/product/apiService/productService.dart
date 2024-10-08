@@ -12,9 +12,9 @@ class ProductService {
   // Base URL without userId
   static String baseUrl = '${ApiConstants.PRODUCTS_BASE_URL}/merchant/';
 
-  Future<ProductWrapperResponseDTO> fetchProducts(String? productCategory, String? typeOfStone) async {
+  Future<ProductWrapperResponseDTO> fetchProducts(String? productCategory, String? typeOfStone,int pageNo, int pageSize) async {
     // Construct the full URL with userId
-    final String url = '$baseUrl$userId/U/catalog?productCategory=$productCategory&typeOfStone=$typeOfStone';
+    final String url = '$baseUrl$userId/U/catalog?productCategory=$productCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
 
     final response = await http.get(Uri.parse(url));
 
@@ -26,10 +26,10 @@ class ProductService {
   }
 
   //subcategory
-  Future<ProductWrapperResponseDTO> fetchProductsBySubCategory( String? productSubCategory) async {
+  Future<ProductWrapperResponseDTO> fetchProductsBySubCategory( String? productCategory,String? typeOfStone, String? productSubCategory,int pageNo, int pageSize) async {
 
     try {
-      final url = '$baseUrl$userId/U/catalog?productSubCategory=$productSubCategory';
+      final url = '$baseUrl$userId/U/catalog?productCategory=$productCategory&productSubCategory=$productSubCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {

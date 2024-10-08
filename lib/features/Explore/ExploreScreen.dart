@@ -388,8 +388,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                       const ProductHomeScreen(
-                                          category: "custom",
-                                          subCategory: "*")),
+                                          productCategory:"Diamond",
+                                          typeOfStone:"Lab Grown")),
                                 );
                               } else {
                                 // Handle other item clicks
@@ -398,8 +398,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                       const ProductHomeScreen(
-                                          category: "custom",
-                                          subCategory: "*")),
+                                          productCategory:"Diamond",
+                                          typeOfStone:"Natural Diamond")),
                                 );
                               }
                             },

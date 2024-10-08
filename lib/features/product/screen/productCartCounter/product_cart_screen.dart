@@ -133,6 +133,9 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
         setState(() {
           cartData = updatedCart;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Item deleted from cart'),backgroundColor: Colors.red,),
+        );
       } else {
         print(
             'Failed to delete item: ${response.statusCode} - ${response.body}');

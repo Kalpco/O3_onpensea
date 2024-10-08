@@ -2,6 +2,7 @@
 
 class U_ImagePath {
 //kalpco logo
+  static const String kalpcoUpdatedLogo = "assets/logos/KALPCO_splash_1.png";
   static const String kalpcoLogo = "assets/logos/KALPCO_splash.png";
   static const String kalpcoLoginLogo = "assets/logos/KALPCO.png";
 

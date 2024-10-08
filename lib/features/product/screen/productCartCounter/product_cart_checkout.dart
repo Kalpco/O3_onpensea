@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,8 +41,6 @@ class ProductCartCheckout extends StatefulWidget {
 
 class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   final loginController = Get.find<LoginController>();
-
-
   final Razorpay _razorpay = Razorpay();
   final RazorpayOrderAPI razorpayOrderAPI =
   RazorpayOrderAPI(ApiConstants.key, ApiConstants.secretId);
@@ -57,6 +57,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   double walletAmount = 0.0; // Field to store wallet amount
   double _updatedTotalPrice = 0.0;
   bool _isLoading = false;
+  int? selectedAddressIndex;
+  Map<String, dynamic>? selectedAddressData;
+
+
 
 
   @override
@@ -113,7 +117,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             paymentId: response.paymentId!,
             order: razorpaySuccessResponseDTO,
             investment: null,
-
+              addressId:selectedAddressData?['id']
           ),
         ),
       );
@@ -138,6 +142,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             walletAmount: walletAmount,
             createDate :  DateTime.now(),
             userId: userId,
+            userAddressId: selectedAddressData?['id'],
             productPic: item['productImageUri'].toString(),
             productName: item['productName'],
             totalAmount: item['totalPrice'],
@@ -189,6 +194,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           walletAmount: walletAmount,
           createDate :  DateTime.now(),
           userId: userId,
+          userAddressId: selectedAddressData?['id'],
           productPic: item['productImageUri'].toString(),
           productName: item['productName'],
           totalAmount: item['totalPrice'],
@@ -196,6 +202,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
       }).toList(),
       transactionDTO: TransactionDTO(
           userId: userId,
+          transactionOrderId: razorpaySuccessResponseDTO.id,
           transactionStatus: razorpaySuccessResponseDTO.status+"_"+ response.message!+"_"+response.code.toString(),
           transactionMessage: response.message,
           payedFromWallet: _isRedeemChecked,
@@ -249,6 +256,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             walletAmount: walletAmount,
             createDate :  DateTime.now(),
             userId: userId,
+            userAddressId: selectedAddressData?['id'],
             gstCharge:item['gstCharge'],
             productPic: item['productImageUri'].toString(),
             productName: item['productName'],
@@ -336,6 +344,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                 walletAmount: walletAmount,
                 createDate :  DateTime.now(),
                 userId: userId,
+                userAddressId: selectedAddressData?['id'],
                 productPic: item['productImageUri'].toString(),
                 productName: item['productName'],
                 totalAmount: item['totalPrice'],
@@ -348,6 +357,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                 payedFromWallet : _isRedeemChecked,
                 walletAmount: walletAmount,
                 transactionAmount: _updatedTotalPrice,
+                transactionOrderId: razorpaySuccessResponseDTO.id,
                 createDate: DateTime.now()),
           ).toJson();
 
@@ -403,10 +413,13 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             productQuantity : item['productQuantity']?.toInt(),
             productWeight : item['productWeight']?.toDouble(),
             purity : item['purity'],
+            gstCharge: item['gstCharges']?.toDouble(),
+            merchantId: item['productOwnerId']?.toInt(),
             payedFromWallet : _isRedeemChecked,
             walletAmount: walletAmount,
             createDate :  DateTime.now(),
             userId: activeUserId,
+            userAddressId: selectedAddressData?['id'],
             productPic: item['productImageUri'].toString(),
             productName: item['productName'],
             totalAmount: item['totalPrice'],
@@ -417,7 +430,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             userId: activeUserId,
             transactionStatus: responseDTO.status +"_"+successResponseCapturePayment.status,
             transactionMessage: 'Payment Completed Successfully',
-            transactionOrderId: successResponseCapturePayment.orderId,
+            transactionOrderId: responseDTO.id,
             payedFromWallet: _isRedeemChecked,
             walletAmount: walletAmount,
             transactionAmount: _updatedTotalPrice,
@@ -586,6 +599,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   @override
   Widget build(BuildContext context) {
     final String deliverable = loginController.userData['isDeliverable'];
+    final userData = loginController.userData;
 
     return Scaffold(
       bottomNavigationBar: Padding(
@@ -807,6 +821,102 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
               },
             ),
           ),
+          // DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+          // SizedBox(height: U_Sizes.spaceBtwItems),
+
+          // User Information with Horizontally Scrollable Address Box
+          Container(
+            width: double.infinity,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              color: U_Colors.whiteColor,
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Text('User Information', style: Theme.of(context).textTheme.bodyLarge),
+                    // SizedBox(height: U_Sizes.spaceBtwItems),
+                    // Text('Name: ${userData['name']}'),
+                    // Text('Mobile: ${userData['mobileNo']}'),
+                    // Text('Email: ${userData['email']}'),
+                    Text('Address :'),
+                    SizedBox(height: U_Sizes.spaceBwtTwoSections),
+
+                    // Horizontally scrolling addresses
+                    userData['address'] != null && userData['address'].isNotEmpty
+                        ? SizedBox(
+                      height: 140,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: userData['address'].length,
+                        itemBuilder: (context, index) {
+                          var address = userData['address'][index];
+                          bool isSelected = selectedAddressIndex == index;
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedAddressIndex = index;
+                                selectedAddressData = userData['address'][index];
+
+                              });
+                              print('Selected Address: ${userData['address'][index]}');
+                              print('Selected Address: ${selectedAddressData?['id']}');
+
+                            },
+                            child: Container(
+                              width: 250,
+                              margin: EdgeInsets.symmetric(horizontal: 8.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isSelected ? Colors.green : Colors.grey,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                color: isSelected ? Colors.green.withOpacity(0.2) : Colors.white,
+                              ),
+                              padding: EdgeInsets.all(10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('City: ${address['city']}',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: isSelected ? Colors.green : Colors.black)),
+                                  SizedBox(height: 4),
+                                  Text('State: ${address['state']}',
+                                      style: TextStyle(
+                                          color: isSelected ? Colors.green : Colors.black)),
+                                  SizedBox(height: 4),
+                                  Text('PinCode: ${address['pinCode']}',
+                                      style: TextStyle(
+                                          color: isSelected ? Colors.green : Colors.black)),
+                                  SizedBox(height: 4),
+                                  Text('Address: ${address['address']}',
+                                      style: TextStyle(
+                                          color: isSelected ? Colors.green : Colors.black)),
+                                  SizedBox(height: 4),
+                                  Text('Mobile: ${address['mobileNo']}',
+                                      style: TextStyle(
+                                          color: isSelected ? Colors.green : Colors.black)),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                        : Text('No address available'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+          // SizedBox(height: U_Sizes.spaceBtwItems),
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Container(
@@ -820,7 +930,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
@@ -828,7 +938,9 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                           padding: const EdgeInsets.all(16.0),
                           child: AddAddressForm(),
                         ),
-                      );
+                      ).whenComplete(() {
+                        _fetchUserData(); // Fetch user data after address is added
+                      });
                     },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: U_Colors.yaleBlue, // Set background color
@@ -851,7 +963,27 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
     );
 
   }
+  // Method to fetch updated user data after adding address
+  Future<void> _fetchUserData() async {
+    try {
+      int userId = loginController.userData['userId'];
+      final url = Uri.parse("${API_CONSTANTS_1.ApiConstants.USERS_URL}/$userId");
+      final response = await http.get(url);
 
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['code'] == 2006) {
+          // Update user data in the login controller
+          loginController.userData.value = data['data'];
+          setState(() {}); // Refresh the UI with the updated data
+        }
+      } else {
+        print('Failed to fetch user data: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
   Future<void> showAmountDialog(BuildContext context, double amount) async {
     showDialog(
       context: context,
