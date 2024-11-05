@@ -44,6 +44,8 @@ class WalletApiService {
       if (response.statusCode == 200) {
         // Parse the JSON response
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        print("Json Response Wallet $jsonResponse");
         return WalletTransactionWrapperDTO.fromJson(jsonResponse);
       } else {
         // Error handling
@@ -52,7 +54,7 @@ class WalletApiService {
       }
     } catch (e) {
       // Exception handling
-      print('Error: $e');
+      print('Wallet Error: $e');
       return null;
     }
   }

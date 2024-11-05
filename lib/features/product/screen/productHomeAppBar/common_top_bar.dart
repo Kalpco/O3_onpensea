@@ -27,6 +27,10 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
   final loginController = Get.find<LoginController>();
   final navController = Get.find<NavigationController>();
   String? userType;
+  var userRole = ''.obs;
+  void setUserRole(String role) {
+    userRole.value = role;
+  }
   // Initialize the body parameter
   @override
   void initState() {
@@ -300,7 +304,7 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                     );
                   },
                 ),
-                if (userType == "A")
+                if (userType == "M")
                   ListTile(
                     leading: Icon(Icons.admin_panel_settings),
                     title: Text('Admin'),
@@ -321,11 +325,11 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                     );
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.delete),
-                  title: Text('Delete Profile'),
-                  onTap: _showDeleteConfirmationDialog,
-                ),
+                // ListTile(
+                //   leading: Icon(Icons.delete),
+                //   title: Text('Delete Profile'),
+                //   onTap: _showDeleteConfirmationDialog,
+                // ),
               ],
             ],
           ),

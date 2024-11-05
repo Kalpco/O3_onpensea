@@ -20,6 +20,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     'Earing',
     'Necklace',
     'Bangles',
+    'Chain'
   ];
 
   // Updated subcategories with product images
@@ -141,28 +142,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ],
     },
     'Necklace': {
-      'Recently Added': [
-
-      ],
-      'Gold Collection': [
-
-      ],
+      'Recently Added': [],
+      'Gold Collection': [],
     },
     'Earing': {
-      'Recently Added': [
-
-      ],
-      'Gold Collection': [
-
-      ],
+      'Recently Added': [],
+      'Gold Collection': [],
     },
     'Bangles': {
-      'Recently Added': [
-
-      ],
-      'Gold Collection': [
-
-      ],
+      'Recently Added': [],
+      'Gold Collection': [],
+    },
+    'Chain': {
+      'Recently Added': [],
+      'Gold Collection': [],
     },
     // Add more categories and their subcategories as needed
   };
@@ -179,56 +172,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
         child: Row(
           children: [
             // Category List
-            // Expanded(
-            //   flex: 6,
-            //   child: ListView.builder(
-            //     itemCount: categories.length,
-            //     itemBuilder: (context, index) {
-            //       bool isSelected = selectedCategoryIndex == index;
-            //       return GestureDetector(
-            //         onTap: () {
-            //           setState(() {
-            //             selectedCategoryIndex = index;
-            //           });
-            //         },
-            //         child: Container(
-            //           color: isSelected
-            //               ? U_Colors.yaleBlue.withOpacity(0.1)
-            //               : Colors.white,
-            //           padding: EdgeInsets.symmetric(vertical: 8.0),
-            //           child: ListTile(
-            //             title: Stack(
-            //               children: [
-            //                 Text(
-            //                   categories[index],
-            //                   style: GoogleFonts.poppins(
-            //                     fontSize: isSelected ? 14 : 12,
-            //                     fontWeight: isSelected
-            //                         ? FontWeight.w600
-            //                         : FontWeight.w500,
-            //                     color: isSelected
-            //                         ? U_Colors.yaleBlue
-            //                         : Colors.black,
-            //                   ),
-            //                 ),
-            //                 if (isSelected)
-            //                   Positioned(
-            //                     bottom: -2,
-            //                     left: 0,
-            //                     right: 0,
-            //                     child: Container(
-            //                       height: 4,
-            //                       color: U_Colors.yaleBlue,
-            //                     ),
-            //                   ),
-            //               ],
-            //             ),
-            //           ),
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
             Expanded(
               flex: 6,
               child: ListView.builder(
@@ -240,7 +183,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   String imagePath;
                   switch (categories[index]) {
                     case 'Ring':
-                      imagePath = 'assets/gold/category_ring.png';
+                      imagePath = 'assets/gold/category_ring_1.png';
                       break;
                     case 'Pendant':
                       imagePath = 'assets/gold/category_pendant.png';
@@ -252,10 +195,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       imagePath = 'assets/gold/category_earings.png';
                       break;
                     case 'Necklace':
-                      imagePath = 'assets/gold/category_necklace.png';
+                      imagePath = 'assets/gold/category_necklace_1.png';
                       break;
                     case 'Bangles':
                       imagePath = 'assets/gold/category_bangles.png';
+                      break;
+                    case 'Chain':
+                      imagePath = 'assets/gold/category_chain.png';
                       break;
                     default:
                       imagePath = 'assets/gold/rings.png'; // Default image
@@ -269,17 +215,29 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     },
                     child: Container(
                       color: isSelected
-                          ? U_Colors.yaleBlue.withOpacity(0.1)
-                          : Colors.white,
+                          ? U_Colors.whiteColor
+                          : U_Colors.yaleBlue.withOpacity(0.1),
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           // Circular image using CircleAvatar
-                          CircleAvatar(
-                            backgroundColor: Colors.grey.shade300,
-                            radius: 25, // Adjust the radius to fit your design
-                            backgroundImage: AssetImage(imagePath), // Circular image
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle, // Circular shape
+                              border: Border.all(
+                                color: isSelected
+                                    ? U_Colors.yaleBlue // Border color when selected
+                                    : Colors.white60, // Default border color when not selected
+                                width: 3.0, // Border width
+                              ),// No background when not selected
+                            ),
+                            padding: const EdgeInsets.all(5.0), // Optional padding inside the circular background
+                            child: CircleAvatar(
+                              backgroundColor: Colors.grey.shade300,
+                              radius: 25, // Adjust the radius to fit your design
+                              backgroundImage: AssetImage(imagePath), // Circular image
+                            ),
                           ),
 
                           const SizedBox(height: 8), // Space between image and text
@@ -303,7 +261,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                               height: 4,
                               width: 20, // Make the underline shorter
                               margin: const EdgeInsets.only(top: 4),
-                              color: U_Colors.yaleBlue, // Underline for selected category
+                              color: U_Colors.yaleBlue,
+                              // Underline for selected category
                             ),
                         ],
                       ),
@@ -313,9 +272,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
 
-
-
-            //test
             // Subcategory Sections
             Expanded(
               flex: 14,
@@ -323,8 +279,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 padding: const EdgeInsets.all(10.0),
                 itemCount: subCategories.length,
                 itemBuilder: (context, sectionIndex) {
-                  String sectionTitle =
-                  subCategories.keys.elementAt(sectionIndex);
+                  String sectionTitle = subCategories.keys.elementAt(sectionIndex);
                   List<Map<String, String>> items = subCategories[sectionTitle]!;
 
                   return Column(
@@ -348,9 +303,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         padding: EdgeInsets.only(
                             left: 20.0, right: 20.0, top: 5, bottom: 5),
                         child: DividerWithAvatar(
-                            dividerThickness: 0.5,
-                            dividerColor: U_Colors.yaleBlue,
-                            imagePath: 'assets/logos/KALPCO_splash.png'),
+                          dividerThickness: 0.5,
+                          dividerColor: U_Colors.yaleBlue,
+                          imagePath: 'assets/logos/KALPCO_splash.png',
+                        ),
                       ),
                       const SizedBox(height: 20),
 
@@ -368,8 +324,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           : GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
                           crossAxisSpacing: 10.0,
                           mainAxisSpacing: 10.0,
@@ -378,7 +333,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           var item = items[index];
-                          bool isViewAll = item['productName'] == 'View All';
+                          bool isViewAll =
+                              item['productName'] == 'View All';
+
                           return GestureDetector(
                             onTap: () {
                               if (isViewAll) {
@@ -386,20 +343,24 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                      const ProductHomeScreen(
-                                          productCategory:"Diamond",
-                                          typeOfStone:"Lab Grown")),
+                                    builder: (context) =>
+                                    const ProductHomeScreen(
+                                        productCategory: "Diamond",
+                                        subCategory: "Ring",
+                                        typeOfStone: "Lab Grown"),
+                                  ),
                                 );
                               } else {
                                 // Handle other item clicks
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                      const ProductHomeScreen(
-                                          productCategory:"Diamond",
-                                          typeOfStone:"Natural Diamond")),
+                                    builder: (context) =>
+                                    const ProductHomeScreen(
+                                        productCategory: "Diamond",
+                                        subCategory: "Ring",
+                                        typeOfStone: "Natural Diamond"),
+                                  ),
                                 );
                               }
                             },
@@ -408,13 +369,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
                               child: Column(
                                 children: [
                                   isViewAll
-                                      ? Icon(Icons.view_list, size: 30, color: U_Colors.yaleBlue) // Display an icon for "View All"
-                                      : Image.asset(
-                                    item['imagePath'] ?? '',
-                                    height: 70,
-                                    width: 70,
-                                    fit: BoxFit.cover,
+                                      ? Icon(Icons.view_list,
+                                      size: 30,
+                                      color: U_Colors.yaleBlue) // Display an icon for "View All"
+                                      : Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey
+                                              .withOpacity(0.5), // Shadow color
+                                          spreadRadius:
+                                          2, // Spread of the shadow
+                                          blurRadius:
+                                          5, // Blur radius of the shadow
+                                          offset: Offset(2,
+                                              2), // Offset to give shadow on the right side
+                                        ),
+                                      ],
+                                    ),
+                                    child: CircleAvatar(
+                                      backgroundImage: AssetImage(
+                                          item['imagePath'] ?? ''),
+                                      radius: 35, // Adjust the size of the circle
+                                    ),
                                   ),
+                                  const SizedBox(height: 8), // Space between image and text
+
                                   if (isViewAll)
                                     Text(
                                       'View All',
@@ -430,7 +411,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           );
                         },
                       ),
-                      const SizedBox(height: 25),
                     ],
                   );
                 },

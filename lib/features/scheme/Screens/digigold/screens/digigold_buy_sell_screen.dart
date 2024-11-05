@@ -1,22 +1,113 @@
-import 'package:flutter/cupertino.dart';
+// digigold_buy_sell_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:onpensea/features/scheme/Screens/digigold/widgets/digigold_buy_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../../utils/constants/colors.dart';
+import '../../../../authentication/screens/login/Controller/LoginController.dart';
+import '../model/gold_price_model.dart';
+import '../service/digigold_service.dart';
+import '../widgets/digigold_sell_info.dart';
+import 'digigold_success_page.dart';
+import '../controller/digigold_controller.dart';
 
 class DigiGoldBuySellScreen extends StatefulWidget {
-  const DigiGoldBuySellScreen({Key? key}) : super(key: key);
+  DigiGoldBuySellScreen({Key? key}) : super(key: key);
 
   @override
   _DigiGoldBuySellScreenState createState() => _DigiGoldBuySellScreenState();
 }
 
 class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
-  TextEditingController amountController = TextEditingController(text: '1000');
+  TextEditingController amountController = TextEditingController(text: '0');
+  final DigiGoldService _service = DigiGoldService();
+  final DigiGoldController controller = Get.find<DigiGoldController>();
+  final loginController = Get.put(LoginController());
+
+
+  Future<void> _submitTransaction() async {
+    String amount = amountController.text;
+    String type = controller.transactionType.value;
+    String pricePerMgWithGst = controller.goldPrice.value.goldPrice;
+    String pricePerMgNoGst = _PricePerMgNoGst(pricePerMgWithGst);
+
+
+
+    if (amount.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter an amount')),
+      );
+      return;
+    }
+
+    // Calculate the weight in mg based on the entered amount
+    String weightInMg = _calculateWeightInMg(amount, pricePerMgWithGst);
+
+
+
+    // If the transaction type is "sell", validate the entered weight
+    if (type == "sell") {
+      double enteredWeight = double.parse(amount);
+      double currentBalance = double.parse(controller.userDetails.value?.weightInMg ?? "0");
+
+      if (enteredWeight > currentBalance) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Insufficient gold balance. Please enter a valid amount to sell.')),
+        );
+        return;
+      }
+    }
+
+    // Prepare the DTO with dynamic values based on type
+    Map<String, dynamic> dto = {
+      "userId": int.parse(loginController.userData['userId'].toString()),
+      "pricePerMgNoGst": double.parse(pricePerMgNoGst),
+      "pricePerMgWithGst": double.parse(pricePerMgWithGst),
+      "vaultTransactionType": type,
+      "weight_mg": (type == "sell") ? double.parse(amount) : double.parse(weightInMg),
+      "transactionId": "123", // Update this with your actual transaction ID logic,
+      "amount": (type == "sell") ? double.parse(_calculateAmountToRecievePerMgOfGold("7.56", amount)) :  double.parse(amount),
+
+      "vendorBuyingRate":11.1,
+      "vendorSellingRate":12.3,
+      "kalpcoBuyingRate":23.3,
+      "kalpcoSellingRate":23.33
+
+    };
+
+    bool success = await _service.submitTransaction(dto);
+    if (success) {
+      Get.off(() => const DigigoldSuccessPage());
+      controller.refreshData();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transaction failed. Please try again.')),
+      );
+    }
+  }
+
+
+  Future<void> _updateIsUserNewCustomer(bool isNew) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isUserNewDigigoldCustomer', isNew);
+  }
+
+  String _PricePerMgNoGst(String pricePerMgWithGst) {
+    return (double.parse(pricePerMgWithGst) -
+        (0.03 * double.parse(pricePerMgWithGst))).toStringAsFixed(2);
+  }
+
+  String _calculateWeightInMg(String amount, String currentGoldPriceWithGst) {
+    double totalGoldPurchased =
+        ((1 * double.parse(amount)) / double.parse(currentGoldPriceWithGst));
+    return totalGoldPurchased.toStringAsFixed(2);
+  }
 
   double _calculateTextWidth(String text) {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 48,
           fontWeight: FontWeight.bold,
         ),
@@ -28,15 +119,25 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
     return textPainter.size.width;
   }
 
+  String _calculateAmountToRecievePerMgOfGold(
+      String sellingGoldPriceMg, String enterMgOfGoldToSell) {
+    double amountToRecieve =
+        double.parse(sellingGoldPriceMg) * double.parse(enterMgOfGoldToSell);
+    return amountToRecieve.toStringAsFixed(2);
+  }
+
   @override
   Widget build(BuildContext context) {
+    String transactionType = controller.transactionType.value;
+    String pricePerMgWithGst = controller.goldPrice.value.goldPrice;
+    String pricePerMgNoGst = _PricePerMgNoGst(pricePerMgWithGst);
+    bool isBuying = transactionType == "buy";
+
     return Scaffold(
       body: Stack(
         children: [
-          // Background color
           Container(
-            color:
-                Color(0xFF6A1B9A), // Adjust the color to match the background
+            color: U_Colors.yaleBlue,
           ),
           Positioned(
             top: 40,
@@ -59,24 +160,24 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   backgroundImage: NetworkImage(
-                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFmHHdwWdudHrnE0l0otJtZ1BNBlI1_KyfACB7XIoMUFE8YT0xDSbhvqD9Mn_MHPAMDmQ&usqp=CAU'),
-                  // Replace with your logo URL
+                    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFmHHdwWdudHrnE0l0otJtZ1BNBlI1_KyfACB7XIoMUFE8YT0xDSbhvqD9Mn_MHPAMDmQ&usqp=CAU',
+                  ),
                   radius: 40,
                   backgroundColor: Colors.transparent,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Buying from MMTC-PAMP',
-                  style: TextStyle(
+                  isBuying ? 'Buying from MMTC-PAMP' : 'Selling to MMTC-PAMP',
+                  style: const TextStyle(
                     fontSize: 18,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                const Text(
                   '99.99% pure 24K gold',
                   style: TextStyle(
                     fontSize: 14,
@@ -84,56 +185,56 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Editable TextField for amount
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        // Calculate the width needed for the text
                         final textWidth =
                             _calculateTextWidth(amountController.text);
 
                         return SizedBox(
                           width: textWidth + 60,
-                          // Add padding for the prefix icon and extra spacing
                           child: TextField(
                             controller: amountController,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 48,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
                             onChanged: (value) {
-                              // Trigger a rebuild when the text changes
                               setState(() {});
                             },
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
-                              // Disable border
                               focusedBorder: InputBorder.none,
-                              // Disable border when focused
                               enabledBorder: InputBorder.none,
-                              // Disable border when not focused
                               errorBorder: InputBorder.none,
-                              // Disable border on error
                               disabledBorder: InputBorder.none,
-                              // Disable border
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(right: 4.0),
-                                // Adjust spacing here
-                                child: Text(
-                                  '₹',
-                                  style: TextStyle(
-                                    fontSize: 48,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                              prefixIcon: isBuying
+                                  ? const Padding(
+                                      padding:
+                                          EdgeInsets.only(right: 4.0),
+                                      child: Text(
+                                        '₹',
+                                        style: TextStyle(
+                                          fontSize: 48,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                              suffixText: isBuying ? '' : 'mg',
+                              // Show 'mg' when selling
+                              suffixStyle: const TextStyle(
+                                fontSize: 30,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
-                              prefixIconConstraints: BoxConstraints(
+                              prefixIconConstraints: const BoxConstraints(
                                 minWidth: 0,
                                 minHeight: 0,
                               ),
@@ -145,42 +246,47 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '136.6 mg',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Price ₹7.11/mg (excl. GST)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                  ),
-                ),
-                Text(
-                  '₹7.32/mg (with 3% GST)',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white70,
-                  ),
-                ),
+                // Using the ternary operator to switch between widgets
+                isBuying
+                    ? DigigoldBuyInfo(
+                        weightInMg: amountController.text.isEmpty
+                            ? "0"
+                            : (_calculateWeightInMg(amountController.text,
+                                controller.goldPrice.value.goldPrice)),
+                        pricePerMgNoGst: _PricePerMgNoGst(
+                            controller.goldPrice.value.goldPrice),
+                        pricePerMgWithGst: controller.goldPrice.value.goldPrice,
+                      )
+                    : DigigoldSellInfo(
+                        amountToRecieveOnSellingMgOfGold:
+                            amountController.text.isEmpty
+                                ? "0"
+                                : _calculateAmountToRecievePerMgOfGold(
+                                    "7.56", amountController.text),
+                        sellingPriceOfGoldPerMg: "7.56",
+                        currentBalanceMgOfGold:
+                            double.parse(controller.userDetails.value!.weightInMg).toStringAsFixed(2),
+                      ),
               ],
             ),
           ),
           Positioned(
             bottom: 40,
             right: 24,
-            child: FloatingActionButton(
-              onPressed: () {
-                print('Amount: ${amountController.text}');
-              },
-              backgroundColor: Colors.blueAccent,
-              child: Icon(Icons.check, color: Colors.white),
+            child: FloatingActionButton.extended(
+              onPressed: _submitTransaction,
+              backgroundColor: U_Colors.whiteColor,
+              icon: const Icon(Icons.check, color: U_Colors.yaleBlue),
+              label: Text(
+                '${controller.transactionType == "buy" ? "Buy": "Sell"}', // Add your desired text here
+                style: TextStyle(
+                  color: U_Colors.yaleBlue, // Match the color of the icon
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
+
         ],
       ),
     );

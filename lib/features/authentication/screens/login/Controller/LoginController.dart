@@ -24,7 +24,7 @@ class LoginController extends GetxController {
       print('Received response: ${response.statusCode}');
       print('Response data: ${response.data}');
 
-      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+      if (response.statusCode! == 200 && response.statusCode! < 300) {
         final data = response.data;
         if (data['code'] == 2004) {
           Get.find<LoginController>().userData.value = data['data'];

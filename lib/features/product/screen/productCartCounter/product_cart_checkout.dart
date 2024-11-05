@@ -496,8 +496,8 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                     // Image
                     Center(
                       child: Image(
-                        height: 50,
-                        image: AssetImage(U_ImagePath.kalpcoLogo),
+                        height: 150,
+                        image: AssetImage(U_ImagePath.kalpcoUpdatedLogo),
                       ),
                     ),
                     SizedBox(height: 20), // Space between image and text
@@ -514,7 +514,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 10.0),
-                    DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+                    DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash_1.png'),
                     SizedBox(height: 10.0),
                     // Space between text and buttons
                     Text(

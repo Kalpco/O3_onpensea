@@ -56,6 +56,9 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
   @override
   void initState() {
     super.initState();
+    products.clear();
+    userType = loginController.userData['userType'];
+    print('user type : $userType');
    // futureProducts = ProductService().fetchProducts(widget.productCategory,widget.typeOfStone);
    //  userType = loginController.userData['userType'];
    //  print(widget.typeOfStone);
@@ -77,7 +80,7 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
       isLoading = true;
     });
     try {
-      final response = await ProductService().fetchProducts(widget.productCategory,widget.typeOfStone,pageNo, pageSize);
+      final response = await ProductService().fetchProducts(widget.productCategory,widget.subCategory,widget.typeOfStone,pageNo, pageSize);
       setState(() {
         print("pageNo: $pageNo");
         pageNo++; // Increment page number
@@ -217,20 +220,19 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
           ),
         ),
       ),
-        floatingActionButton: (userType == "U" || userType == "M" || userType == "G")
-            ? CustomFloatingActionButton(
-          onPressed: () => _showDialog(context),
-        ) : addProductActionButton(),
+        floatingActionButton:
+         CustomFloatingActionButton(onPressed: () => _showDialog(context),
+    ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
     );
   }
 
-  @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   scrollController.dispose();
+  //   super.dispose();
+  // }
 
   void _showDialog(BuildContext context) {
     showDialog(
@@ -250,8 +252,8 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                     // Image
                     Center(
                       child: Image(
-                        height: 50,
-                        image: AssetImage(U_ImagePath.kalpcoLogo),
+                        height: 150,
+                        image: AssetImage(U_ImagePath.kalpcoUpdatedLogo),
                       ),
                     ),
                     SizedBox(height: 20), // Space between image and text
@@ -270,7 +272,7 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                     ),
                     SizedBox(height: 10.0),
                     DividerWithAvatar(
-                        imagePath: 'assets/logos/KALPCO_splash.png'),
+                        imagePath: 'assets/logos/KALPCO_splash_1.png'),
                     SizedBox(height: 10.0),
                     // Space between text and buttons
                     Text(

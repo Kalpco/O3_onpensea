@@ -184,16 +184,16 @@ class _SignUpFormState extends State<SignUpForm> {
       _isLoading.value = true;
       try {
         final url =
-        Uri.parse(ApiConstants.USERS_URL!);
+        Uri.parse('${ApiConstants.USERS_URL!}/users');
         final request = http.MultipartRequest('POST', url);
-
+        print(url);
         request.fields['name'] = _firstNameController.text;
         // request.fields['fatherName'] = _fatherNameController.text;
         request.fields['lastName'] = _lastNameController.text;
         request.fields['email'] = _emailController.text;
         request.fields['password'] = _passwordController.text;
         request.fields['mobileNo'] = _phoneNoController.text;
-        request.fields['address'] = _addressController.text;
+        // request.fields['address'] = _addressController.text;
         request.fields['gender'] =
         _selectedGender != null ? _selectedGender![0] : '';
         request.fields['city'] = _cityController.text;
@@ -222,6 +222,7 @@ class _SignUpFormState extends State<SignUpForm> {
           Get.to(() => SuccessScreen());
         } else {
           final responseBody = await response.stream.bytesToString();
+          print("Response : $responseBody");
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Registration failed: $responseBody')),
           );
@@ -459,22 +460,22 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ],
           ),
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          TextFormField(
-            controller: _addressController,
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.address,
-              prefixIcon: Icon(Iconsax.home),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your address';
-              }
-              return null;
-            },
-          ),
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // TextFormField(
+          //   controller: _addressController,
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.address,
+          //     prefixIcon: Icon(Iconsax.home),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your address';
+          //     }
+          //     return null;
+          //   },
+          // ),
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),
@@ -507,33 +508,33 @@ class _SignUpFormState extends State<SignUpForm> {
               return null;
             },
           ),
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          DropdownButtonFormField<String>(
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.userType,
-              prefixIcon: Icon(Iconsax.home),
-            ),
-            value: _selectedUserType,
-            items: _userTypes.map((String userType) {
-              return DropdownMenuItem<String>(
-                value: userType,
-                child: Text(userType),
-              );
-            }).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                _selectedUserType = newValue;
-              });
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please select a user type';
-              }
-              return null;
-            },
-          ),
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // DropdownButtonFormField<String>(
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.userType,
+          //     prefixIcon: Icon(Iconsax.home),
+          //   ),
+          //   value: _selectedUserType,
+          //   items: _userTypes.map((String userType) {
+          //     return DropdownMenuItem<String>(
+          //       value: userType,
+          //       child: Text(userType),
+          //     );
+          //   }).toList(),
+          //   onChanged: (newValue) {
+          //     setState(() {
+          //       _selectedUserType = newValue;
+          //     });
+          //   },
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please select a user type';
+          //     }
+          //     return null;
+          //   },
+          // ),
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),

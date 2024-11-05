@@ -152,7 +152,7 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Get.to(() => const SignUpScreen()),
+                onPressed: () => Get.off(() => const SignUpScreen()),
                 child: Text(
                   U_TextStrings.createAccount,
                   style: TextStyle(color: U_Colors.whiteColor),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onpensea/app.dart';
+import 'package:onpensea/features/scheme/Screens/digigold/screens/transactions_list_screen.dart';
 
 class TransactionCards extends StatelessWidget {
   const TransactionCards({
@@ -45,7 +48,7 @@ class TransactionCards extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title!,
+              (title!.contains("buy")) ? title!.replaceFirst(RegExp(r'^buy', caseSensitive: false), 'Bought') : title!.capitalizeFirst!,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.black87,

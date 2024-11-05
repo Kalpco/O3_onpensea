@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:onpensea/features/product/apiService/productService.dart';
 import 'package:onpensea/features/product/models/productResponseDTO.dart';
+import 'package:onpensea/features/product/screen/productHome/products_home_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../utils/constants/colors.dart';
@@ -26,10 +28,10 @@ class ProductSubCategoryDetailPage extends StatefulWidget {
   ProductSubCategoryDetailPage({required this.productCategory,required this.typeOfStone,required this.productSubCategory});
 
   @override
-  _ProductDetailPageState createState() => _ProductDetailPageState();
+  _ProductSubCategoryDetailPageState createState() => _ProductSubCategoryDetailPageState();
 }
 
-class _ProductDetailPageState extends State<ProductSubCategoryDetailPage> {
+class _ProductSubCategoryDetailPageState extends State<ProductSubCategoryDetailPage> {
   ScrollController scrollController = ScrollController();
   final loginController = Get.find<LoginController>();
   late Future<ProductWrapperResponseDTO> futureProducts;
@@ -308,8 +310,8 @@ class _ProductDetailPageState extends State<ProductSubCategoryDetailPage> {
                     // Image
                     Center(
                       child: Image(
-                        height: 50,
-                        image: AssetImage(U_ImagePath.kalpcoLogo),
+                        height: 150,
+                        image: AssetImage(U_ImagePath.kalpcoUpdatedLogo),
                       ),
                     ),
                     SizedBox(height: 20), // Space between image and text
@@ -328,7 +330,7 @@ class _ProductDetailPageState extends State<ProductSubCategoryDetailPage> {
                     ),
                     SizedBox(height: 10.0),
                     DividerWithAvatar(
-                        imagePath: 'assets/logos/KALPCO_splash.png'),
+                        imagePath: 'assets/logos/KALPCO_splash_1.png'),
                     SizedBox(height: 10.0),
                     // Space between text and buttons
                     Text(

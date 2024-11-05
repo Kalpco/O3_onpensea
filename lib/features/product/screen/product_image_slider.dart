@@ -48,7 +48,7 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
               onTap: () => _showFullScreenImage(
                   "${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}"),
               child: SizedBox(
-                height: 475,
+                height: 500,
                 child: Padding(
                   padding: const EdgeInsets.all(U_Sizes.productImageRadius * 2),
                   //child: Center(child: Image.network("${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}", fit: BoxFit.cover,)),
@@ -73,7 +73,7 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
             //slider
             Positioned(
               right: 0,
-              bottom: 30,
+              bottom: 25,
               left: U_Sizes.defaultSpace,
               child: SizedBox(
                 height: 80,
@@ -174,6 +174,7 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
           child: Stack(
             children: [
               PhotoView(
+                minScale: PhotoViewComputedScale.contained,
                 imageProvider: CachedNetworkImageProvider(imageUrl),
                 backgroundDecoration: BoxDecoration(color: U_Colors.whiteColor),
                 loadingBuilder: (context, event) => Center(

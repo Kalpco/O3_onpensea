@@ -1,11 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'dart:convert';  // For jsonEncode
+import 'dart:convert';
+
+import '../authentication/screens/login/Controller/LoginController.dart';  // For jsonEncode
 class AddProduct extends StatefulWidget {
   @override
   AddProductFormState createState() => AddProductFormState();
@@ -29,7 +34,8 @@ class AddProductFormState extends State<AddProduct> {
   final TextEditingController clarityOfSolitareDiamond = TextEditingController();
   final TextEditingController productMakingChargesPercentage = TextEditingController();
   final TextEditingController imageController = TextEditingController();
-
+  final loginController = Get.find<LoginController>();
+  bool isLoading = false;
 
   // Dropdown selected values
   String? selectedProductCategory;
@@ -37,9 +43,9 @@ class AddProductFormState extends State<AddProduct> {
   String? selectedDiamondType;
 
   // List of Product Categories and Sub Categories
-  final List<String> productCategories = ['Gold', 'Diamond'];
-  final List<String> subCategories = ['Ring', 'Necklace'];
-  final List<String> diamondTypeCategories = ['Lab-Grown', 'Natural'];
+  final List<String> productCategories = ['Custom', 'Diamond'];
+  final List<String> subCategories = ['Ring', 'Necklace','Pendant','Earing','Bracelet','Bangle','Chain'];
+  final List<String> diamondTypeCategories = ['Lab Grown', 'Natural Diamond'];
 
   //For to get images from phone
   List<File> selectedImages = [];
@@ -73,8 +79,11 @@ class AddProductFormState extends State<AddProduct> {
     if (formKey.currentState!.validate())
     {
       try {
-        final url = Uri.parse(
-            'http://172.16.16.28:11002/products/kalpco/v1.0.0/products/merchant/2/M/catalog');
+        setState(() {
+          isLoading = true; // Show loader
+        });
+        int userId = loginController.userData['userId'];
+        final url = Uri.parse('${ApiConstants.PRODUCTS_BASE_URL}/merchant/$userId/M/catalog');
         final request = http.MultipartRequest('POST', url);
 
         request.fields['productName'] = productName.text;
@@ -89,13 +98,13 @@ class AddProductFormState extends State<AddProduct> {
         request.fields['productQuantity'] = productQuantity.text;
         request.fields['productMakingChargesPercentage'] = productMakingChargesPercentage.text;
         //For gems DTO
-        Map<String, dynamic> gemsDTO = {
+        Map<String, dynamic> gems = {
           'noOfSmallStones': noOfSmallStones.text,
           'weightOfSmallStones': weightOfSmallStones.text,
           'clarityOfSolitareDiamond': clarityOfSolitareDiamond.text,
           'typeOfStone': selectedDiamondType,
         };
-        request.fields['gemsDTO'] = jsonEncode(gemsDTO);
+        request.fields['gemsDTO'] = jsonEncode(gems);
 
         if (selectedImages != null) {
           for (File image in selectedImages) {
@@ -105,19 +114,21 @@ class AddProductFormState extends State<AddProduct> {
         }
 
         final response = await request.send();
-
+        setState(() {
+          isLoading = false;
+        });
         if (response.statusCode == 201)
         {
           clearFields();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Product Has Been Added Successfully')),
+            SnackBar(content: Text('Product added successfully'),backgroundColor: Colors.green),
           );
         }
       }
       catch (e) {
-        print('Error during registration: $e');
+        print('Error occured during adding product: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred during registration')),
+          SnackBar(content: Text('Unable to add product')),
         );
       }
     }
@@ -157,8 +168,21 @@ class AddProductFormState extends State<AddProduct> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appBar: AppBar(
+      //   title: Text('Add Product'),
+      // ),
       appBar: AppBar(
-        title: Text('Add Product'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          "Add Product",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: U_Colors.yaleBlue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(25.0),
@@ -311,21 +335,6 @@ class AddProductFormState extends State<AddProduct> {
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
-                  controller: productPrice,
-                  decoration: InputDecoration(
-                    labelText: 'Product Price',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter product Price';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16.0),
-                TextFormField(
                   controller: productQuantity,
                   decoration: InputDecoration(
                     labelText: 'Product Quantity',
@@ -339,9 +348,10 @@ class AddProductFormState extends State<AddProduct> {
                     return null;
                   },
                 ),
-
+                if(selectedProductCategory !='Diamond')
                 SizedBox(height: 16.0),
-                TextFormField(
+                if(selectedProductCategory !='Diamond')
+                  TextFormField(
                   controller: productMakingChargesPercentage,
                   decoration: InputDecoration(
                     labelText: 'Product Making Charges Percentage',
@@ -358,58 +368,62 @@ class AddProductFormState extends State<AddProduct> {
                     FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}$')), // Allow only two digits
                   ],
                 ),
-
+                if(selectedProductCategory !='Custom')
                 SizedBox(height: 16.0),
-                // No. of Solitaires Field
+                if(selectedProductCategory !='Custom')
                 TextFormField(
-                  controller: noOfSolitaires,
+                  controller: noOfSmallStones,
                   decoration: InputDecoration(
-                    labelText: 'No. of Solitaires',
+                    labelText: 'No. of Diamonds',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter the number of solitaires';
+                      return 'Please enter the number of diamonds';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 16.0),
                 // No. of Solitaires Field
-                TextFormField(
+                if(selectedProductCategory !='Custom')
+                  TextFormField(
                   controller: weightOfSmallStones,
                   decoration: InputDecoration(
-                    labelText: 'Weight Of SmallStones',
+                    labelText: 'Weight of Diamond',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter the weight of smallstoness';
+                      return 'Please enter the weight of diamond';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: 16.0),
-                // No. of Solitaires Field
-                TextFormField(
+                if(selectedProductCategory !='Custom')
+                  SizedBox(height: 16.0),
+                if(selectedProductCategory !='Custom')
+                  TextFormField(
                   controller: clarityOfSolitareDiamond,
                   decoration: InputDecoration(
-                    labelText: 'Clarity Of Solitare Diamond',
+                    labelText: 'Clarity of Diamond',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter the clarity of solitare diamond';
+                      return 'Please enter the clarity of diamond';
                     }
                     return null;
                   },
                 ),
-                SizedBox(height: 16.0),
-                DropdownButtonFormField<String>(
+                if(selectedProductCategory !='Custom')
+                  SizedBox(height: 16.0),
+                if(selectedProductCategory !='Custom')
+                  DropdownButtonFormField<String>(
                   decoration: InputDecoration(
-                    labelText: 'Diamond Type Clarity',
+                    labelText: 'Diamond Type ',
                     border: OutlineInputBorder(),
                   ),
                   value: selectedDiamondType,
@@ -425,9 +439,10 @@ class AddProductFormState extends State<AddProduct> {
                     });
                   },
                   validator: (value) => value == null
-                      ? 'Please select a diamond type clarity'
+                      ? 'Please select a diamond type'
                       : null,
                 ),
+                if(selectedProductCategory !='Custom')
                 SizedBox(height: 16.0),
                 // Product Size Field
                 // SizedBox(
@@ -449,7 +464,7 @@ class AddProductFormState extends State<AddProduct> {
                 TextFormField(
                   controller: imageController,
                   decoration: InputDecoration(
-                    labelText: 'Photo',
+                    labelText: 'Product Images',
                     prefixIcon: IconButton(
                       icon: Icon(Iconsax.image),
                       onPressed: getImages,
@@ -489,8 +504,16 @@ class AddProductFormState extends State<AddProduct> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: submitForm,
-                      child: Text('Submit'),
+                      onPressed: isLoading ? null : submitForm,
+                      child:isLoading ?
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      ): Text('Add Product'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: U_Colors.yaleBlue,
                         side: BorderSide.none,

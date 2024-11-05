@@ -1,9 +1,10 @@
-import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:onpensea/features/Admin/adminEditProduct.dart';
 import 'package:onpensea/features/product/apiService/paymentOrderAPI.dart';
 import 'package:onpensea/features/product/controller/post_transaction_Api_calling.dart';
 import 'package:onpensea/features/product/models/products.dart';
@@ -40,6 +41,7 @@ import '../models/capture_payment_success.dart';
 import '../models/order_api_success.dart';
 import 'CheckoutScreen/CheckoutScreen.dart';
 
+
 class ProductDetail extends StatefulWidget {
   ProductDetail({super.key, required this.product});
 
@@ -50,6 +52,42 @@ class ProductDetail extends StatefulWidget {
 }
 
 class _ProductDetailState extends State<ProductDetail> {
+  String? userType;
+  final loginController = Get.find<LoginController>();
+  @override
+  void initState() {
+    super.initState();
+    getUserType();
+  }
+
+  void getUserType() {
+    userType = loginController.userData['userType'];
+    print("userType:$userType");
+  }
+
+  void showDeleteConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Expanded(child: Text("Product Deleted")),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the alert dialog
+                },
+              )
+            ],
+          ),
+          content: Text('The product has been successfully deleted.'),
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +142,72 @@ class _ProductDetailState extends State<ProductDetail> {
                   ProductExpandTile(product: widget.product),
                   Divider(),
                   ProductPriceExpandTile(product: widget.product),
+                  // Divider(),
+                  // SizedBox(height: 20.0),
+                  // if (userType == "M")
+                  //   Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: Align(
+                  //         alignment: Alignment.centerLeft,
+                  //         child: ElevatedButton(
+                  //           onPressed: () {
+                  //             showDialog(
+                  //               context: context,
+                  //               builder: (BuildContext context) {
+                  //                 return AlertDialog(
+                  //                   title: Text("Confirm Delete"),
+                  //                   content: Text("Are you sure want to delete?"),
+                  //                   actions: [
+                  //                     TextButton(
+                  //                       onPressed: () {
+                  //                         Navigator.of(context).pop();
+                  //
+                  //                       },
+                  //                       child: Text("Cancel"),
+                  //                     ),
+                  //                     TextButton(
+                  //                       onPressed: () {
+                  //                         deleteProduct();
+                  //                         Navigator.of(context).pop(); // Close the dialog
+                  //                        // showDeleteConfirmationDialog();// Close the dialog
+                  //                        Navigator.pop(context); // Pop the current screen
+                  //                         // Here you can perform the actual delete logic if needed.
+                  //                       },
+                  //                       child: Text("Delete"),
+                  //                     ),
+                  //                   ],
+                  //                 );
+                  //               },
+                  //             );
+                  //           },
+                  //           style: ElevatedButton.styleFrom(
+                  //             side: BorderSide.none,
+                  //             backgroundColor: U_Colors.satinSheenGold,
+                  //             padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
+                  //             minimumSize: Size(120, 38),
+                  //           ),
+                  //           child: Text('Delete'),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     ElevatedButton(
+                  //       onPressed: () {
+                  //         Navigator.push(context,
+                  //             MaterialPageRoute(
+                  //             builder: (context) =>  Productedit(product : widget.product)));
+                  //       },
+                  //       child: Text('Update '),
+                  //      style: ElevatedButton.styleFrom(
+                  //      backgroundColor: U_Colors.yaleBlue,
+                  //      side: BorderSide.none,
+                  //      padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 18.0),
+                  //      minimumSize: Size(120, 38),
+                  //      ),
+                  //     ),
+                  //   ],
+                  // )
+
 
 // Inside the build method of ProductDetail
 //                   SizedBox(
