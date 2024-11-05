@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:onpensea/features/product/models/products.dart';
 import 'package:onpensea/features/product/screen/productHome/products_home_screen.dart';
+import 'package:onpensea/navigation_menu.dart';
 import 'package:onpensea/utils/constants/circularIcon.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
@@ -32,10 +35,7 @@ class BottomBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
             ElevatedButton(onPressed: (){
-              Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) =>  HomeScreen()),
-      );
+              Get.offAll(() => NavigationMenu());
         },style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(U_Sizes.iconXs),
           backgroundColor: U_Colors.yaleBlue,

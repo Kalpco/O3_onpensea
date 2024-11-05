@@ -37,7 +37,7 @@ class U_AppBar extends StatelessWidget implements PreferredSizeWidget{
     child:AppBar(
       automaticallyImplyLeading:false,
       leading:showBackArrow 
-      ? IconButton(onPressed:() => Get.to(() => NavigationMenu()),icon: Icon(Iconsax.arrow_left, color: dark ? U_Colors.dark : U_Colors.whiteColor))
+      ? IconButton(onPressed:() => Get.offAll(() => NavigationMenu()),icon: Icon(Iconsax.arrow_left, color: dark ? U_Colors.dark : U_Colors.whiteColor))
       :leadingIcon != null
       ?IconButton(onPressed: leadingOnPressed, icon: Icon(leadingIcon))
       :null,

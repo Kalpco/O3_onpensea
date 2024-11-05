@@ -24,6 +24,7 @@ class ProductResponseDTO {
   double? goldPrice;
   double? gstCharges;
   double? productMakingCharges;
+  int? productMakingChargesPercentage;
   int? purity;
   GemsDTO? gemsDTO;
 
@@ -47,6 +48,7 @@ class ProductResponseDTO {
     this.productOwnerType,
     this.goldPrice,
     this.productMakingCharges,
+    this.productMakingChargesPercentage,
     this.gstCharges,
     this.totalPrice,
     this.purity,
@@ -79,6 +81,7 @@ class ProductResponseDTO {
       gstCharges: json['gstCharges']?.toDouble(),
       totalPrice: json['totalPrice']?.toDouble(),
       purity: json['purity'],
+      productMakingChargesPercentage: json['productMakingChargesPercentage'],
       gemsDTO: json['gemsDTO'] != null ? GemsDTO.fromJson(json["gemsDTO"]) : null,
     );
   }

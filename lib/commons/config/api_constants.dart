@@ -11,6 +11,8 @@ class ApiConstants {
   static String? PRODUCTS_BASE_URL = dotenv.env['PRODUCTS_BASE_URL'];
   static String? WALLET_BASE_URL = dotenv.env['WALLET_BASE_URL'];
   static String? CART_BASE_URL = dotenv.env['CART_BASE_URL'];
+  static String? DIGIGOLD_BASE_URL = dotenv.env['DIGIGOLD_BASE_URL'];
+
 
 
 }

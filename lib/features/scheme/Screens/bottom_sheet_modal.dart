@@ -76,6 +76,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
   }
 
   Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+
     bool isCaptured = await _capturePaymentRazorPay(
         paymentId: response.paymentId!,
         responseDTO: razorpaySuccessResponseDTO);
@@ -292,62 +293,6 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
     }
   }
 
-//   Future<void> _createOrder(
-//     BuildContext context,
-//     int amount,
-//   ) async {
-//     if (_toggleIcon) {
-//       try {
-//         final amountInPaise = (amount * 100).toInt();
-//         final orderResponse = await razorpayOrderAPI.createOrder(
-//             amountInPaise, 'INR', 'order_receipt#1');
-//         print('Order : $orderResponse');
-//         if (orderResponse is RazorpaySuccessResponseDTO) {
-//           print('Order created successfully: $orderResponse');
-//           razorpaySuccessResponseDTO = orderResponse;
-//           _openCheckout(orderResponse);
-//         } else if (orderResponse is RazorpayFailureResponse) {
-//           print('Failed to create order: ${orderResponse.error.code}');
-//           final loginController = Get.find<LoginController>();
-//           int userId = loginController.userData['userId'];
-//           final failedOrderDetails = {
-//             'schemeId': widget.investment.investmentId,
-//             'schemeName': widget.investment.investmentName,
-//             'transactionStatus': orderResponse.error.description +
-//                 "_" +
-//                 orderResponse.error.reason +
-//                 "_" +
-//                 orderResponse.error.field +
-//                 ":" +
-//                 orderResponse.error.code,
-//             'totalPrice': amount,
-//             'userId': userId,
-//             'schemeAmount': amount,
-//             'transactionMessage': 'Failed to create order',
-//           };
-//           await TranactionOrderAPI.postTransactionDetails(failedOrderDetails);
-//         }
-//       } catch (e) {
-//         print('Failed to placed order: $e');
-//         // Handle the error e.g. show a Snackbar with the error message
-//       }
-//     } else {
-// // Checkbox is not checked, show an error message
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text(
-//               'Please agree to the terms and conditions before proceeding.'),
-//           backgroundColor: Colors.redAccent,
-//         ),
-//       );
-//
-//       // Optionally, highlight the checkbox to indicate it needs to be checked
-//       setState(() {
-//         // Trigger UI update if needed
-//       });
-//     }
-//   }
-
   Future<void> _createOrder(
     BuildContext context,
     int amount,
@@ -357,10 +302,12 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
         final amountInPaise = (amount * 100).toInt();
         final orderResponse = await razorpayOrderAPI.createOrder(
             amountInPaise, 'INR', 'order_receipt#1');
+
         if (orderResponse is RazorpaySuccessResponseDTO) {
           razorpaySuccessResponseDTO = orderResponse;
           _openCheckout(orderResponse);
-        } else if (orderResponse is RazorpayFailureResponse) {
+        }
+        else if (orderResponse is RazorpayFailureResponse) {
           // Handle order creation failure
           print('Failed to create order: ${orderResponse.error.code}');
           final loginController = Get.find<LoginController>();

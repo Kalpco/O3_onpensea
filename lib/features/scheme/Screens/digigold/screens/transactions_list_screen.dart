@@ -14,8 +14,6 @@ class TransactionsListScreen extends StatelessWidget {
         ? Column(
             children: [
               TransactionContainer(),
-              TransactionContainer(),
-              TransactionContainer(),
             ],
           )
         : DigiGoldSummary();

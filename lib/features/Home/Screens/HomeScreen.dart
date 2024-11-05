@@ -9,15 +9,18 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/product/screen/productHomeAppBar/common_top_bar.dart';
+import 'package:onpensea/features/product/screen/productVideoStreaming/productVideoStreaming.dart';
 import 'package:onpensea/features/scheme/Screens/all_scheme_screen.dart';
 import 'package:onpensea/navigation_menu.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
+import 'package:video_player/video_player.dart';
 
 import '../../../utils/constants/colors.dart';
 import '../../../utils/constants/sizes.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import '../../product/screen/productHome/products_home_screen.dart';
+import '../../product/screen/video_Full_Screen.dart';
 import '../widgets/DividerWithAvatar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -35,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> womenCollectionImages = [];
   List<String> kidsCollectionImages = [];
   final loginController = Get.find<LoginController>();
-
   bool isLoading = true;
   int _currentPage = 0;
   Timer? _timer;
@@ -51,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final loginController = Get.find<LoginController>();
     _setProfileImage();
   }
+
+
 
   @override
   void dispose() {
@@ -94,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Assign specific images to imgList by their indices
             imgList = [
               fetchedImages[8], // First image
-              fetchedImages[8], // Fourth image
+              // fetchedImages[8], // Fourth image
               fetchedImages[9],
               fetchedImages[4], // Seventh image
             ];
@@ -235,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     //   break;
                                     case 2:
                                       navController.selectIndex.value =
-                                          1; // AllInvestmentScreen (this will redirect to investment)
+                                          2; // AllInvestmentScreen (this will redirect to investment)
                                       break;
                                     case 3:
                                       navController.selectIndex.value =
@@ -294,6 +298,63 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               height: 50,
             ),
+            //Video Banner code Starts
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(width: 20),
+                Text(
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: U_Colors.yaleBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  "Virtual Gallery",
+                ),
+              ],
+            ),
+            //SizedBox(height: U_Sizes.spaceBtwItems),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 35.0, right: 35.0, top: 2.5, bottom: 5),
+              child: DividerWithAvatar(
+                  dividerThickness: 0.2,
+                  dividerColor: U_Colors.yaleBlue,
+                  imagePath: 'assets/logos/KALPCO_splash.png'),
+            ),
+            SizedBox(height: U_Sizes.spaceBtwItems),
+            GestureDetector(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10.0,
+                      spreadRadius: 2.0,
+                      offset: Offset(2.0, 2.0),
+                    ),
+                  ],
+                ),
+                child:ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/images/videobanner.png', // Replace with your actual asset path
+                    fit: BoxFit.cover,
+                    // Optional: adjust as needed
+                  ),
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProductVideoStreaming()),
+                );
+              },
+            ),
+            SizedBox(height: U_Sizes.spaceBtwItems),
+            //Video Banner code Ends
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -342,12 +403,74 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProductHomeScreen(productCategory:"Gold",
-                      typeOfStone:"")),
+                  MaterialPageRoute(builder: (context) => ProductHomeScreen(productCategory:"Custom",
+                      subCategory:"Ring",typeOfStone:"")),
                 );
               },
             ),
             SizedBox(height: U_Sizes.spaceBtwItems),
+            // IconButton(
+            //   icon: Icon(Icons.arrow_forward, size: 32, color: Colors.blue), // Icon
+            //   onPressed: () {
+            //     // OnTap: Navigate to a new page
+            //     Get.to(() => ProductVideoStreaming());
+            //   },
+            // ),
+            // Center(
+            //   child: _controller.value.isInitialized
+            //       ? Container(
+            //     width: 500,
+            //     height: 200,
+            //     child: Stack(
+            //       alignment: Alignment.center,
+            //       children: [
+            //         // The video player
+            //         AspectRatio(
+            //           aspectRatio: _controller.value.aspectRatio,
+            //           child: VideoPlayer(_controller),
+            //         ),
+            //         // Play/pause button centered on the video
+            //         IconButton(
+            //           iconSize: 64,
+            //           icon: Icon(
+            //             isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+            //             color: Colors.white.withOpacity(0.7),
+            //           ),
+            //           onPressed: () {
+            //             setState(() {
+            //               if (isPlaying) {
+            //                 _controller.pause();
+            //               } else {
+            //                 _controller.play();
+            //               }
+            //               isPlaying = !isPlaying;
+            //             });
+            //           },
+            //         ),
+            //         Positioned(bottom:5,right:160,
+            //             child: IconButton(onPressed: _toggleFullScreen, icon: Icon(Icons.fullscreen,color: Colors.black.withOpacity(0.7),
+            //                 size: 32,)
+            //             ))
+            //       ],
+            //     ),
+            //   )
+            //       : CircularProgressIndicator(), // Show loader while initializing
+            // ),
+            // SizedBox(height: 20),
+            // // Video selection buttons
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: List.generate(videoUrls.length, (index) {
+            //     return Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            //       child: ElevatedButton(
+            //         onPressed: () => _switchVideo(index),
+            //         child: Text('Video ${index + 1}'),
+            //       ),
+            //     );
+            //   }),
+            // ),
+
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0),
               child: SizedBox(
@@ -366,8 +489,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ProductHomeScreen(productCategory:"Gold",
-                                  typeOfStone:"")),
+                              builder: (context) => ProductHomeScreen(productCategory:"Custom",
+                                  subCategory:"Ring",typeOfStone:"")),
                         );
                       },
                       child: Container(
@@ -443,7 +566,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProductHomeScreen(productCategory:"Diamond",
-                      typeOfStone:"Natural Diamond")),
+                      subCategory:"Ring",typeOfStone:"Natural Diamond")),
                 );
               },
             ),
@@ -468,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ProductHomeScreen(productCategory:"Diamond",
-                                  typeOfStone:"Natural Diamond")),
+                                  subCategory:"Ring",typeOfStone:"Natural Diamond")),
                         );
                       },
                       child: Container(
@@ -544,7 +667,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProductHomeScreen(productCategory:"Diamond",
-                      typeOfStone:"Lab Grown")),
+                      subCategory:"Ring",typeOfStone:"Lab Grown")),
                 );
               },
             ),
@@ -569,7 +692,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => ProductHomeScreen(productCategory:"Diamond",
-                                  typeOfStone:"Lab Grown")),
+                                  subCategory:"Ring",typeOfStone:"Lab Grown")),
                         );
                       },
                       child: Container(
@@ -829,4 +952,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
 }

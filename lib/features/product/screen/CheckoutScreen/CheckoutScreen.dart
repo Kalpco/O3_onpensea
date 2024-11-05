@@ -101,7 +101,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
   }
 
-    Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
     print('Payment Success -> : ${response.paymentId}');
     bool isCaptured = await _capturePaymentRazorPay(
         paymentId: response.paymentId!,
@@ -128,8 +128,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment has been done successfully ')),
+        SnackBar(
+          content: Text('Payment has been done successfully'),
+          backgroundColor: Colors.green, // Change to yellow
+        ),
       );
+
     } else {
       final loginController = Get.find<LoginController>();
       int userId = loginController.userData['userId'];
@@ -287,7 +291,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ).toJson();
       final response =
       await TranactionOrderAPI.postTransactionDetails(walletOrderDetails);
-      if (response.statusCode == 201) {
+      print('response ${response.body}');
+      print(response.statusCode);
+      if (response.statusCode == 200 || response.statusCode == 201) {
         print('Wallet Payment details posted successfully');
         print('Response Body: ${response.body}');
         Navigator.push(
@@ -302,7 +308,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payment has been done successfully ')),
+          SnackBar(
+            content: Text('Payment has been done successfully'),
+            backgroundColor: Colors.green, // Change to yellow
+          ),
         );
       } else {
         print(
@@ -316,7 +325,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   totalPrice:widget.totalPrice)),
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payment failed from wallet ')),
+          SnackBar(
+            content: Text('Payment has been done successfully'),
+            backgroundColor: Colors.red, // Change to yellow
+          ),
         );
       }
       setState(() {
@@ -491,7 +503,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
     return isSaved;
   }
-    void _showDialog(BuildContext context) {
+  void _showDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: true, // Allows dismissing by tapping outside
@@ -509,8 +521,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     // Image
                     Center(
                       child: Image(
-                        height: 50,
-                        image: AssetImage(U_ImagePath.kalpcoLogo),
+                        height: 150,
+                        image: AssetImage(U_ImagePath.kalpcoUpdatedLogo),
                       ),
                     ),
                     SizedBox(height: 20), // Space between image and text
@@ -527,7 +539,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 10.0),
-                    DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+                    DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash_1.png'),
                     SizedBox(height: 10.0),
                     // Space between text and buttons
                     Text(
@@ -619,7 +631,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     int userId = loginController.userData['userId'];
 
     return Scaffold(
-            floatingActionButton:CustomFloatingActionButton(
+      floatingActionButton:CustomFloatingActionButton(
         onPressed: () => _showDialog(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -1008,7 +1020,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 // import 'package:razorpay_flutter/razorpay_flutter.dart';
 // import 'package:onpensea/features/product/apiService/paymentOrderAPI.dart';
 // import 'package:onpensea/features/product/apiService/capturePaymentAPI.dart';
-// import 'package:onpensea/features/product/models/order_api_success.dart';
+// import 'package:onpensea/features/product/models/razorpay_order_api_success.dart';
 // import 'package:onpensea/features/product/models/razorpay_failure_response.dart';
 // import 'package:onpensea/features/product/models/capture_payment_success.dart';
 // import 'package:onpensea/features/product/controller/post_transaction_Api_calling.dart';
@@ -1963,3 +1975,4 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 //     );
 //   }
 // }
+

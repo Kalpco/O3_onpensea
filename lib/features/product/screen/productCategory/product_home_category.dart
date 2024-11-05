@@ -25,7 +25,9 @@ class _ProductHomeCategoryState extends State<ProductHomeCategory> {
       {'image': U_ImagePath.earings, 'title': 'Earing','productSubCategory':  'Earing' },
       {'image': U_ImagePath.pendant, 'title': 'Pendant','productSubCategory':  'Pendant' },
       {'image': U_ImagePath.bangles, 'title': 'Bangle','productSubCategory':  'Bangle' },
-    ];
+          {'image': U_ImagePath.chain, 'title': 'Chain','productSubCategory':  'Chain' },
+
+        ];
 
     return SizedBox(
       height: 100,
@@ -41,11 +43,15 @@ class _ProductHomeCategoryState extends State<ProductHomeCategory> {
   }
 
     void _handleTap(BuildContext context, String param) async {
-      Navigator.push(
+      // Navigator.pushAndRemoveUntil(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => ProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param.toUpperCase()),
+      //   ),(Route<dynamic> route)=>false,
+      // );
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => ProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param.toUpperCase()),
-        ),
+        MaterialPageRoute(builder: (context) => ProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param.toUpperCase()),)
       );
 
 

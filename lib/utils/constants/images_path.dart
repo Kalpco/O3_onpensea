@@ -40,12 +40,15 @@ class U_ImagePath {
   static const String bracelet = "assets/gold/category_bracelet.png";
   static const String bangles = "assets/gold/category_bangles.png";
   static const String earings = "assets/gold/category_earings.png";
-  static const String necklace = "assets/gold/category_necklace.png";
+  static const String necklace = "assets/gold/category_necklace_1.png";
   static const String pendant = "assets/gold/category_pendant.png";
-  static const String ring = "assets/gold/category_ring.png";
+  static const String ring = "assets/gold/category_ring_1.png";
   static const String wishlist = "assets/gold/wishlist.png";
   static const String wishlist2 = "assets/gold/wishlist2.png";
   static const String wallet = "assets/logos/wallet.png";
+  static const String chain = "assets/gold/category_chain.png";
+
+
 
 
 }

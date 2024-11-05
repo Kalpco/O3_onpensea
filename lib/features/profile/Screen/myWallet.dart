@@ -117,14 +117,26 @@ class _MywalletState extends State<Mywallet> {
                               return TableRow(
                                 children: [
                                   tableCell('$index', Colors.black),
-                                  tableCell('${transaction.updateaDate.toLocal()}'.split(' ')[0], Colors.black),
-                                  tableCell('${transaction.reason}', Colors.black),
                                   tableCell(
-                                    '₹.${transaction.amount}',
-                                    transaction.transactionType == 'CR'
-                                        ? Colors.green
-                                        : Colors.red,
+                                    transaction.updateaDate != null
+                                        ? '${transaction.updateaDate!.toLocal()}'.split(' ')[0]
+                                        : 'N/A',
+                                    Colors.black,
                                   ),
+                                  tableCell('${transaction.reason ?? 'N/A'}', Colors.black),
+                                  tableCell(
+                                    '₹${transaction.amount}',
+                                    transaction.transactionType == 'CR' ? Colors.green : Colors.red,
+                                  ),
+                                  // tableCell('$index', Colors.black),
+                                  // tableCell('${transaction.updateaDate.toLocal()}'.split(' ')[0], Colors.black),
+                                  // tableCell('${transaction.reason}', Colors.black),
+                                  // tableCell(
+                                  //   '₹.${transaction.amount}',
+                                  //   transaction.transactionType == 'CR'
+                                  //       ? Colors.green
+                                  //       : Colors.red,
+                                  // ),
                                 ],
                               );
                             }).toList(),

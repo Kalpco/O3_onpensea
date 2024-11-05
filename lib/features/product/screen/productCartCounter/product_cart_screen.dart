@@ -39,7 +39,6 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
 
   }
 
-
   Future<void> fetchCartData() async {
     var userId = loginController.userData['userId'];
     final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId');
@@ -51,12 +50,19 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
       print("response: ${response.statusCode}");
 
       if (response.statusCode == 200) {
-        setState(() {
-          cartData = json.decode(response.body)['payload'];
-          print("payload: ${cartData?[0]}");
-          print("payload: ${cartData?[1]}");
-          isLoading = false;
-        });
+        final decodedResponse = json.decode(response.body);
+        if (decodedResponse['payload'] is List) { // Check if payload is a list
+          setState(() {
+            cartData = decodedResponse['payload'];
+            isLoading = false;
+          });
+        } else {
+          print('Payload is not a list');
+          setState(() {
+            cartData = []; // Set to empty list if payload is not a valid list
+            isLoading = false;
+          });
+        }
       } else {
         print('Failed to load cart data');
         setState(() {
@@ -64,9 +70,40 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
         });
       }
     } catch (e) {
-      print('Error: $e');
+      print('Fetching cart data Error: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
+
+  // Future<void> fetchCartData() async {
+  //   var userId = loginController.userData['userId'];
+  //   final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId');
+  //   print("url:  $url");
+  //   try {
+  //     final response = await http.get(url);
+  //
+  //     print("end: ${response.body}");
+  //     print("response: ${response.statusCode}");
+  //
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         cartData = json.decode(response.body)['payload'];
+  //         print("payload: ${cartData?[0]}");
+  //         print("payload: ${cartData?[1]}");
+  //         isLoading = false;
+  //       });
+  //     } else {
+  //       print('Failed to load cart data');
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print('Fetching cart data Error: $e');
+  //   }
+  // }
 
 
   Future<void> updateCartItemQuantity(String userId, String productId, int newQuantity, double unitPrice) async {
@@ -141,7 +178,7 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
             'Failed to delete item: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print('Error: $e');
+      print('Delete Error: $e');
     }
   }
 
@@ -162,7 +199,7 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
             bottomNavigationBar: Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: (cartData == null || cartData!.isEmpty) ? null : () {
                   if (loginController.userData["userId"] == 0) {
                     showDialog(
                       context: context,
@@ -229,21 +266,116 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ProductCartCheckout(cartData: cartData,
-                                finalPrice: calculateTotalPrice(),
-                              )),
+                          builder: (context) => ProductCartCheckout(
+                            cartData: cartData,
+                            finalPrice: calculateTotalPrice(),
+                          ),
+                        ),
                       );
                     } else {
                       _showAlertDialog();
                     }
                   }
                 },
-                child: Text('Checkout \₹ ${calculateTotalPrice().toStringAsFixed(2)}'),
+                child: Text(
+                  (cartData == null || cartData!.isEmpty) ? 'Cart empty' : 'Checkout \₹ ${calculateTotalPrice().toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Colors.white, // Text color based on cart state
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: U_Colors.yaleBlue,
+                  backgroundColor: (cartData == null || cartData!.isEmpty)
+                      ? Colors.grey
+                      : U_Colors.yaleBlue,
                 ),
               ),
             ),
+
+            // bottomNavigationBar: Padding(
+            //   padding: const EdgeInsets.all(16.0),
+            //   child: ElevatedButton(
+            //     onPressed: () {
+            //       if (loginController.userData["userId"] == 0) {
+            //         showDialog(
+            //           context: context,
+            //           builder: (ctx) => AlertDialog(
+            //             title: Text(
+            //               "Alert",
+            //               style: GoogleFonts.poppins(
+            //                 fontSize: 18,
+            //                 fontWeight: FontWeight.w700,
+            //                 color: Colors.grey.shade800,
+            //               ),
+            //             ),
+            //             content: Text(
+            //               "Please login to purchase",
+            //               style: GoogleFonts.poppins(
+            //                 fontSize: 16,
+            //                 fontWeight: FontWeight.w600,
+            //                 color: Colors.grey.shade800,
+            //               ),
+            //             ),
+            //             actions: <Widget>[
+            //               TextButton(
+            //                 onPressed: () {
+            //                   Navigator.push(
+            //                     context,
+            //                     MaterialPageRoute(builder: (context) => const LoginScreen()),
+            //                   );
+            //                 },
+            //                 child: Container(
+            //                   color: const Color(0xffB80000),
+            //                   padding: const EdgeInsets.all(14),
+            //                   child: Text(
+            //                     "Go to login",
+            //                     style: GoogleFonts.poppins(
+            //                       fontSize: 14,
+            //                       fontWeight: FontWeight.w700,
+            //                       color: Colors.white,
+            //                     ),
+            //                   ),
+            //                 ),
+            //               ),
+            //               TextButton(
+            //                 onPressed: () {
+            //                   Navigator.of(ctx).pop(); // Close the dialog
+            //                 },
+            //                 child: Container(
+            //                   color: Colors.grey.shade300,
+            //                   padding: const EdgeInsets.all(14),
+            //                   child: Text(
+            //                     "Cancel",
+            //                     style: GoogleFonts.poppins(
+            //                       fontSize: 14,
+            //                       fontWeight: FontWeight.w700,
+            //                       color: Colors.black,
+            //                     ),
+            //                   ),
+            //                 ),
+            //               ),
+            //             ],
+            //           ),
+            //         );
+            //       } else {
+            //         if (deliverable == 'Y') {
+            //           Navigator.push(
+            //             context,
+            //             MaterialPageRoute(
+            //                 builder: (context) => ProductCartCheckout(cartData: cartData,
+            //                     finalPrice: calculateTotalPrice(),
+            //                   )),
+            //           );
+            //         } else {
+            //           _showAlertDialog();
+            //         }
+            //       }
+            //     },
+            //     child: Text('Checkout \₹ ${calculateTotalPrice().toStringAsFixed(2)}'),
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: U_Colors.yaleBlue,
+            //     ),
+            //   ),
+            // ),
             body: isLoading
                 ? Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(U_Colors.yaleBlue)))
                 : Padding(
@@ -256,6 +388,8 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
                 itemCount: cartData!.length,
                 itemBuilder: (_, index) {
                   final item = cartData![index];
+                  print('Cart Data Length: ${cartData?.length}');
+
                   return Dismissible(
                     key: Key(item['id']),
                     direction: DismissDirection.endToStart,
