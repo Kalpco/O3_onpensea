@@ -51,7 +51,7 @@ class _ProductHomeCategoryState extends State<ProductHomeCategory> {
       // );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param.toUpperCase()),)
+        MaterialPageRoute(builder: (context) => ProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param),)
       );
 
 
