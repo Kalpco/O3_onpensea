@@ -29,6 +29,7 @@ class ProductService {
   Future<ProductWrapperResponseDTO> fetchAdminProducts(String? productCategory,String? subCategory, String? typeOfStone,int pageNo, int pageSize) async {
     // Construct the full URL with userId
     final String url = '$baseUrl$userId/$userType/catalog?productCategory=$productCategory&productSubCategory=$subCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
+    print("url $url");
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       return ProductWrapperResponseDTO.fromJson(json.decode(response.body));

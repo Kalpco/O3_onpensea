@@ -52,7 +52,7 @@ class _AdminProductHomeCategoryState extends State<AdminProductHomeCategory> {
       // );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AdminProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param.toUpperCase()),)
+        MaterialPageRoute(builder: (context) => AdminProductSubCategoryDetailPage(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone,productSubCategory: param),)
       );
 
 
