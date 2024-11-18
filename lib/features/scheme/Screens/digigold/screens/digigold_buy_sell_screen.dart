@@ -2,9 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:onpensea/features/scheme/Screens/digigold/widgets/digigold_buy_info.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../../utils/constants/api_constants.dart';
 import '../../../../../utils/constants/colors.dart';
 import '../../../../authentication/screens/login/Controller/LoginController.dart';
+import '../../../../product/apiService/capturePaymentAPI.dart';
+import '../../../../product/apiService/paymentOrderAPI.dart';
+import '../../../../product/models/capture_payment_success.dart';
+import '../../../../product/models/order_api_success.dart';
+import '../../../../product/models/razorpay_failure_response.dart';
 import '../model/gold_price_model.dart';
 import '../service/digigold_service.dart';
 import '../widgets/digigold_sell_info.dart';
@@ -19,6 +26,19 @@ class DigiGoldBuySellScreen extends StatefulWidget {
 }
 
 class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
+
+  final RazorpayOrderAPI razorpayOrderAPI =
+  RazorpayOrderAPI(ApiConstants.key, ApiConstants.secretId);
+
+  final RazorpayCapturePayment capturePayment =
+  RazorpayCapturePayment(ApiConstants.key, ApiConstants.secretId);
+
+  late RazorpaySuccessResponseDTO razorpaySuccessResponseDTO;
+  late CapturePaymentRazorPay capturePaymentRazorPayResponse;
+  late RazorpayFailureResponse razorpayFailureResponse;
+  late Razorpay _razorpay;
+
+
   TextEditingController amountController = TextEditingController(text: '0');
   final DigiGoldService _service = DigiGoldService();
   final DigiGoldController controller = Get.find<DigiGoldController>();
@@ -42,8 +62,6 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
 
     // Calculate the weight in mg based on the entered amount
     String weightInMg = _calculateWeightInMg(amount, pricePerMgWithGst);
-
-
 
     // If the transaction type is "sell", validate the entered weight
     if (type == "sell") {
@@ -130,7 +148,7 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
   Widget build(BuildContext context) {
     String transactionType = controller.transactionType.value;
     String pricePerMgWithGst = controller.goldPrice.value.goldPrice;
-    String pricePerMgNoGst = _PricePerMgNoGst(pricePerMgWithGst);
+    //String pricePerMgNoGst = _PricePerMgNoGst(pricePerMgWithGst);
     bool isBuying = transactionType == "buy";
 
     return Scaffold(
