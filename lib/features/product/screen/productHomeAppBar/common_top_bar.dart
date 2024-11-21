@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/Admin/bottomNavigation.dart';
+import 'package:onpensea/features/scheme/Screens/digigold/screens/digigold_main.dart';
 import '../../../../navigation_menu.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../../Home/Screens/HomeScreen.dart';
@@ -322,6 +323,16 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.logout),
+                  title: Text('digi gold'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DigiGoldMain()),
                     );
                   },
                 ),

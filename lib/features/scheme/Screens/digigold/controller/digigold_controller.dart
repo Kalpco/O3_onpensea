@@ -35,6 +35,7 @@ class DigiGoldController extends GetxController {
       var fetchedPrice = await _service.fetchGoldPrice();
       if (fetchedPrice != null) {
         goldPrice.value = fetchedPrice;
+        print("gold price: $fetchedPrice");
       }
     } catch (e) {
       print("Error fetching gold price: $e");
