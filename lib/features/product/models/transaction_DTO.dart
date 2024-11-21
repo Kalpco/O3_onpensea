@@ -10,6 +10,7 @@ class TransactionDTO {
   bool? payedFromWallet;
   double? walletAmount;
   double? transactionAmount;
+  int? userAddressId;
 
   TransactionDTO({
      this.transactionId,
@@ -23,6 +24,7 @@ class TransactionDTO {
     this.payedFromWallet,
     this.walletAmount,
     this.transactionAmount,
+    this.userAddressId,
   });
 
   factory TransactionDTO.fromJson(Map<String, dynamic> json) => TransactionDTO(
@@ -37,6 +39,7 @@ class TransactionDTO {
     payedFromWallet: json["payedFromWallet"],
     walletAmount: json["walletAmount"]?.toDouble(),
     transactionAmount: json["transactionAmount"]?.toDouble,
+    userAddressId: json["userAddressId"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -51,5 +54,6 @@ class TransactionDTO {
     "payedFromWallet": payedFromWallet,
     "walletAmount": walletAmount,
     "transactionAmount":transactionAmount,
+    "userAddressId":userAddressId,
   };
 }

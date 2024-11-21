@@ -65,6 +65,8 @@ class _SignUpFormState extends State<SignUpForm> {
   int? _generatedOtp;
   int? _enteredOtp;
   bool _isPasswordVisible = false;
+  bool _checkboxError = false;
+
 
 
   final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
@@ -180,6 +182,9 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> _register() async {
+    setState(() {
+      _checkboxError = !_isChecked; // Set error if not checked
+    });
     if (_formKey.currentState!.validate()) {
       _isLoading.value = true;
       try {
@@ -274,7 +279,7 @@ class _SignUpFormState extends State<SignUpForm> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your father\'s name';
+                      return 'Please enter your last name';
                     }
                     return null;
                   },
@@ -282,91 +287,91 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ],
           ),
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          DropdownButtonFormField<String>(
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.gender,
-              prefixIcon: Icon(Icons.male_sharp),
-            ),
-            value: _selectedGender,
-            items: _genders.map((String gender) {
-              return DropdownMenuItem<String>(
-                value: gender,
-                child: Text(gender),
-              );
-            }).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                _selectedGender = newValue;
-              });
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please select your gender';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          TextFormField(
-            controller: _cityController,
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.city,
-              prefixIcon: Icon(Icons.location_city),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your city';
-              }
-              return null;
-            },
-          ),
-
-
-
-
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          TextFormField(
-            controller: _pincodeController,
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.pincode,
-              prefixIcon: Icon(Icons.pin_drop),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your pincode';
-              }
-              return null;
-            },
-          ),
-
-
-
-
-
-
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          TextFormField(
-            controller: _stateController,
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.state,
-              prefixIcon: Icon(Iconsax.location),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your state';
-              }
-              return null;
-            },
-          ),
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // DropdownButtonFormField<String>(
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.gender,
+          //     prefixIcon: Icon(Icons.male_sharp),
+          //   ),
+          //   value: _selectedGender,
+          //   items: _genders.map((String gender) {
+          //     return DropdownMenuItem<String>(
+          //       value: gender,
+          //       child: Text(gender),
+          //     );
+          //   }).toList(),
+          //   onChanged: (newValue) {
+          //     setState(() {
+          //       _selectedGender = newValue;
+          //     });
+          //   },
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please select your gender';
+          //     }
+          //     return null;
+          //   },
+          // ),
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // TextFormField(
+          //   controller: _cityController,
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.city,
+          //     prefixIcon: Icon(Icons.location_city),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your city';
+          //     }
+          //     return null;
+          //   },
+          // ),
+          //
+          //
+          //
+          //
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // TextFormField(
+          //   controller: _pincodeController,
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.pincode,
+          //     prefixIcon: Icon(Icons.pin_drop),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your pincode';
+          //     }
+          //     return null;
+          //   },
+          // ),
+          //
+          //
+          //
+          //
+          //
+          //
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // TextFormField(
+          //   controller: _stateController,
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.state,
+          //     prefixIcon: Icon(Iconsax.location),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your state';
+          //     }
+          //     return null;
+          //   },
+          // ),
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),
@@ -379,6 +384,9 @@ class _SignUpFormState extends State<SignUpForm> {
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
+              }
+              else if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(value)) {
+                return 'Please enter a valid email address';
               }
               return null;
             },
@@ -425,6 +433,11 @@ class _SignUpFormState extends State<SignUpForm> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
+                  }
+                  else if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                    return 'Please enter a valid 10-digit phone number';
+                  } else if (!isVerified) {
+                    return 'Phone number not verified';
                   }
                   return null;
                 },
@@ -492,22 +505,22 @@ class _SignUpFormState extends State<SignUpForm> {
           //     return null;
           //   },
           // ),
-          const SizedBox(
-            height: U_Sizes.inputFieldSpaceBtw,
-          ),
-          TextFormField(
-            controller: _panController,
-            decoration: const InputDecoration(
-              labelText: U_TextStrings.pan,
-              prefixIcon: Icon(Iconsax.home),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter your Pan';
-              }
-              return null;
-            },
-          ),
+          // const SizedBox(
+          //   height: U_Sizes.inputFieldSpaceBtw,
+          // ),
+          // TextFormField(
+          //   controller: _panController,
+          //   decoration: const InputDecoration(
+          //     labelText: U_TextStrings.pan,
+          //     prefixIcon: Icon(Iconsax.home),
+          //   ),
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter your Pan';
+          //     }
+          //     return null;
+          //   },
+          // ),
           // const SizedBox(
           //   height: U_Sizes.inputFieldSpaceBtw,
           // ),
@@ -586,28 +599,29 @@ class _SignUpFormState extends State<SignUpForm> {
           // const SizedBox(
           //   height: U_Sizes.inputFieldSpaceBtw,
           // ),
-          TextFormField(
-            controller: _photoController,
-            decoration: InputDecoration(
-              labelText: 'Photo',
-              prefixIcon: Icon(Iconsax.image),
-              suffixIcon: IconButton(
-                icon: Icon(Iconsax.camera),
-                onPressed: _pickImage,
-              ),
-            ),
-            readOnly: true,
-            // validator: (value) {
-            //   if (_image == null) {
-            //     return 'Please select a photo';
-            //   }
-            //   return null;
-            // },
-          ),
+          // TextFormField(
+          //   controller: _photoController,
+          //   decoration: InputDecoration(
+          //     labelText: 'Photo',
+          //     prefixIcon: Icon(Iconsax.image),
+          //     suffixIcon: IconButton(
+          //       icon: Icon(Iconsax.camera),
+          //       onPressed: _pickImage,
+          //     ),
+          //   ),
+          //   readOnly: true,
+          //   // validator: (value) {
+          //   //   if (_image == null) {
+          //   //     return 'Please select a photo';
+          //   //   }
+          //   //   return null;
+          //   // },
+          // ),
           const SizedBox(
             height: U_Sizes.inputFieldSpaceBtw,
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
                 width: 24,
@@ -617,11 +631,13 @@ class _SignUpFormState extends State<SignUpForm> {
                   value: _isChecked, // Use the state variable
                   onChanged: (value) {
                     setState(() {
-                      _isChecked = value!; // Update the state variable
+                      _isChecked = value!;
+                      _checkboxError = false; // Update the state variable
                     });
                   },
                 ),
               ),
+
               const SizedBox(
                 width: U_Sizes.spaceBtwItems,
               ),
@@ -653,6 +669,19 @@ class _SignUpFormState extends State<SignUpForm> {
               ),
             ],
           ),
+          if (_checkboxError)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 8.0),
+                  child: Text(
+                    'You must agree to the terms and conditions',
+                    style: TextStyle(color: U_Colors.yaleBlue, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
           const SizedBox(
             height: U_Sizes.spaceBwtSections,
           ),

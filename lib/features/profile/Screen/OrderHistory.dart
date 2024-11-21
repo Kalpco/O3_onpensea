@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
+import 'package:onpensea/features/authentication/screens/login/widgets/login_form.dart';
+import 'package:onpensea/features/profile/Screen/orderDetails.dart';
 import '../../../utils/constants/colors.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import '../../../utils/constants/api_constants.dart';
@@ -25,10 +27,10 @@ class _OrderHistoryState extends State<OrderHistory> {
   Future<void> _fetchOrderHistory() async {
     try {
       final response = await _dio.get(
-          '${API_CONSTANTS_1.ApiConstants.TRANSACTION_BASE_URL}/users/${loginController.userData['userId']}');
+          '${API_CONSTANTS_1.ApiConstants.TRANSACTION_MASTER_BASE_URL}/users/${loginController.userData['userId']}');
 
       if (response.statusCode == 200) {
-        final data = response.data['productTransactionDTOList'];
+        final data = response.data['transactionList'];
         setState(() {
           transactions = List<Map<String, dynamic>>.from(data);
         });
@@ -71,7 +73,7 @@ class _OrderHistoryState extends State<OrderHistory> {
       body: transactions.isEmpty
           ? Center(
         child: Text(
-          'Do more shopping!',
+          'Do more shopping with us!',
           style: TextStyle(
             fontSize: 18,
             color: Colors.grey,
@@ -85,15 +87,35 @@ class _OrderHistoryState extends State<OrderHistory> {
           itemCount: transactions.length,
           itemBuilder: (context, index) {
             final transaction = transactions[index];
-            final imageUrl = "${ApiConstants.baseUrl}${transaction['productPic']}";
+            final product = transaction['productTransactionDTOList'][0];
+            int userId = transaction['userId'];
+            int transactionId = transaction['transactionId'];
+            int? addressId = transaction['userAddressId'];
+            final productList = transaction['productTransactionDTOList'];
+            final imageUrl = "${ApiConstants.baseUrl}${product['productPic']}";
+            print("my image $imageUrl");
             return _buildOrderCard(
-              productName: transaction['productName'] ?? 'Unknown Product',
-              price: '₹${transaction['totalAmount']?.toStringAsFixed(2)}',
-              status: transaction['deliveryStatus'] ?? 'Pending',
-              statusColor: transaction['deliveryStatus'] == 'Delivered'
+              productName: product['productName'] ?? 'Unknown Product',
+              price: '₹${product['totalAmount']?.toStringAsFixed(2)}',
+              status: product['deliveryStatus'] ?? 'Pending',
+              statusColor: product['deliveryStatus'] == 'Delivered'
                   ? Colors.green
                   : Colors.red,
               imageUrl: imageUrl,
+              onCardTap: () {
+                // Navigate to the next page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderDetailsPage(
+                      productList: productList,
+                      userId:userId,
+                      transactionId:transactionId,
+                      addressId:addressId// Pass transaction details
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -107,63 +129,67 @@ class _OrderHistoryState extends State<OrderHistory> {
     required String status,
     required Color statusColor,
     required String imageUrl,
+    required VoidCallback onCardTap,
   }) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16.0),
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10.0,
-            spreadRadius: 2.0,
-            offset: Offset(2.0, 2.0),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
+    return GestureDetector(
+      onTap: onCardTap, // Navigate when the card is tapped
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.0),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              // blurRadius: 10.0,
+              spreadRadius: 1.0,
+              offset: Offset(2.0, 2.0),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(Icons.error, color: Colors.red, size: 50);
-                },
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              decoration: BoxDecoration(
+                // border: Border.all(color: Colors.grey),
+                // borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Icon(Icons.error, color: Colors.red, size: 50);
+                  },
+                ),
               ),
             ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  productName,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  price,
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                Text(
-                  status,
-                  style: TextStyle(fontSize: 14, color: statusColor),
-                ),
-              ],
+            SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    productName,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    price,
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  Text(
+                    status,
+                    style: TextStyle(fontSize: 14, color: statusColor),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

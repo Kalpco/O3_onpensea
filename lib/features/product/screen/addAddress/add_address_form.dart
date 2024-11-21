@@ -15,7 +15,7 @@ class AddAddressForm extends StatefulWidget {
 
 class _AddAddressFormState extends State<AddAddressForm> {
   final _formKey = GlobalKey<FormState>();
-  String? city, state, pincode, address, mobileNo;
+  String? city, state, pincode, address, mobileNo,email,name,fatherName,lastName;
   final loginController = Get.find<LoginController>();
 
   Future<void> _addAddress() async {
@@ -35,6 +35,10 @@ class _AddAddressFormState extends State<AddAddressForm> {
         "state": state,
         "address": address,
         "mobileNo": mobileNo,
+        "email":email,
+        "name":name,
+        "fatherName":fatherName,
+        "lastName":lastName
       }),
     );
 
@@ -61,6 +65,39 @@ class _AddAddressFormState extends State<AddAddressForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Name'),
+              onSaved: (value) => name = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the name';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 10),
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Middle Name'),
+              onSaved: (value) => fatherName = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the middle name';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 10),
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Last Name'),
+              onSaved: (value) => lastName = value,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the last name';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 10),
             TextFormField(
               decoration: InputDecoration(labelText: 'State'),
               onSaved: (value) => state = value,
