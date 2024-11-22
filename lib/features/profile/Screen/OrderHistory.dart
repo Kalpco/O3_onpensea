@@ -91,6 +91,7 @@ class _OrderHistoryState extends State<OrderHistory> {
             int userId = transaction['userId'];
             int transactionId = transaction['transactionId'];
             int? addressId = transaction['userAddressId'];
+            String transactionOrderId = transaction['transactionOrderId'];
             final productList = transaction['productTransactionDTOList'];
             final imageUrl = "${ApiConstants.baseUrl}${product['productPic']}";
             print("my image $imageUrl");
@@ -111,7 +112,8 @@ class _OrderHistoryState extends State<OrderHistory> {
                       productList: productList,
                       userId:userId,
                       transactionId:transactionId,
-                      addressId:addressId// Pass transaction details
+                      addressId:addressId,
+                        transactionOrderId:transactionOrderId// Pass transaction details
                     ),
                   ),
                 );

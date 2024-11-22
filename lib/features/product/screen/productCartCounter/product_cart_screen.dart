@@ -285,7 +285,7 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: (cartData == null || cartData!.isEmpty)
-                      ? Colors.grey
+                      ? U_Colors.satinSheenGold
                       : U_Colors.yaleBlue,
                 ),
               ),
