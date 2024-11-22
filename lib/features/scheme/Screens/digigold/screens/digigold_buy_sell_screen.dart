@@ -1,6 +1,7 @@
 // digigold_buy_sell_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:onpensea/features/scheme/Screens/digigold/widgets/digigold_buy_info.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,9 +10,13 @@ import '../../../../../utils/constants/colors.dart';
 import '../../../../authentication/screens/login/Controller/LoginController.dart';
 import '../../../../product/apiService/capturePaymentAPI.dart';
 import '../../../../product/apiService/paymentOrderAPI.dart';
+import '../../../../product/controller/post_transaction_Api_calling.dart';
 import '../../../../product/models/capture_payment_success.dart';
+import '../../../../product/models/investmentTransactionDTOList.dart';
 import '../../../../product/models/order_api_success.dart';
 import '../../../../product/models/razorpay_failure_response.dart';
+import '../../../../product/models/transaction_DTO.dart';
+import '../../../../product/models/transaction_request_wrapper_DTO.dart';
 import '../model/gold_price_model.dart';
 import '../service/digigold_service.dart';
 import '../widgets/digigold_sell_info.dart';
@@ -27,6 +32,14 @@ class DigiGoldBuySellScreen extends StatefulWidget {
 
 class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
 
+
+
+  TextEditingController amountController = TextEditingController(text: '0');
+  final DigiGoldService _service = DigiGoldService();
+  final DigiGoldController controller = Get.find<DigiGoldController>();
+  final loginController = Get.put(LoginController());
+
+
   final RazorpayOrderAPI razorpayOrderAPI =
   RazorpayOrderAPI(ApiConstants.key, ApiConstants.secretId);
 
@@ -39,19 +52,178 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
   late Razorpay _razorpay;
 
 
-  TextEditingController amountController = TextEditingController(text: '0');
-  final DigiGoldService _service = DigiGoldService();
-  final DigiGoldController controller = Get.find<DigiGoldController>();
-  final loginController = Get.put(LoginController());
+  @override
+  void initState() {
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
+  }
+
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+
+    bool isCaptured = await _capturePaymentRazorPay(
+        paymentId: response.paymentId!,
+        responseDTO: razorpaySuccessResponseDTO);
+    if (isCaptured) {
+      print("payment successful");
+      _postTransactionDetails();
+    } else {
+      // Handle capture payment failure
+      print('Failed to capture payment');
+    }
+  }
+
+  Future<void> _handlePaymentError(PaymentFailureResponse response) async {
+    print('Payment Error: ${response.code} - ${response.message}');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment failed: ${response.message}')),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    print('External Wallet: ${response.walletName}');
+  }
+
+  Future<void> _createOrder(
+      BuildContext context,
+      int amount
+      ) async {
+
+      try {
+        final amountInPaise = (amount * 100).toInt();
+        final orderResponse = await razorpayOrderAPI.createOrder(
+            amountInPaise, 'INR', 'order_receipt#1');
+
+        if (orderResponse is RazorpaySuccessResponseDTO) {
+          razorpaySuccessResponseDTO = orderResponse;
+          _openCheckout(orderResponse);
+        }
+        else if (orderResponse is RazorpayFailureResponse) {
+          // Handle order creation failure
+          print('Failed to create order: ${orderResponse.error.code}');
+        }
+      } catch (e) {
+        print('Failed to place order: $e');
+//         // Handle the error e.g. show a Snackbar with the error message
+      }
+
+  }
+
+  void _openCheckout(RazorpaySuccessResponseDTO order) async {
+
+    final loginController = Get.find<LoginController>();
+    final email = loginController.userData['email'];
+    final mobileNumber = loginController.userData['mobileNo'];
+
+    var options = {
+      'key': 'rzp_live_5fpmFBZvv8QIEr',
+      'amount': order.amount.toString(),
+      'name': 'Kalpco',
+      "timeout": "180",
+      "currency": "INR",
+      'prefill': {'contact': mobileNumber, 'email': email},
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<bool> _capturePaymentRazorPay(
+      {required String paymentId,
+        required RazorpaySuccessResponseDTO responseDTO}) async {
+    bool isSaved = false;
+    try {
+      final capturePaymentResponse = await capturePayment.capturePayment(
+          responseDTO.amount, responseDTO.currency, paymentId);
+      if (capturePaymentResponse is CapturePaymentRazorPay) {
+        print('Payment captured successfully: ${capturePaymentResponse}');
+        capturePaymentRazorPayResponse = capturePaymentResponse;
+        isSaved = true;
+      } else if (capturePaymentResponse is RazorpayFailureResponse) {
+        print(
+            'Failed to capture payment: ${capturePaymentResponse.error.code}');
+        razorpayFailureResponse = capturePaymentResponse;
+        isSaved = false;
+      }
+    } catch (e) {
+      print('Failed to captured order: $e');
+      isSaved = false;
+    }
+    return isSaved;
+  }
+
+  void _postTransactionDetails() async {
+
+    var transactionDetails = {
+      "transactionDTO": {
+        "transactionId": 12345,
+        "paymentGatewayTransactionId": "TXN123456789",
+        "userId": 1001,
+        "transactionStatus": "TEST",
+        "transactionMessage": "TEST",
+        "transactionAmount": 10000.50,
+        "transactionOrderId": "ORD987654321",
+        "createDate": "2024-09-09T10:30:00Z",
+        "updateDate": "2024-09-09T10:35:00Z",
+        "payedFromWallet": false,
+        "walletAmount": 500.00
+      },
+      "digiGoldTransactionDTO": {
+        "userId": "3",
+        "pricePerMgNoGst": 100.0,
+        "pricePerMgWithGst": 110,
+        "vaultTransactionType": "sell",
+        "amount": 11.01,
+        "weight_mg": 12.0,
+        "transactionId": 123,
+        "vendorBuyingRate": 11.1,
+        "vendorSellingRate": 12.3,
+        "kalpcoBuyingRate": 23.3,
+        "kalpcoSellingRate": 23.33
+      }
+    };
+
+    try {
+      final response =
+      await TranactionOrderAPI.postTransactionDetails(transactionDetails);
+      if (response.statusCode == 201) {
+        print('Payment details posted successfully');
+        print('Response Body: ${response.body}');
+
+      } else {
+        print(
+            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print('Error posting payment details: $e');
+    }
+  }
+
+
+
 
 
   Future<void> _submitTransaction() async {
+
     String amount = amountController.text;
+
     String type = controller.transactionType.value;
     String pricePerMgWithGst = controller.goldPrice.value.goldPrice;
     String pricePerMgNoGst = _PricePerMgNoGst(pricePerMgWithGst);
-
-
 
     if (amount.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -62,6 +234,10 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
 
     // Calculate the weight in mg based on the entered amount
     String weightInMg = _calculateWeightInMg(amount, pricePerMgWithGst);
+
+    if(type =="buy"){
+      _createOrder(context, int.parse(amount));
+    }
 
     // If the transaction type is "sell", validate the entered weight
     if (type == "sell") {
@@ -74,34 +250,35 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
         );
         return;
       }
+      // Prepare the DTO with dynamic values based on type
+      Map<String, dynamic> dto = {
+        "userId": int.parse(loginController.userData['userId'].toString()),
+        "pricePerMgNoGst": double.parse(pricePerMgNoGst),
+        "pricePerMgWithGst": double.parse(pricePerMgWithGst),
+        "vaultTransactionType": type,
+        "weight_mg": (type == "sell") ? double.parse(amount) : double.parse(weightInMg),
+        "transactionId": "123", // Update this with your actual transaction ID logic,
+        "amount": (type == "sell") ? double.parse(_calculateAmountToRecievePerMgOfGold("7.56", amount)) :  double.parse(amount),
+
+        "vendorBuyingRate":11.1,
+        "vendorSellingRate":12.3,
+        "kalpcoBuyingRate":23.3,
+        "kalpcoSellingRate":23.33
+
+      };
+
+      bool success = await _service.submitTransaction(dto);
+      if (success) {
+        Get.off(() => const DigigoldSuccessPage());
+        controller.refreshData();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Transaction failed. Please try again.')),
+        );
+      }
     }
 
-    // Prepare the DTO with dynamic values based on type
-    Map<String, dynamic> dto = {
-      "userId": int.parse(loginController.userData['userId'].toString()),
-      "pricePerMgNoGst": double.parse(pricePerMgNoGst),
-      "pricePerMgWithGst": double.parse(pricePerMgWithGst),
-      "vaultTransactionType": type,
-      "weight_mg": (type == "sell") ? double.parse(amount) : double.parse(weightInMg),
-      "transactionId": "123", // Update this with your actual transaction ID logic,
-      "amount": (type == "sell") ? double.parse(_calculateAmountToRecievePerMgOfGold("7.56", amount)) :  double.parse(amount),
 
-      "vendorBuyingRate":11.1,
-      "vendorSellingRate":12.3,
-      "kalpcoBuyingRate":23.3,
-      "kalpcoSellingRate":23.33
-
-    };
-
-    bool success = await _service.submitTransaction(dto);
-    if (success) {
-      Get.off(() => const DigigoldSuccessPage());
-      controller.refreshData();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transaction failed. Please try again.')),
-      );
-    }
   }
 
 
@@ -131,7 +308,7 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
         ),
       ),
       maxLines: 1,
-      textDirection: TextDirection.ltr,
+      //textDirection: TextDirection.LTR,
     )..layout();
 
     return textPainter.size.width;
