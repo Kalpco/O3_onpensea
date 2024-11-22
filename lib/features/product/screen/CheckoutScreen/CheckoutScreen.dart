@@ -705,18 +705,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('User Information', style: Theme.of(context).textTheme.bodyLarge),
+                        Text('Address Information', style: Theme.of(context).textTheme.bodyLarge),
                         SizedBox(height: U_Sizes.spaceBtwItems),
-                        Text('Name: ${userData['name']}'),
-                        Text('Mobile: ${userData['mobileNo']}'),
-                        Text('Email: ${userData['email']}'),
+                        // Text('Name: ${userData['name']}'),
+                        // Text('Mobile: ${userData['mobileNo']}'),
+                        // Text('Email: ${userData['email']}'),
                         Text('Address :'),
                         SizedBox(height: U_Sizes.spaceBwtTwoSections),
 
                         // Horizontally scrolling addresses
                         userData['address'] != null && userData['address'].isNotEmpty
                             ? SizedBox(
-                          height: 140,
+                          height: 170,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: userData['address'].length,
@@ -740,10 +740,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: isSelected ? Colors.green : Colors.grey,
+                                      color: isSelected ? U_Colors.yaleBlue : Colors.grey,
                                     ),
                                     borderRadius: BorderRadius.circular(10),
-                                    color: isSelected ? Colors.green.withOpacity(0.2) : Colors.white,
+                                    color: isSelected ? U_Colors.satinSheenGold.withOpacity(0.2) : Colors.white,
                                   ),
                                   padding: EdgeInsets.all(10),
                                   child: Column(
@@ -751,29 +751,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     children: [
                                       Text('Name: ${address['name']} ${address['fatherName']} ${address['lastName']}',
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: isSelected ? Colors.green : Colors.black)),
+
+                                              color: isSelected ? U_Colors.yaleBlue : Colors.black)),
                                       SizedBox(height: 4),
                                       Text('City: ${address['city']}',
                                           style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: isSelected ? Colors.green : Colors.black)),
+
+                                              color: isSelected ? U_Colors.yaleBlue : Colors.black)),
                                       SizedBox(height: 4),
                                       Text('State: ${address['state']}',
                                           style: TextStyle(
-                                              color: isSelected ? Colors.green : Colors.black)),
+                                              color: isSelected ? U_Colors.yaleBlue : Colors.black)),
                                       SizedBox(height: 4),
                                       Text('PinCode: ${address['pinCode']}',
                                           style: TextStyle(
-                                              color: isSelected ? Colors.green : Colors.black)),
+                                              color: isSelected ? U_Colors.yaleBlue : Colors.black)),
                                       SizedBox(height: 4),
                                       Text('Address: ${address['address']}',
                                           style: TextStyle(
-                                              color: isSelected ? Colors.green : Colors.black)),
+                                              color: isSelected ? U_Colors.yaleBlue : Colors.black)),
                                       SizedBox(height: 4),
                                       Text('Mobile: ${address['mobileNo']}',
                                           style: TextStyle(
-                                              color: isSelected ? Colors.green : Colors.black)),
+                                              color: isSelected ? U_Colors.yaleBlue : Colors.black)),
                                     ],
                                   ),
                                 ),

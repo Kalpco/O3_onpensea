@@ -16,7 +16,8 @@ import '../../authentication/screens/login/Controller/LoginController.dart';
 class OrderDetailsPage extends StatefulWidget {
   final dynamic productList;
   int? userId,transactionId,addressId;
-   OrderDetailsPage({super.key,required this.productList,required this.userId,required this.transactionId,required this.addressId});
+  String transactionOrderId;
+   OrderDetailsPage({super.key,required this.productList,required this.userId,required this.transactionId,required this.addressId,required this.transactionOrderId});
 
   @override
   State<OrderDetailsPage> createState() => _OrderDetailsPageState();
@@ -93,8 +94,8 @@ Future<bool> _requestPermission(Permission permission) async {
             children: [
               // Order ID Section
               Text(
-                'Order ID - OD126340451097838000',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                'Order ID - ${widget.transactionOrderId}',
+                style: TextStyle(fontSize: 14, color: Colors.grey,fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
 

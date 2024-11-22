@@ -88,7 +88,7 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
 
   Future<void> _deleteProfile() async {
     String userId = loginController.userData['userId'].toString();
-    String url = 'https://o3uat.kalpco.in/users/kalpco/v1.0.0/users/deleteUser/$userId';
+    String url = '${ApiConstants.USERS_URL}/deleteUser/$userId';
 
     try {
       final response = await http.delete(Uri.parse(url));

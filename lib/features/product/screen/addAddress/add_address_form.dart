@@ -121,6 +121,7 @@ class _AddAddressFormState extends State<AddAddressForm> {
             ),
             SizedBox(height: 10),
             TextFormField(
+              keyboardType: TextInputType.number,
                 maxLength: 6,
               decoration: InputDecoration(labelText: 'Pincode'),
               onSaved: (value) => pincode = value,
@@ -144,6 +145,7 @@ class _AddAddressFormState extends State<AddAddressForm> {
             ),
             SizedBox(height: 10),
             TextFormField(
+              keyboardType: TextInputType.number,
               maxLength: 10,
               decoration: InputDecoration(labelText: 'Mobile No'),
               onSaved: (value) => mobileNo = value,
