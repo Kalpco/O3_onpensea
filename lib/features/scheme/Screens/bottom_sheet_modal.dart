@@ -103,7 +103,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
       final loginController = Get.find<LoginController>();
       int userId = loginController.userData['userId'];
 
-      final failedCapturePaymentDetails= TransactionRequestResponseWrapperDTO(
+      final failedCapturePaymentDetails = TransactionRequestResponseWrapperDTO(
         investmentTransactionDTOList: [
           InvestmentTransactionDTOList(
             investmentId:widget.investment.investmentId,
@@ -196,9 +196,12 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
       {required RazorpaySuccessResponseDTO responseDTO,
       required String paymentId,
       required Datum investment,
-      required CapturePaymentRazorPay successResponseCapturePayment}) async {
+      required CapturePaymentRazorPay successResponseCapturePayment
+      }) async {
+
     final loginController = Get.find<LoginController>();
     int userId = loginController.userData['userId'];
+
     try {
 
       final transactionDetails= TransactionRequestResponseWrapperDTO(
@@ -228,8 +231,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
 
       // Format the current date and print the result
       String formattedDate = dateFormat.format(now);
-      print(
-          formattedDate); // Output will be the current date in 'yyyy-MM-dd' format
+      print(formattedDate); // Output will be the current date in 'yyyy-MM-dd' format
 
       final investmentHistoryDetalis = {
         "investmentId": investment.investmentId,
