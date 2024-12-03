@@ -30,38 +30,39 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
 
 
-Future<void> downloadInvoice() async {
-  try {
-    if (await _requestPermission(Permission.storage)) {
-      String apiUrl = "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
-      Response response = await dio.get(
-        apiUrl,
-        options: Options(
-          responseType: ResponseType.bytes, // Ensure response is raw bytes
-        ),
-      );
+  Future<void> downloadInvoice() async {
+    try {
+      if (await _requestPermission(Permission.storage)) {
+        Directory directory = await getApplicationDocumentsDirectory();
+        String filePath = "${directory.path}/invoice.pdf";
 
-      Directory? directory = await getExternalStorageDirectory();
-      String filePath = "${directory!.path}/invoice.pdf";
+        String apiUrl = "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
 
-      File file = File(filePath);
-      await file.writeAsBytes(response.data);
+        Response response = await dio.get(
+          apiUrl,
+          options: Options(
+            responseType: ResponseType.bytes,
+          ),
+        );
 
-      // Notify the user
+        File file = File(filePath);
+        await file.writeAsBytes(response.data);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invoice downloaded to $filePath')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Storage permission denied')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invoice downloaded to $filePath')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission denied')),
+        SnackBar(content: Text('Failed to download invoice: $e')),
       );
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to download invoice: $e')),
-    );
   }
-}
+
 
 Future<bool> _requestPermission(Permission permission) async {
   if (await permission.isGranted) {

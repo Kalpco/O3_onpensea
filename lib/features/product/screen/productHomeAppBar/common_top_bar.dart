@@ -326,16 +326,16 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                     );
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.logout),
-                  title: Text('digi gold'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => DigiGoldMain()),
-                    );
-                  },
-                ),
+                // ListTile(
+                //   leading: Icon(Icons.logout),
+                //   title: Text('digi gold'),
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(builder: (context) => DigiGoldMain()),
+                //     );
+                //   },
+                // ),
                 // ListTile(
                 //   leading: Icon(Icons.delete),
                 //   title: Text('Delete Profile'),

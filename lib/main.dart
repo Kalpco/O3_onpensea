@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: "lib/.env.production");
+  await dotenv.load(fileName: "lib/.env.uat");
 
   Get.put(WishlistController());
 
