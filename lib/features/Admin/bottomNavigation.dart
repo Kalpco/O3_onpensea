@@ -67,8 +67,8 @@ class BottomnavigationController extends GetxController {
   var selectIndex = 0.obs;
 
   final screens = [
-   // DashboardPage(),
-    Dashboard(),
+    DashboardPage(),
+   // Dashboard(),
     //ProductHomeScreen(),
     AdminHomeScreen(),
     AllSchemeScreen(),
