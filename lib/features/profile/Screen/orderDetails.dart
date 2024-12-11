@@ -30,48 +30,34 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
 
 
-  Future<void> downloadInvoice() async {
-    try {
-      if (await _requestPermission(Permission.storage)) {
-        Directory directory = await getApplicationDocumentsDirectory();
-        String filePath = "${directory.path}/invoice.pdf";
-
-        String apiUrl = "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
-
-        Response response = await dio.get(
-          apiUrl,
-          options: Options(
-            responseType: ResponseType.bytes,
-          ),
-        );
-
-        File file = File(filePath);
-        await file.writeAsBytes(response.data);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invoice downloaded to $filePath')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Storage permission denied')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to download invoice: $e')),
+Future<void> downloadInvoice() async {
+  try {
+      String apiUrl = "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
+      Response response = await dio.get(
+        apiUrl,
+        options: Options(
+          responseType: ResponseType.bytes, // Ensure response is raw bytes
+        ),
       );
-    }
-  }
 
+      Directory? directory = await getExternalStorageDirectory();
+      String filePath = "${directory!.path}/invoice_${widget.transactionOrderId}.pdf";
+      print('invoice path : $filePath');
+      File file = File(filePath);
+      await file.writeAsBytes(response.data);
 
-Future<bool> _requestPermission(Permission permission) async {
-  if (await permission.isGranted) {
-    return true;
-  } else {
-    var result = await permission.request();
-    return result.isGranted;
+      // Notify the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invoice successfully downloaded '),backgroundColor: Colors.green,),
+      );
+
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to download invoice: $e'),backgroundColor: Colors.red),
+    );
   }
 }
+
 
 
   @override
