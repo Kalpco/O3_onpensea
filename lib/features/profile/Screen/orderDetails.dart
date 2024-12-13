@@ -98,7 +98,7 @@ Future<void> downloadInvoice() async {
 
       // Notify the user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invoice successfully downloaded '),backgroundColor: Colors.green,),
+        SnackBar(content: Text('Invoice successfully downloaded to $filePath'),backgroundColor: Colors.green,),
       );
 
   } catch (e) {
