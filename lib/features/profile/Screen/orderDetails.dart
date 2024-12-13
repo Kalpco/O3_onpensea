@@ -29,82 +29,84 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   final Dio dio = Dio();
 
 
-  Future<void> downloadInvoice() async {
-    try {
-      // Request storage permission
-      PermissionStatus status = await Permission.storage.request();
-      if (status.isGranted) {
-        // Proceed to download
-        Directory? directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          directory = await getExternalStorageDirectory();
-        }
+  // Future<void> downloadInvoice() async {
+  //   setState(() {
+  //     isLoading = true; // Show a loader
+  //   });
+  //   try {
+  //     // Request storage permission
+  //     if (await Permission.storage.request().isGranted) {
+  //       // Define the directory for saving files
+  //       Directory directory = Directory('/storage/emulated/0/Download');
+  //       if (!await directory.exists()) {
+  //         directory = (await getExternalStorageDirectory())!;
+  //       }
+  //
+  //       // API URL
+  //       String apiUrl =
+  //           "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
+  //
+  //       // Download the invoice
+  //       Response response = await dio.get(
+  //         apiUrl,
+  //         options: Options(responseType: ResponseType.bytes),
+  //       );
+  //
+  //       // Write the response to a file
+  //       String filePath = "${directory.path}/Kalpco_Invoice_${widget.transactionOrderId}.pdf";
+  //       File file = File(filePath);
+  //       await file.writeAsBytes(response.data);
+  //
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Invoice successfully downloaded to $filePath'), backgroundColor: Colors.green),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text('Storage permission is required to download the invoice'),
+  //           backgroundColor: Colors.red,
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Failed to download invoice: $e'), backgroundColor: Colors.red),
+  //     );
+  //   } finally {
+  //     setState(() {
+  //       isLoading = false; // Hide the loader
+  //     });
+  //   }
+  // }
 
-        String apiUrl =
-            "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
 
-        Response response = await Dio().get(
-          apiUrl,
-          options: Options(
-            responseType: ResponseType.bytes,
-          ),
-        );
-
-        String filePath = "${directory!.path}/Kalpco_Invoice_${widget.transactionOrderId}.pdf";
-        File file = File(filePath);
-        await file.writeAsBytes(response.data);
-        print('invoice file path : $filePath');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invoice successfully downloaded '), backgroundColor: Colors.green),
-        );
-      } else if (status.isPermanentlyDenied) {
-        // Notify user to enable permission in settings
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Please enable storage permission in app settings'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        openAppSettings();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Storage permission is required to download the invoice'), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to download invoice: $e'), backgroundColor: Colors.red),
+Future<void> downloadInvoice() async {
+  try {
+      String apiUrl = "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
+      Response response = await dio.get(
+        apiUrl,
+        options: Options(
+          responseType: ResponseType.bytes, // Ensure response is raw bytes
+        ),
       );
-    }
-  }
+      Directory? directory = Directory('/storage/emulated/0/Download');
+       directory = await getExternalStorageDirectory();
+      String filePath = "${directory!.path}/Kalpco_Invoice_${widget.transactionOrderId}.pdf";
+      print('invoice path : $filePath');
+      File file = File(filePath);
+      await file.writeAsBytes(response.data);
 
-// Future<void> downloadInvoice() async {
-//   try {
-//       String apiUrl = "${API_CONSTANTS_1.ApiConstants.INVOICE_DOWNLOAD}/user/${widget.userId}/transaction/${widget.transactionId}/addressId/${widget.addressId}";
-//       Response response = await dio.get(
-//         apiUrl,
-//         options: Options(
-//           responseType: ResponseType.bytes, // Ensure response is raw bytes
-//         ),
-//       );
-//
-//       Directory? directory = await getExternalStorageDirectory();
-//       String filePath = "${directory!.path}/Kalpco_Invoice_${widget.transactionOrderId}.pdf";
-//       print('invoice path : $filePath');
-//       File file = File(filePath);
-//       await file.writeAsBytes(response.data);
-//
-//       // Notify the user
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('Invoice successfully downloaded '),backgroundColor: Colors.green,),
-//       );
-//
-//   } catch (e) {
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(content: Text('Failed to download invoice: $e'),backgroundColor: Colors.red),
-//     );
-//   }
-// }
+      // Notify the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invoice successfully downloaded '),backgroundColor: Colors.green,),
+      );
+
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to download invoice: $e'),backgroundColor: Colors.red),
+    );
+  }
+}
 
 
 
