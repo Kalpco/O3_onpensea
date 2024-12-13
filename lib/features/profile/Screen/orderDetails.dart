@@ -90,7 +90,7 @@ Future<void> downloadInvoice() async {
         ),
       );
       Directory? directory = Directory('/storage/emulated/0/Download');
-       directory = await getExternalStorageDirectory();
+       // directory = await getExternalStorageDirectory();
       String filePath = "${directory!.path}/Kalpco_Invoice_${widget.transactionOrderId}.pdf";
       print('invoice path : $filePath');
       File file = File(filePath);
