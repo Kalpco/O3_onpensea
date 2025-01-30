@@ -42,15 +42,26 @@ class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSumm
     final userData = loginController.userData;
     final mobileNumber = userData['mobileNo'] ?? '';
     final orderId = widget.order.id;
+    final paymentId = widget.paymentId;
+    final totalAmount = widget.order.amount / 100;
 
     if (mobileNumber.isNotEmpty) {
-      final apiUrl =
+      final userApiUrl =
           'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=Your%20order%20with%20Kalpco%20has%20been%20confirmed!%20Payment%20reference%20no%20is-$orderId.%20Your%20order%20will%20be%20delivered%20within%205%20working%20days.%20You%20can%20reach%20out%20us%20at%20our%20support%20no.%209987734001&sendername=KLPCOP&smstype=TRANS&numbers=$mobileNumber&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707171724181792368';
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
+      final userResponse = await http.get(Uri.parse(userApiUrl));
+      if (userResponse.statusCode == 200) {
         print('Order confirmation message sent successfully');
       } else {
         print('Failed to send order confirmation message');
+      }
+
+      final adminApiUrl =
+          'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=Dear%20Merchant,%20customer%20has%20placed%20an%20order%20with%20order%20id%20:%20$orderId%20,%20payment%20id%20:%20$paymentId%20and%20payment%20amount%20of%20Rs.%20$totalAmount%20.%20Please%20review%20and%20process%20it%20promptly.%20Regards,%20Kalpco.&sendername=KLPCOP&smstype=TRANS&numbers=9566234975&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707173753113649256';
+      final adminResponse = await http.get(Uri.parse(adminApiUrl));
+      if (adminResponse.statusCode == 200) {
+        print('Admin confirmation message sent successfully');
+      } else {
+        print('Failed to send admin confirmation message');
       }
     }
   }

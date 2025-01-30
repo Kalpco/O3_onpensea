@@ -28,17 +28,26 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
   final loginController = Get.find<LoginController>();
   int _quantity = 1;
   late double _totalPrice;
+  late double _makingCharges;
+  late double _goldAndDiamondPrice;
+  late double _gstCharges;
 
   @override
   void initState() {
     super.initState();
     _totalPrice = (widget.product.productPrice ?? 0.0) * _quantity;
+    _makingCharges = (widget.product.productMakingCharges ?? 0.0) * _quantity;
+    _gstCharges = (widget.product.gstCharges ?? 0.0) * _quantity;
+    _goldAndDiamondPrice = (widget.product.goldAndDiamondPrice ?? 0.0) * _quantity;
   }
 
   void _incrementQuantity() {
     setState(() {
       _quantity++;
       _totalPrice = (widget.product.productPrice ?? 0.0) * _quantity;
+      _makingCharges = (widget.product.productMakingCharges ?? 0.0) * _quantity;
+      _gstCharges = (widget.product.gstCharges ?? 0.0) * _quantity;
+      _goldAndDiamondPrice = (widget.product.goldAndDiamondPrice ?? 0.0) * _quantity;
       print("increment price: $_totalPrice");
     });
   }
@@ -48,6 +57,9 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
       setState(() {
         _quantity--;
         _totalPrice = (widget.product.productPrice ?? 0.0) * _quantity;
+        _makingCharges = (widget.product.productMakingCharges ?? 0.0) * _quantity;
+        _gstCharges = (widget.product.gstCharges ?? 0.0) * _quantity;
+        _goldAndDiamondPrice = (widget.product.goldAndDiamondPrice ?? 0.0) * _quantity;
         print("decrement price: $_totalPrice");
       });
     }
@@ -81,12 +93,15 @@ print("first image: $firstImage");
       "productQuantity": _quantity,
       "productIsActive": isProductActive,
       "productRating": widget.product.productRating,
-      "productMakingCharges": widget.product.productMakingCharges,
+      "productMakingCharges": _makingCharges,
       "productOwnerType": widget.product.productOwnerType,
-      "gstCharges": widget.product.gstCharges,
+      "gstCharges": _gstCharges,
       "purity": widget.product.purity,
       "totalPrice": _totalPrice,
       "goldPrice": widget.product.goldPrice,
+      "goldAndDiamondPrice" : _goldAndDiamondPrice,
+      "discountApplied":widget.product.discountApplied,
+      "discountPercentage": widget.product.discountPercentage
       // "gemsDTO": {
       //   "noOfSmallStones": widget.product.gemsDTO?.noOfSmallStones!,
       //   "weightOfSmallStones":widget.product.gemsDTO?.weightOfSmallStones!,
@@ -392,6 +407,9 @@ print("first image: $firstImage");
                       builder: (context) => CheckoutScreen(
                             product: widget.product,
                             quantity: _quantity,
+                            makingCharges: _makingCharges,
+                            gstCharges : _gstCharges,
+                            goldAndDiamondPrice : _goldAndDiamondPrice,
                             totalPrice: _totalPrice,
                           )),
                 );

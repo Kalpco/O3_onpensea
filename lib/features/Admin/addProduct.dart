@@ -33,6 +33,7 @@ class AddProductFormState extends State<AddProduct> {
   final TextEditingController weightOfSmallStones = TextEditingController();
   final TextEditingController clarityOfSolitareDiamond = TextEditingController();
   final TextEditingController productMakingChargesPercentage = TextEditingController();
+  final TextEditingController discountPercentage = TextEditingController();
   final TextEditingController imageController = TextEditingController();
   final loginController = Get.find<LoginController>();
   bool isLoading = false;
@@ -41,6 +42,7 @@ class AddProductFormState extends State<AddProduct> {
   String? selectedProductCategory;
   String? selectedSubCategory;
   String? selectedDiamondType;
+  bool? selectedDiscountApplied;
 
   // List of Product Categories and Sub Categories
   final List<String> productCategories = ['Custom', 'Diamond'];
@@ -97,7 +99,8 @@ class AddProductFormState extends State<AddProduct> {
         request.fields['productPrice'] = productPrice.text;
         request.fields['productQuantity'] = productQuantity.text;
         request.fields['productMakingChargesPercentage'] = productMakingChargesPercentage.text;
-        //For gems DTO
+        request.fields['discountApplied'] = (selectedDiscountApplied ?? false).toString();
+        request.fields['discountPercentage'] = discountPercentage.text;//For gems DTO
         Map<String, dynamic> gems = {
           'noOfSmallStones': noOfSmallStones.text,
           'weightOfSmallStones': weightOfSmallStones.text,
@@ -154,12 +157,14 @@ class AddProductFormState extends State<AddProduct> {
     clarityOfSolitareDiamond.clear();
     productMakingChargesPercentage.clear();
     imageController.clear();
+    discountPercentage.clear();
 
     // Clear the dropdown selections (assuming they are nullable strings)
     setState(() {
       selectedProductCategory = null;
       selectedSubCategory = null;
       selectedDiamondType = null;
+      selectedDiscountApplied = null;
     });
 
 
@@ -348,10 +353,11 @@ class AddProductFormState extends State<AddProduct> {
                     return null;
                   },
                 ),
-                if(selectedProductCategory !='Diamond')
+
+
+                if(selectedProductCategory == null || selectedProductCategory == 'Custom' || selectedProductCategory == 'Diamond')
                 SizedBox(height: 16.0),
-                if(selectedProductCategory !='Diamond')
-                  TextFormField(
+                TextFormField(
                   controller: productMakingChargesPercentage,
                   decoration: InputDecoration(
                     labelText: 'Product Making Charges Percentage',
@@ -368,6 +374,7 @@ class AddProductFormState extends State<AddProduct> {
                     FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}$')), // Allow only two digits
                   ],
                 ),
+
                 if(selectedProductCategory !='Custom')
                 SizedBox(height: 16.0),
                 if(selectedProductCategory !='Custom')
@@ -386,6 +393,7 @@ class AddProductFormState extends State<AddProduct> {
                   },
                 ),
                 SizedBox(height: 16.0),
+
                 // No. of Solitaires Field
                 if(selectedProductCategory !='Custom')
                   TextFormField(
@@ -480,6 +488,55 @@ class AddProductFormState extends State<AddProduct> {
                     return null;
                   },
                 ),
+                SizedBox(height: 16.0,),
+                DropdownButtonFormField<bool>(
+                  decoration: InputDecoration(
+                    labelText: 'Apply Discount ',
+                    border: OutlineInputBorder(),
+                  ),
+                  value: selectedDiscountApplied,
+                  // hint: Text('Apply Discount'),
+                  items: [
+                    DropdownMenuItem(
+                      value: true,
+                      child: Text('Yes'),
+                    ),
+                    DropdownMenuItem(
+                      value: false,
+                      child: Text('No'),
+                    ),
+                  ],
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      selectedDiscountApplied = newValue;
+                      if (newValue == false) {
+                        discountPercentage.text = '0';
+                      }
+                    });
+                  },
+                  validator: (value) => value == null
+                      ? 'Please select a discount option'
+                      : null,
+                ),
+                SizedBox(height: 16),
+                if (selectedDiscountApplied == true)
+                  TextFormField(
+                    controller: discountPercentage,
+                    decoration: InputDecoration(
+                      labelText: 'Discount Percentage %',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter discount percentage';
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}$')),
+                    ],
+                  ),
 
                 SizedBox(height: 25.0),
 

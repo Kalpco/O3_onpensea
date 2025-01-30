@@ -36,12 +36,18 @@ import '../productHome/wallet_Product_Success_Page.dart';
 class CheckoutScreen extends StatefulWidget {
   final ProductResponseDTO product;
   final int quantity;
+  final double makingCharges;
+  final double gstCharges;
+  final double goldAndDiamondPrice;
   final double totalPrice;
 
   CheckoutScreen({
     Key? key,
     required this.product,
     required this.quantity,
+    required this.makingCharges,
+    required this.gstCharges,
+    required this.goldAndDiamondPrice,
     required this.totalPrice,
   }) : super(key: key);
 
@@ -90,6 +96,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
 
   Future<void> _applyCoupon() async {
+
+    if(widget.product.discountApplied == false){
+      setState(() {
+        _message ='Coupon can\'t be applied to this product.';
+      });
+      return;
+    }
+
     final String couponCode = _couponController.text;
     final String couponApiUrl = '$couponBaseUrl/couponCode/$couponCode';
     setState(() {
@@ -103,9 +117,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print("data response $data");
-        if (data['success'] == true) {
+        if (data['status'] == 1202) {
           setState(() {
-            _message = (data['couponMessage'] ?? 'Coupon applied successfully!') + 'up to 2% discount';
+            double _discountAppliedAmount = _updatedTotalPrice - calculateFinalAmount();
+            _message = '${data['couponMessage'] ?? 'Coupon applied successfully!'} You saved ₹${_discountAppliedAmount.toStringAsFixed(2)}.';
           });
         } else {
           setState(() {
@@ -189,8 +204,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ProductTransactionDTO(
             productId: widget.product.id,
             productPrice: widget.product.productPrice,
-            gstCharge: widget.product.gstCharges,
-            makingCharges : widget.product.productMakingCharges,
+            gstCharge: widget.gstCharges,
+            makingCharges : widget.makingCharges,
             productQuantity : widget.quantity,
             productWeight : widget.product.productWeight,
             purity : widget.product.purity,
@@ -203,7 +218,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             productPic: widget.product.productImageUri![0].toString(),
             productName: widget.product.productName,
             totalAmount: widget.totalPrice,
-            discountedPrice: finalPrice
+            discountedPrice: finalPrice,
+            discountPercentage: widget.product.discountPercentage?.toDouble(),
+            goldAndDiamondPrice: widget.goldAndDiamondPrice,
+            discountApplied: widget.product.discountApplied
+
+
           ),
         ],
         transactionDTO: TransactionDTO(
@@ -247,8 +267,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         ProductTransactionDTO(
           productId: widget.product.id,
           productPrice: widget.product.productPrice,
-          gstCharge: widget.product.gstCharges,
-          makingCharges : widget.product.productMakingCharges,
+          gstCharge: widget.gstCharges,
+          makingCharges : widget.makingCharges,
           productQuantity : widget.quantity,
           productWeight : widget.product.productWeight,
           purity : widget.product.purity,
@@ -261,7 +281,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           productPic: widget.product.productImageUri![0].toString(),
           productName: widget.product.productName,
           totalAmount: widget.totalPrice,
-            discountedPrice: finalPrice
+            discountedPrice: finalPrice,
+          discountPercentage: widget.product.discountPercentage?.toDouble(),
+          goldAndDiamondPrice: widget.goldAndDiamondPrice,
+            discountApplied: widget.product.discountApplied
+
 
         ),
       ],
@@ -315,21 +339,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ProductTransactionDTO(
             productId: widget.product.id,
             productPrice: widget.product.productPrice,
-            gstCharge: widget.product.gstCharges,
-            makingCharges : widget.product.productMakingCharges,
+            gstCharge: widget.gstCharges,
+            makingCharges : widget.makingCharges,
             productQuantity : widget.quantity,
             productWeight : widget.product.productWeight,
             purity : widget.product.purity,
             merchantId : widget.product.productOwnerId,
             payedFromWallet : _isRedeemChecked,
+            walletAmount: walletAmount,
             createDate :  DateTime.now(),
             userId: userId,
             userAddressId: selectedAddressData?['id'],
             productPic: widget.product.productImageUri![0].toString(),
             productName: widget.product.productName,
             totalAmount: widget.totalPrice,
-              discountedPrice: finalPrice
-
+              discountedPrice: finalPrice,
+              discountPercentage: widget.product.discountPercentage?.toDouble(),
+              goldAndDiamondPrice: widget.goldAndDiamondPrice,
+              discountApplied: widget.product.discountApplied
 
           ),
         ],
@@ -418,8 +445,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ProductTransactionDTO(
                 productId: widget.product.id,
                 productPrice: widget.product.productPrice,
-                gstCharge: widget.product.gstCharges,
-                makingCharges : widget.product.productMakingCharges,
+                gstCharge: widget.gstCharges,
+                makingCharges : widget.makingCharges,
                 productQuantity : widget.quantity,
                 productWeight : widget.product.productWeight,
                 purity : widget.product.purity,
@@ -432,7 +459,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 productPic: widget.product.productImageUri![0].toString(),
                 productName: widget.product.productName,
                 totalAmount: widget.totalPrice,
-                  discountedPrice: finalPrice
+                  discountedPrice: finalPrice,
+                  discountPercentage: widget.product.discountPercentage?.toDouble(),
+                  goldAndDiamondPrice: widget.goldAndDiamondPrice,
+                  discountApplied: widget.product.discountApplied
+
 
               ),
             ],
@@ -499,8 +530,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ProductTransactionDTO(
             productId: product.id,
             productPrice: widget.product.productPrice,
-            gstCharge: widget.product.gstCharges?.toDouble(),
-            makingCharges : product.productMakingCharges?.toDouble(),
+            gstCharge: widget.gstCharges,
+            makingCharges : widget.makingCharges,
             productQuantity : widget.quantity,
             productWeight : product.productWeight?.toDouble(),
             purity : product.purity,
@@ -513,7 +544,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             productPic: product.productImageUri![0].toString(),
             productName: product.productName?.toString(),
             totalAmount: widget.totalPrice,
-              discountedPrice: finalPrice
+              discountedPrice: finalPrice,
+              discountPercentage: widget.product.discountPercentage?.toDouble(),
+              goldAndDiamondPrice: widget.goldAndDiamondPrice,
+              discountApplied: widget.product.discountApplied
+
 
           ),
         ],
@@ -753,6 +788,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
               SizedBox(height: U_Sizes.spaceBtwItems),
+              if (widget.product.discountApplied == true)
+                Text(
+                  'Apply coupon to avail discount on making charges .',
+                  style: TextStyle(color: Colors.green, fontSize: 14),
+                ),
+              SizedBox(height: U_Sizes.spaceBtwItems),
               DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
               SizedBox(height: U_Sizes.spaceBtwItems),
 
@@ -959,7 +1000,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: _applyCoupon,
+                      onPressed: (){
+                        if (_couponController.text.isEmpty){
+                          setState(() {
+                            _message = 'Enter coupon code';
+                          });
+                        }else
+                        {
+                          _applyCoupon();
+                        }
+                      },
                       child: Text('Apply'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: U_Colors.yaleBlue,
@@ -1053,15 +1103,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: CircularProgressIndicator(color: Colors.white),
                   )
                       : _message.contains('Coupon applied')
-                    ? Text('Checkout \₹ ${(_updatedTotalPrice * 0.98).toStringAsFixed(2)}')
-                   : Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
+                    ?  Text('Checkout \₹ ${calculateFinalAmount().toStringAsFixed(2)}')
+          : Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: deliverable == 'Y' ? U_Colors.chatprimaryColor : Colors.grey,
                   ),
                   onPressed: () async {
                     if (deliverable == 'Y') {
                        finalPrice = _message.contains('Coupon applied')
-                          ? _updatedTotalPrice * 0.98
+                          ? calculateFinalAmount()
                           : _updatedTotalPrice;
 
                       if (finalPrice <= 490000.00) {
@@ -1171,6 +1221,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         );
       },
     );
+  }
+
+  double calculateFinalAmount() {
+    double discountAmount = widget.product.productMakingCharges! * (widget.product.discountPercentage! / 100) ;
+    double finalAmount = _updatedTotalPrice - (discountAmount * widget.quantity);
+    return finalAmount;
   }
 }
 

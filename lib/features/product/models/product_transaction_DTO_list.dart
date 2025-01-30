@@ -22,6 +22,8 @@ class ProductTransactionDTO {
   String? deliveryStatus;
   String? productName;
   int? productQuantity;
+  double? goldAndDiamondPrice;
+  bool? discountApplied;
 
   ProductTransactionDTO({
     this.transactionDetailId,
@@ -46,7 +48,9 @@ class ProductTransactionDTO {
     this.productPic,
     this.productQuantity,
     this.userId,
-    this.userAddressId
+    this.userAddressId,
+    this.goldAndDiamondPrice,
+    this.discountApplied
   });
 
   factory ProductTransactionDTO.fromJson(Map<String, dynamic> json) => ProductTransactionDTO(
@@ -72,7 +76,9 @@ class ProductTransactionDTO {
     productPic: json["productPic"],
     productQuantity: json["productQuantity"],
     userId: json["userId"],
-    userAddressId: json["userAddressId"]
+    userAddressId: json["userAddressId"],
+    goldAndDiamondPrice: json["goldAndDiamondPrice"],
+      discountApplied: json["discountApplied"]
 
   );
 
@@ -99,6 +105,7 @@ class ProductTransactionDTO {
     "productName": productName,
     "productQuantity": productQuantity,
     "userId": userId,
-    "userAddressId":userAddressId
+    "userAddressId":userAddressId,
+    "goldAndDiamondPrice":goldAndDiamondPrice
   };
 }

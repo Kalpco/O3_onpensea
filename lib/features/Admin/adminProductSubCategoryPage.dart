@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:onpensea/features/Admin/adminProductCartVertical.dart';
 import 'package:onpensea/features/product/apiService/productService.dart';
 import 'package:onpensea/features/product/models/productResponseDTO.dart';
 import 'package:onpensea/features/product/screen/productHome/products_home_screen.dart';
@@ -161,7 +162,7 @@ class _AdminProductSubCategoryDetailPageState extends State<AdminProductSubCateg
                         itemCount: products.length,
                         itemBuilder: (context, index) {
                           final product = products[index];
-                          return ProductCartVertical(product: product);
+                          return AdminProductCartVertical(product: product);
                         },
                       ),
                       if (isLoading)

@@ -25,7 +25,10 @@ class ProductResponseDTO {
   double? gstCharges;
   double? productMakingCharges;
   int? productMakingChargesPercentage;
+  int? discountPercentage;
+  double? goldAndDiamondPrice;
   int? purity;
+  bool? discountApplied;
   GemsDTO? gemsDTO;
 
   ProductResponseDTO({
@@ -49,10 +52,13 @@ class ProductResponseDTO {
     this.goldPrice,
     this.productMakingCharges,
     this.productMakingChargesPercentage,
+    this.discountPercentage,
     this.gstCharges,
     this.totalPrice,
     this.purity,
+    this.discountApplied,
     this.gemsDTO,
+    this.goldAndDiamondPrice
   });
 
   factory ProductResponseDTO.fromJson(Map<String, dynamic> json) {
@@ -81,7 +87,11 @@ class ProductResponseDTO {
       gstCharges: json['gstCharges']?.toDouble(),
       totalPrice: json['totalPrice']?.toDouble(),
       purity: json['purity'],
+      discountApplied: json['discountApplied'] ?? false,
       productMakingChargesPercentage: json['productMakingChargesPercentage'],
+      discountPercentage: json['discountPercentage'],
+      goldAndDiamondPrice: json['goldAndDiamondPrice'],
+
       gemsDTO: json['gemsDTO'] != null ? GemsDTO.fromJson(json["gemsDTO"]) : null,
     );
   }

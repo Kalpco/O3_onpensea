@@ -40,6 +40,9 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
   TextEditingController productQuantity = TextEditingController();
   TextEditingController productMakingChargesPercentage =
       TextEditingController();
+   TextEditingController discountPercentage = TextEditingController();
+
+  bool? productDiscountApplied;
 
   @override
   void initState() {
@@ -58,6 +61,9 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
     productOwnerName = TextEditingController(text: widget.product.productOwnerName);
     productQuantity = TextEditingController(text: widget.product.productQuantity.toString() ?? '');
     productMakingChargesPercentage = TextEditingController(text: widget.product.productMakingChargesPercentage.toString() ?? '');
+    productDiscountApplied =  widget.product.discountApplied;
+    discountPercentage = TextEditingController(text: widget.product.discountPercentage.toString() ?? '');
+
   }
 
   //posting data to backend via this method
@@ -80,6 +86,12 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
             int.tryParse(productMakingChargesPercentage.text) != null
                 ? int.parse(productMakingChargesPercentage.text).toString()
                 : '0';
+        request.fields['discountApplied'] = (productDiscountApplied ?? false).toString();
+        request.fields['discountPercentage'] =
+        int.tryParse(discountPercentage.text) != null
+            ? int.parse(discountPercentage.text).toString()
+            : '0';//For gems DTO
+
         // Create the gemsDTO object
         Map<String, dynamic> gems = {
           'noOfSmallStones': noOfSmallStones.text,
@@ -354,7 +366,7 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please update product Quantity';
+                        return 'Please update making charges percentage';
                       }
                       return null;
                     },
@@ -363,6 +375,27 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
                           RegExp(r'^\d{0,2}$')), // Allow only two digits
                     ],
                   ),
+                if (productCategory.text == 'Diamond') SizedBox(height: 16.0),
+                if (productCategory.text == 'Diamond')
+                  TextFormField(
+                    controller: productMakingChargesPercentage,
+                    decoration: InputDecoration(
+                      labelText: 'Product Making Charges Percentage',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please update making charges percentage';
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d{0,2}$')), // Allow only two digits
+                    ],
+                  ),
+
 
                 SizedBox(height: 16.0),
                 TextFormField(
@@ -380,6 +413,55 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
                     return null;
                   },
                 ),
+                SizedBox(height: 16.0,),
+                DropdownButtonFormField<bool>(
+                  decoration: InputDecoration(
+                    labelText: 'Apply Discount ',
+                    border: OutlineInputBorder(),
+                  ),
+                  value: productDiscountApplied,
+                  // hint: Text('Apply Discount'),
+                  items: [
+                    DropdownMenuItem(
+                      value: true,
+                      child: Text('Yes'),
+                    ),
+                    DropdownMenuItem(
+                      value: false,
+                      child: Text('No'),
+                    ),
+                  ],
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      productDiscountApplied = newValue;
+                      if (newValue == false) {
+                        discountPercentage.text = '0';
+                      }
+                    });
+                  },
+                  validator: (value) => value == null
+                      ? 'Please select a discount option'
+                      : null,
+                ),
+                SizedBox(height: 16),
+                if (productDiscountApplied == true)
+                  TextFormField(
+                    controller: discountPercentage,
+                    decoration: InputDecoration(
+                      labelText: 'Discount Percentage %',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter discount percentage';
+                      }
+                      return null;
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d{0,2}$')),
+                    ],
+                  ),
 
                 SizedBox(height: 15.0),
                 Row(
