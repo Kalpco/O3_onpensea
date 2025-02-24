@@ -59,6 +59,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   bool _isLoading = false;
   int? selectedAddressIndex;
   Map<String, dynamic>? selectedAddressData;
+  double totalFinalPrice =0.0;
+  double totalMakingCharges = 0.0;
+  double afterDiscountTotalPrice = 0.0;
+
 
 
 
@@ -66,7 +70,8 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   @override
   void initState() {
     super.initState();
-    _fetchWalletAmount(); // Fetch wallet amount when the screen initializes
+    _fetchWalletAmount();
+    calculateTotalMakingCharges();// Fetch wallet amount when the screen initializes
     _updatedTotalPrice = widget.finalPrice;
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -76,6 +81,93 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   void dispose() {
     _razorpay.clear();
     super.dispose();
+  }
+  final TextEditingController _couponController = TextEditingController();
+  String _message = '';
+  static String couponBaseUrl = '${API_CONSTANTS_1.ApiConstants.COUPON_URL}';
+
+  void calculateTotalMakingCharges() {
+    totalMakingCharges = widget.cartData?.fold<double>(
+      0.0,
+          (sum, product) => sum + (product['productMakingCharges'] ?? 0.0),
+    ) ??
+        0.0;
+  }
+
+  Future<void> _applyCoupon() async {
+
+    bool allProductsNoDiscount = widget.cartData!.every((item) => item['discountApplied'] == false);
+
+    if (allProductsNoDiscount) {
+      setState(() {
+        _message = 'Coupon cannot be applied as no product is eligible for a discount.';
+      });
+      return; // Stop further execution if coupon can't be applied
+    }
+
+    double couponDiscountTotalPrice = 0.0;
+    double couponMakingCharges = 0.0;
+    double couponGstPrice = 0.0;
+
+    for(var cartItem in widget.cartData!){
+      if (cartItem['discountApplied'] == true){
+        couponMakingCharges = cartItem['productMakingCharges'] - (cartItem['productMakingCharges'] * (cartItem['discountPercentage'] / 100));
+      }
+      else {
+        couponMakingCharges = cartItem['productMakingCharges'] -
+            (cartItem['productMakingCharges'] *
+                (cartItem['discountPercentage'] / 100));
+      }
+      couponGstPrice = (cartItem['goldAndDiamondPrice'] + couponMakingCharges) * 0.03;//GST
+      couponDiscountTotalPrice = cartItem['goldAndDiamondPrice'] + couponMakingCharges + couponGstPrice;
+      afterDiscountTotalPrice += couponDiscountTotalPrice;
+      print('Making Charges $couponMakingCharges');
+      print('GST Charges $couponGstPrice');
+      print('Final Price :   $couponDiscountTotalPrice');
+      print('DIscount Final Price :   $afterDiscountTotalPrice');
+
+
+    }
+
+    final String couponCode = _couponController.text;
+    final String couponApiUrl = '$couponBaseUrl/couponCode/$couponCode';
+    setState(() {
+      _message = 'Applying coupon...';
+    });
+    try {
+      final response = await http.get(
+        Uri.parse(couponApiUrl),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("data response $data");
+        if (data['status'] == 1202) {
+          setState(() {
+            double _discountAppliedAmount = _updatedTotalPrice - afterDiscountTotalPrice;
+            _message = '${data['couponMessage'] ?? 'Coupon applied successfully!'} You saved ₹${_discountAppliedAmount.toStringAsFixed(2)}.';
+
+          });
+        } else {
+          setState(() {
+            _message = data['couponMessage'] ?? 'Invalid coupon code.';
+          });
+        }
+      } else if (response.statusCode == 400) {
+        setState(() {
+          _message = 'Invalid coupon code!';
+        });
+      }
+      else {
+        setState(() {
+          _message = 'Failed to apply coupon. Please try again.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _message = 'An error occurred: $e';
+      });
+    }
   }
   Future<void> _fetchWalletAmount() async {
     try {
@@ -135,9 +227,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             productId: item['id'],
             productPrice:item['productPrice']?.toDouble(),
             makingCharges : item['productMakingCharges']?.toDouble(),
+            gstCharge: item['gstCharges']?.toDouble(),
             productQuantity : item['productQuantity']?.toInt(),
             productWeight : item['productWeight']?.toDouble(),
             purity : item['purity'],
+            merchantId: item['productOwnerId'],
             payedFromWallet : _isRedeemChecked,
             walletAmount: walletAmount,
             createDate :  DateTime.now(),
@@ -146,6 +240,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             productPic: item['productImageUri'].toString(),
             productName: item['productName'],
             totalAmount: item['totalPrice'],
+              discountedPrice: totalFinalPrice,
+            discountPercentage: item['discountPercentage'],
+            goldAndDiamondPrice: item['goldAndDiamondPrice'],
+            discountApplied: item['discountApplied']
           );
         }).toList(),
         transactionDTO: TransactionDTO(
@@ -156,8 +254,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             transactionOrderId: response.orderId,
             payedFromWallet : _isRedeemChecked,
             walletAmount: walletAmount,
-            transactionAmount: _updatedTotalPrice,
+            transactionAmount: totalFinalPrice,
             userAddressId: selectedAddressData?['id'],
+            couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+            isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
             createDate: DateTime.now()),
       ).toJson();
 
@@ -188,7 +288,8 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           productId: item['id'],
           productPrice:item['productPrice']?.toDouble(),
           makingCharges : item['productMakingCharges']?.toDouble(),
-          productQuantity : item['productQuantity']?.toInt(),
+            gstCharge: item['gstCharges']?.toDouble(),
+            productQuantity : item['productQuantity']?.toInt(),
           productWeight : item['productWeight']?.toDouble(),
           purity : item['purity'],
           payedFromWallet : _isRedeemChecked,
@@ -199,6 +300,12 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           productPic: item['productImageUri'].toString(),
           productName: item['productName'],
           totalAmount: item['totalPrice'],
+            discountedPrice: totalFinalPrice,
+            discountPercentage: item['discountPercentage'],
+            goldAndDiamondPrice: item['goldAndDiamondPrice'],
+            discountApplied: item['discountApplied']
+
+
         );
       }).toList(),
       transactionDTO: TransactionDTO(
@@ -208,10 +315,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           transactionMessage: response.message,
           payedFromWallet: _isRedeemChecked,
           walletAmount: walletAmount,
-          transactionAmount: _updatedTotalPrice,
+          transactionAmount: totalFinalPrice,
           userAddressId: selectedAddressData?['id'],
+          couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+          isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
           createDate: DateTime.now()),
-
     ).toJson();
     await TranactionOrderAPI.postTransactionDetails(failedCapturePaymentDetails);
     print('Payment data : ${response.code} - ${response.message}');
@@ -232,9 +340,9 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
     print('External Wallet: ${response.walletName}');
   }
 
-  Future<void> _createOrder(BuildContext context,double _updatedTotalPrice) async {
+  Future<void> _createOrder(BuildContext context,double myFinalAmount) async {
 
-    if(_updatedTotalPrice <= 0.00){
+    if(myFinalAmount <= 0.00){
       setState(() {
         _isLoading = true; // Show the loader
       });
@@ -259,10 +367,16 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             createDate :  DateTime.now(),
             userId: userId,
             userAddressId: selectedAddressData?['id'],
-            gstCharge:item['gstCharge'],
+            gstCharge:item['gstCharge']?.toDouble(),
             productPic: item['productImageUri'].toString(),
             productName: item['productName'],
             totalAmount: item['totalPrice']?.toDouble(),
+              discountedPrice: totalFinalPrice,
+              discountPercentage: item['discountPercentage'],
+              goldAndDiamondPrice: item['goldAndDiamondPrice'],
+              discountApplied: item['discountApplied']
+
+
           );
         }).toList(),
         transactionDTO: TransactionDTO(
@@ -273,8 +387,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           paymentGatewayTransactionId:DateTime.now().millisecondsSinceEpoch.toString(),
           payedFromWallet:_isRedeemChecked,
           walletAmount:walletAmount,
-          transactionAmount: _updatedTotalPrice,
+          transactionAmount: totalFinalPrice,
           userAddressId: selectedAddressData?['id'],
+          couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+          isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
           transactionOrderId:DateTime.now().millisecondsSinceEpoch.toString(),
         ),
       ).toJson();
@@ -288,7 +404,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           MaterialPageRoute(
             builder: (context) => WalletProductSuccessPage(
               orderId: DateTime.now().millisecondsSinceEpoch.toString(),
-              totalPrice:widget.finalPrice,
+              totalPrice:totalFinalPrice,
             ),
           ),
 
@@ -304,7 +420,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
           MaterialPageRoute(
               builder: (context) => WalletProductFailPage(
                   orderId: DateTime.now().millisecondsSinceEpoch.toString(),
-                  totalPrice:widget.finalPrice)),
+                  totalPrice:totalFinalPrice)),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Payment failed from wallet ')),
@@ -317,7 +433,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
     }
     else{
       try {
-        final amountInPaise = (_updatedTotalPrice * 100).toInt();
+        final amountInPaise = (totalFinalPrice * 100).toInt();
         print("Final Amount is -> $amountInPaise");
         final  orderResponse = await razorpayOrderAPI
             .createOrder(amountInPaise, 'INR', 'order_receipt#1');
@@ -340,9 +456,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                 productId: item['id'],
                 productPrice:item['productPrice']?.toDouble(),
                 makingCharges : item['productMakingCharges']?.toDouble(),
-                productQuantity : item['productQuantity']?.toInt(),
+                  gstCharge:item['gstCharge']?.toDouble(),
+                  productQuantity : item['productQuantity']?.toInt(),
                 productWeight : item['productWeight']?.toDouble(),
                 purity : item['purity'],
+                merchantId: item['productOwnerId'],
                 payedFromWallet : _isRedeemChecked,
                 walletAmount: walletAmount,
                 createDate :  DateTime.now(),
@@ -351,6 +469,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                 productPic: item['productImageUri'].toString(),
                 productName: item['productName'],
                 totalAmount: item['totalPrice'],
+                  discountedPrice: totalFinalPrice,
+                  discountPercentage: item['discountPercentage'],
+                  goldAndDiamondPrice: item['goldAndDiamondPrice'],
+                  discountApplied: item['discountApplied']
+
               );
             }).toList(),
             transactionDTO: TransactionDTO(
@@ -359,9 +482,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                 transactionMessage: 'Failed to create order',
                 payedFromWallet : _isRedeemChecked,
                 walletAmount: walletAmount,
-                transactionAmount: _updatedTotalPrice,
+                transactionAmount: totalFinalPrice,
                 transactionOrderId: razorpaySuccessResponseDTO.id,
                 userAddressId: selectedAddressData?['id'],
+                couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+                isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
                 createDate: DateTime.now()),
           ).toJson();
 
@@ -427,6 +552,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             productPic: item['productImageUri'].toString(),
             productName: item['productName'],
             totalAmount: item['totalPrice'],
+              discountedPrice: totalFinalPrice,
+              discountPercentage: item['discountPercentage'],
+              goldAndDiamondPrice: item['goldAndDiamondPrice'],
+              discountApplied: item['discountApplied']
+
           );
         }).toList(),
         transactionDTO: TransactionDTO(
@@ -437,8 +567,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             transactionOrderId: responseDTO.id,
             payedFromWallet: _isRedeemChecked,
             walletAmount: walletAmount,
-            transactionAmount: _updatedTotalPrice,
+            transactionAmount: totalFinalPrice,
             userAddressId: selectedAddressData?['id'],
+            couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+            isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
             createDate: DateTime.now()),
       ).toJson();
 
@@ -678,35 +810,37 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          // child: Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
-                          // style: ElevatedButton.styleFrom(
-                          //   backgroundColor: deliverable == 'Y' ? U_Colors.chatprimaryColor : Colors.grey,
-                          // ),
                           child: _isLoading
                               ? SizedBox(
                             width: 24.0, // Set width
                             height: 24.0, // Set height
                             child: CircularProgressIndicator(color: Colors.white),
                           )
+                              : _message.contains('Coupon applied')
+                              ?  Text('Checkout \₹ ${afterDiscountTotalPrice.toStringAsFixed(2)}')
                               : Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: deliverable == 'Y' ? U_Colors.chatprimaryColor : Colors.grey,
                           ),
                           onPressed: () async {
                             if (deliverable == 'Y') {
-                              if (_updatedTotalPrice <= 490000.00) {
+                              totalFinalPrice = _message.contains('Coupon applied')
+                                  ? afterDiscountTotalPrice
+                                  : _updatedTotalPrice;
+
+                              if (totalFinalPrice <= 490000.00) {
                                 // Handle checkout logic here
                                 setState(() {
                                   _isLoading = true; // Start loading
                                 });
-                                await _createOrder(context, _updatedTotalPrice);
+                                await _createOrder(context, totalFinalPrice);
                                 setState(() {
                                   _isLoading = false; // Stop loading after order is created
                                 });
 
                               } else {
                                 // Handled amount dialog logic
-                                await showAmountDialog(context, _updatedTotalPrice);
+                                await showAmountDialog(context, totalFinalPrice);
 
                               }
                             } else {
@@ -752,219 +886,338 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: widget.cartData?.length ?? 0,
-              itemBuilder: (context, index) {
-                final product = widget.cartData![index];
-                return Column(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    ListView.builder(
+                      shrinkWrap: true, // Ensure it takes only the space it needs
+                      physics: NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: widget.cartData?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        final product = widget.cartData![index];
+                        return Column(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(bottom: 16.0),
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.white,
+                                // boxShadow: [
+                                //   BoxShadow(
+                                //     color: Colors.black26,
+                                //     blurRadius: 10.0,
+                                //     spreadRadius: 2.0,
+                                //     offset: Offset(2.0, 2.0),
+                                //   ),
+                                // ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        "${API_CONSTANTS_1.ApiConstants.PRODUCTS_BASE_URL}${product['productImageUri'] ?? ''}",
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Icon(Icons.error, color: Colors.red, size: 50);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product['productName'],
+                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "₹ ${(product['productPrice'] * product['productQuantity']).toStringAsFixed(2)}",
+                                          style: TextStyle(fontSize: 14, color: Colors.black),
+                                        ),
+                                        Text(
+                                          'Quantity: ${product['productQuantity']}',
+                                          style: TextStyle(fontSize: 14, color: Colors.black),
+                                        ),
+                                        if (product['discountApplied'] == true)
+                                          Text(
+                                            'Apply coupon to avail discount on making charges.',
+                                            style: TextStyle(color: Colors.green, fontSize: 12),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            ),
+                            if (index != widget.cartData!.length - 0)
+                              DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+                          ],
+                        );
+
+                      },
+                    ),
+                    //
                     Container(
-                      margin: EdgeInsets.only(bottom: 16.0),
-                      padding: EdgeInsets.all(10),
+                      width: double.infinity,
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        color: U_Colors.whiteColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Text('User Information', style: Theme.of(context).textTheme.bodyLarge),
+                              // SizedBox(height: U_Sizes.spaceBtwItems),
+                              // Text('Name: ${userData['name']}'),
+                              // Text('Mobile: ${userData['mobileNo']}'),
+                              // Text('Email: ${userData['email']}'),
+                              Text('Address :', style: Theme.of(context).textTheme.bodyLarge),
+                              SizedBox(height: U_Sizes.spaceBwtTwoSections),
+
+                              // Horizontally scrolling addresses
+                              if (userData['address'] != null && userData['address'].isNotEmpty)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      height: 170,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: userData['address'].length,
+                                        itemBuilder: (context, index) {
+                                          var address = userData['address'][index];
+                                          bool isSelected = selectedAddressIndex == index;
+
+                                          return GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                selectedAddressIndex = index;
+                                                selectedAddressData = userData['address'][index];
+                                              });
+                                              print('Selected Address: ${userData['address'][index]}');
+                                              print('Selected Address ID: ${selectedAddressData?['id']}');
+                                            },
+                                            child: Container(
+                                              width: 250,
+                                              margin: EdgeInsets.symmetric(horizontal: 8.0),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: isSelected ? U_Colors.yaleBlue : Colors.grey,
+                                                ),
+                                                borderRadius: BorderRadius.circular(10),
+                                                color: isSelected
+                                                    ? U_Colors.satinSheenGold.withOpacity(0.2)
+                                                    : Colors.white,
+                                              ),
+                                              padding: EdgeInsets.all(10),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Name: ${address['name']} ${address['fatherName']} ${address['lastName']}',
+                                                    style: TextStyle(
+                                                        color:
+                                                        isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'City: ${address['city']}',
+                                                    style: TextStyle(
+                                                        color:
+                                                        isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'State: ${address['state']}',
+                                                    style: TextStyle(
+                                                        color:
+                                                        isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'PinCode: ${address['pinCode']}',
+                                                    style: TextStyle(
+                                                        color:
+                                                        isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'Address: ${address['address']}',
+                                                    style: TextStyle(
+                                                        color:
+                                                        isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'Mobile: ${address['mobileNo']}',
+                                                    style: TextStyle(
+                                                        color:
+                                                        isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+
+                                    // Message if no address is selected
+                                    if (selectedAddressIndex == null)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 10.0),
+                                        child: Text(
+                                          'Please choose an address.',
+                                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                  ],
+                                )
+                              else
+                              // Message when no addresses are available
+                                Text('No address available', style: TextStyle(color: Colors.grey)),
+
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+                    // SizedBox(height: U_Sizes.spaceBtwItems),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Container(
+                        width: double.infinity,
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          color: U_Colors.whiteColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) => Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: AddAddressForm(),
+                                  ),
+                                ).whenComplete(() {
+                                  _fetchUserData(); // Fetch user data after address is added
+                                });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: U_Colors.yaleBlue, // Set background color
+                                shadowColor: Colors.transparent, // Remove shadow
+                                elevation: 0,
+                                side: BorderSide.none,
+                              ),
+                              child: Text("Add a Delivery Address"),
+
+                            ),
+                          ),
+
+                        ),// Adjust the width as needed
+
+                      ),
+                    ),
+                    //
+                    SizedBox(height: U_Sizes.spaceBtwItems),
+                    //Coupon Code
+                    Text(
+                      'Apply Coupon ',
+                      style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8.0),
+                    Container(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
-                        // boxShadow: [
-                        //   BoxShadow(
-                        //     color: Colors.black26,
-                        //     blurRadius: 10.0,
-                        //     spreadRadius: 2.0,
-                        //     offset: Offset(2.0, 2.0),
-                        //   ),
-                        // ],
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 4.0,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: Row(
                         children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                "${API_CONSTANTS_1.ApiConstants.PRODUCTS_BASE_URL}${product['productImageUri'] ?? ''}",
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Icon(Icons.error, color: Colors.red, size: 50);
-                                },
+                          Expanded(
+                            child: TextField(
+                              controller: _couponController,
+                              decoration: InputDecoration(
+                                hintText: 'Enter your coupon code',
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 12.0),
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  product['productName'],
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "₹ ${(product['productPrice'] * product['productQuantity']).toStringAsFixed(2)}",
-                                  style: TextStyle(fontSize: 14, color: Colors.black),
-                                ),
-                                Text(
-                                  'Quantity: ${product['productQuantity']}',
-                                  style: TextStyle(fontSize: 14, color: Colors.black),
-                                ),
-                              ],
+                          ElevatedButton(
+                            onPressed: (){
+                              if (_couponController.text.isEmpty){
+                                setState(() {
+                                  _message = 'Enter coupon code';
+                                });
+                              }else
+                              {
+                                _applyCoupon();
+                              }
+                            },
+                            child: Text('Apply'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: U_Colors.yaleBlue,
+                              shadowColor: Colors.transparent,
+                              elevation: 0,
+                              side: BorderSide.none,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
                             ),
                           ),
                         ],
                       ),
-            
                     ),
-                    if (index != widget.cartData!.length - 0)
-                      DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
-                  ],
-                );
-            
-              },
-            ),
-          ),
-          // DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
-          // SizedBox(height: U_Sizes.spaceBtwItems),
-
-          // User Information with Horizontally Scrollable Address Box
-          Container(
-            width: double.infinity,
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              color: U_Colors.whiteColor,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Text('User Information', style: Theme.of(context).textTheme.bodyLarge),
-                    // SizedBox(height: U_Sizes.spaceBtwItems),
-                    // Text('Name: ${userData['name']}'),
-                    // Text('Mobile: ${userData['mobileNo']}'),
-                    // Text('Email: ${userData['email']}'),
-                    Text('Address :'),
-                    SizedBox(height: U_Sizes.spaceBwtTwoSections),
-
-                    // Horizontally scrolling addresses
-                    userData['address'] != null && userData['address'].isNotEmpty
-                        ? SizedBox(
-                      height: 170,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: userData['address'].length,
-                        itemBuilder: (context, index) {
-                          var address = userData['address'][index];
-                          bool isSelected = selectedAddressIndex == index;
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedAddressIndex = index;
-                                selectedAddressData = userData['address'][index];
-
-                              });
-                              print('Selected Address: ${userData['address'][index]}');
-                              print('Selected Address: ${selectedAddressData?['id']}');
-
-                            },
-                            child: Container(
-                              width: 250,
-                              margin: EdgeInsets.symmetric(horizontal: 8.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: isSelected ? U_Colors.yaleBlue : Colors.grey,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                                color: isSelected ? U_Colors.satinSheenGold.withOpacity(0.2) : Colors.white,
-                              ),
-                              padding: EdgeInsets.all(10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Name: ${address['name']} ${address['fatherName']} ${address['lastName']}',
-                                      style: TextStyle(
-                                          color: isSelected ? U_Colors.yaleBlue : Colors.black)),
-                                  SizedBox(height: 4),
-                                  Text('City: ${address['city']}',
-                                      style: TextStyle(
-                                          color: isSelected ? U_Colors.yaleBlue : Colors.black)),
-                                  SizedBox(height: 4),
-                                  Text('State: ${address['state']}',
-                                      style: TextStyle(
-                                          color: isSelected ? U_Colors.yaleBlue : Colors.black)),
-                                  SizedBox(height: 4),
-                                  Text('PinCode: ${address['pinCode']}',
-                                      style: TextStyle(
-                                          color: isSelected ? U_Colors.yaleBlue : Colors.black)),
-                                  SizedBox(height: 4),
-                                  Text('Address: ${address['address']}',
-                                      style: TextStyle(
-                                          color: isSelected ? U_Colors.yaleBlue : Colors.black)),
-                                  SizedBox(height: 4),
-                                  Text('Mobile: ${address['mobileNo']}',
-                                      style: TextStyle(
-                                          color: isSelected ? U_Colors.yaleBlue : Colors.black)),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                    SizedBox(height: 16.0),
+                    Text(
+                      _message,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: _message.contains('Invalid') || _message.contains('Failed')? Colors.red : Colors.green,
                       ),
-                    )
-                        : Text('No address available'),
+                    ),
+                    //
                   ],
                 ),
               ),
             ),
           ),
-          DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
-          // SizedBox(height: U_Sizes.spaceBtwItems),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              width: double.infinity,
-              child: Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                color: U_Colors.whiteColor,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) => Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: AddAddressForm(),
-                        ),
-                      ).whenComplete(() {
-                        _fetchUserData(); // Fetch user data after address is added
-                      });
-                    },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: U_Colors.yaleBlue, // Set background color
-                    shadowColor: Colors.transparent, // Remove shadow
-                    elevation: 0,
-                    side: BorderSide.none,
-                  ),
-                    child: Text("Add a Delivery Address"),
 
-                  ),
-                ),
-
-              ),// Adjust the width as needed
-
-            ),
-          )
 
         ],
       ),

@@ -11,6 +11,8 @@ class TransactionDTO {
   double? walletAmount;
   double? transactionAmount;
   int? userAddressId;
+  String? couponCode;
+  String? isCouponApplied;
 
   TransactionDTO({
      this.transactionId,
@@ -25,6 +27,8 @@ class TransactionDTO {
     this.walletAmount,
     this.transactionAmount,
     this.userAddressId,
+    this.couponCode,
+    this.isCouponApplied,
   });
 
   factory TransactionDTO.fromJson(Map<String, dynamic> json) => TransactionDTO(
@@ -40,6 +44,8 @@ class TransactionDTO {
     walletAmount: json["walletAmount"]?.toDouble(),
     transactionAmount: json["transactionAmount"]?.toDouble,
     userAddressId: json["userAddressId"],
+    couponCode: json["couponCode"],
+    isCouponApplied: json["isCouponApplied"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -55,5 +61,7 @@ class TransactionDTO {
     "walletAmount": walletAmount,
     "transactionAmount":transactionAmount,
     "userAddressId":userAddressId,
+    "couponCode":couponCode,
+    "isCouponApplied":isCouponApplied,
   };
 }

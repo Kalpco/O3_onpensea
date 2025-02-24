@@ -114,6 +114,7 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
     final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId/cart/$productId/quantity/$newQuantity');
     final newPrice = unitPrice * newQuantity;
 
+
     print("url: $url");
 
     final updatedCart = cartData!.map((item) {
