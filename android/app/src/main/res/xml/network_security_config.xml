@@ -2,5 +2,6 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">o3api.kalpco.in</domain>
+        <domain includeSubdomains="true">o3uat.kalpco.in</domain>
     </domain-config>
 </network-security-config>
