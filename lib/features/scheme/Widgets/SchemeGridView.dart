@@ -1,9 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:typed_data';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/scheme/models/investment_response_model.dart';
+import '../../../network/dio_client.dart';
 import '../../../utils/constants/sizes.dart';
 import '../../Home/widgets/DividerWithAvatar.dart';
 import '../Screens/widgets/AllOpenContainerWrapperNew.dart';
@@ -16,20 +17,54 @@ class SchemeGridView extends StatelessWidget {
 
   List<Investments>? allInvestments;
 
+  /// **🔹 Fetch Image Securely with JWT Authentication**
+  Future<ImageProvider> _fetchImageWithJwt(String imageUrl) async {
+    try {
+      Dio dio = DioClient.getInstance(); // Ensure correct Dio instance
+
+      Response<List<int>> response = await dio.get<List<int>>(
+        imageUrl,
+        options: Options(
+          responseType: ResponseType.bytes, // Get raw bytes
+        ),
+      );
+
+      return MemoryImage(Uint8List.fromList(response.data!)); // Convert bytes to Image
+    } catch (e) {
+      print("❌ Error fetching image with JWT: $e");
+      return const AssetImage('assets/logos/default_image.png'); // Fallback Image
+    }
+  }
+
+  /// **🔹 Grid Item Body - Uses JWT for Secure Image Loading**
   Widget _gridItemBody(Datum singleInvestment) {
-    return Container(
-      padding: const EdgeInsets.all(1),
-      child: ClipRRect(
-          borderRadius: BorderRadius.circular(20.0),
-          child: CachedNetworkImage(
-            fit: BoxFit.fill,
-            imageUrl:
-                "${ApiConstants.INVESTMENTMS_URL}${singleInvestment.investmentImage01}",
-            placeholder: (context, url) => const Center(
-              child: CircularProgressIndicator(color: Colors.grey),
+    String imageUrl =
+        "${ApiConstants.INVESTMENTMS_URL}${singleInvestment.investmentImage01}";
+
+    print(imageUrl);
+
+    return FutureBuilder<ImageProvider>(
+      future: _fetchImageWithJwt(imageUrl),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: Colors.grey),
+          );
+        }
+        if (snapshot.hasError) {
+          return const Icon(Icons.error);
+        }
+        return Container(
+          padding: const EdgeInsets.all(1),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20.0),
+            child: Image(
+              image: snapshot.data!,
+              fit: BoxFit.fill,
             ),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-          )),
+          ),
+        );
+      },
     );
   }
 
@@ -70,18 +105,15 @@ class SchemeGridView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      singleInvestment != null
-                          ? "Owner: ${singleInvestment.companyName}" // Assuming ownerName is the property that holds the owner's name
-                          : "", // You can decide what to show if prop is null
+                      "Owner: ${singleInvestment.companyName}",
                       style: const TextStyle(
-                        color: Colors.black, // Adjust styling as needed
+                        color: Colors.black,
                         fontWeight: FontWeight.normal,
-                        fontSize: 12, // Adjust font size as needed
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 ),
-                // Add spacing between price and owner name
               ],
             ),
           )
@@ -124,25 +156,18 @@ class SchemeGridView extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Expanded(
               child: AllOpenContainerWrapperNew(
                 allInvestments: allInvestments![index].data,
                 investmentType: allInvestments![index].data[0].investmentType,
                 child: GridTile(
-                  // footer:
-                  //     _gridItemFooter(allInvestments![index].data[0], context),
                   child: _gridItemBody(allInvestments![index].data[0]),
                 ),
               ),
             ),
-            const SizedBox(
-              height: U_Sizes.spaceBwtSections,
-            ),
-            const DividerWithAvatar(
-                imagePath: 'assets/logos/KALPCO_splash.png'),
+            const SizedBox(height: U_Sizes.spaceBwtSections),
+            const DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
           ],
         );
       },
