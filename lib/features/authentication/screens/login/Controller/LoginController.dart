@@ -14,14 +14,14 @@ class LoginController extends GetxController {
   /// **🔹 Login Function**
   static Future<bool> verifyUserCredentials(String email, String password) async {
     try {
-      final url = ApiConstants.USER_LOGIN;
+      final url = '${ApiConstants.AUTHENTICATION_URL}/auth/login';
 
       print("🔹 Sending login request to: $url");
       print("email: " + email);
       print("password: " + password);
-      print("url: " + url!);
+      print("url: " + url);
       final response = await dio.post(
-        url!,
+        url,
         data: {'email': email, 'password': password},
       );
 
@@ -61,28 +61,21 @@ class LoginController extends GetxController {
   }
 
   /// **🔹 Logout Function**
-  Future<void> logout() async {
-    try {
-      // Clear JWT Token
-      await JwtService.deleteToken();
+  void logout() async {
+    await JwtService.deleteToken(); // Clear JWT token
+    userType.value = ''; // Reset user type
+    userData.value = {}; // Clear user data
 
-      // Reset user-related data
-      userType.value = '';
-      userData.clear();
-
-      // Redirect user to Login Screen
-      Get.offAll(() => const LoginScreen());
-
-      print("✅ User logged out successfully!");
-    } catch (e) {
-      print("⚠️ Error during logout: $e");
-    }
+    Get.offAll(() => const LoginScreen()); // Navigate to home screen
+    print("✅ User logged out successfully!");
   }
 
   /// **🔹 Guest Login**
   void guestLogin() {
     userType.value = 'G';
-    userData.value = {"userId": 0}; // Guest user default data
+    userData.value = {
+      "userId": 0
+    }; // Guest user default data
 
     Get.offAll(() => const NavigationMenu());
     print("✅ Guest login activated!");

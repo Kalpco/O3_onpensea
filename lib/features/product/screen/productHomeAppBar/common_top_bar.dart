@@ -320,7 +320,10 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                   leading: Icon(Icons.logout),
                   title: Text('Logout'),
                   onTap: () {
-                    Get.find<LoginController>().logout();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
                   },
                 ),
                 // ListTile(
