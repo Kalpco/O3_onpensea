@@ -15,9 +15,11 @@ class ApiConstants {
   static String? DIGIGOLD_BASE_URL = dotenv.env['DIGIGOLD_BASE_URL'];
   static String? INVOICE_DOWNLOAD = dotenv.env['INVOICE_DOWNLOAD'];
   static String? COUPON_URL = dotenv.env['COUPON_BASE_URL'];
+  static String? AUTHENTICATION_URL = dotenv.env['AUTH_BASE_URL'];
 
-  static String? AUTHENTICATION_URL = dotenv.env['AUTHENTICATION_URL'];
 
+  static String? USER_LOGIN = "$AUTHENTICATION_URL/login";
+  static String? USER_REGISTRATION = "$AUTHENTICATION_URL/register";
 
 
 }
