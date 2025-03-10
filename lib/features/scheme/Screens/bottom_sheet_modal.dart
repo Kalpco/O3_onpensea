@@ -259,9 +259,9 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
         print('Payment details posted successfully');
         print('Response Body: ${response.body}');
 
-        if (responseInvestmentHistory?.statusCode == 201) {
+        if (responseInvestmentHistory.statusCode == 201) {
           print('Payment details posted successfully');
-          print('Response Body: ${responseInvestmentHistory.body}');
+          print('Response Body: ${responseInvestmentHistory.data}');
         }
       } else {
         print(

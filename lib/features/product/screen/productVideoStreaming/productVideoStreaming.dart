@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:onpensea/commons/config/api_constants.dart';
-import 'package:onpensea/navigation_menu.dart';
 import 'package:video_player/video_player.dart';
+import 'package:onpensea/navigation_menu.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../../../utils/constants/sizes.dart';
+import '../../../../utils/jwt/services/jwt_service.dart';
 import '../productGridLayout/product_grid_layout.dart';
 import '../video_Full_Screen.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 
 class ProductVideoStreaming extends StatefulWidget {
   const ProductVideoStreaming({super.key});
@@ -16,26 +17,44 @@ class ProductVideoStreaming extends StatefulWidget {
 }
 
 class _ProductVideoStreamingState extends State<ProductVideoStreaming> {
-  final List<String> videoUrls = [
-    '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_01.mp4',
-    // 'http://o3api.kalpco.in/investments/kalpco/v1.0.0/investments/api/videos/download/videos/bangle_necklace_earing_02.mp4',
-    '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_03.mp4',
-    '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_04.mp4',
-    '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_05.mp4',
-  ];
-
-  late List<VideoPlayerController> _controllers;
+  List<String> videoUrls = [];
+  List<VideoPlayerController> _controllers = [];
 
   @override
   void initState() {
     super.initState();
-    _controllers = videoUrls
-        .map((videoUrl) => VideoPlayerController.network(videoUrl)
-      ..initialize().then((_) {
-        setState(() {}); // Rebuild UI when the video is initialized
-      }))
-        .toList();
+    _fetchVideoUrlsWithToken(); // Load video URLs with JWT
   }
+
+  /// **🔹 Fetch Video URLs with JWT Token**
+  Future<void> _fetchVideoUrlsWithToken() async {
+    String? token = await JwtService.getToken();
+    if (token == null) {
+      print("❌ No JWT Token found! Cannot fetch videos.");
+      return;
+    }
+
+    // Append JWT token to URLs
+    List<String> rawUrls = [
+      '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_01.mp4',
+      '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_03.mp4',
+      '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_04.mp4',
+      '${ApiConstants.INVESTMENTMS_URL}/api/videos/download/videos/bangle_necklace_earing_05.mp4',
+    ];
+
+    videoUrls = rawUrls.map((url) => '$url?token=$token').toList();
+
+    // ✅ Use `networkUrl(Uri.parse(videoUrl))` instead of `network(videoUrl)`
+    _controllers = videoUrls.map((videoUrl) {
+      return VideoPlayerController.networkUrl(Uri.parse(videoUrl))
+        ..initialize().then((_) {
+          setState(() {}); // Update UI after initialization
+        });
+    }).toList();
+
+    setState(() {}); // Trigger UI update
+  }
+
 
   @override
   void dispose() {
@@ -50,20 +69,22 @@ class _ProductVideoStreamingState extends State<ProductVideoStreaming> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Get.offAll(() => NavigationMenu());
           },
         ),
-        title: Text(
+        title: const Text(
           "Jewellery Collection",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: U_Colors.yaleBlue,
       ),
-      body: SingleChildScrollView(
+      body: videoUrls.isEmpty
+          ? const Center(child: CircularProgressIndicator(color: U_Colors.yaleBlue)) // Show loading until URLs are ready
+          : SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(U_Sizes.spaceBwtTwoSections),
+          padding: const EdgeInsets.all(U_Sizes.spaceBwtTwoSections),
           child: Container(
             color: Colors.white,
             child: Column(
@@ -82,7 +103,7 @@ class _ProductVideoStreamingState extends State<ProductVideoStreaming> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.white,
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
                               blurRadius: 10.0,
@@ -94,7 +115,7 @@ class _ProductVideoStreamingState extends State<ProductVideoStreaming> {
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            // Display video player thumbnail (the first frame of the video)
+                            // Display video player thumbnail (first frame)
                             _controllers[index].value.isInitialized
                                 ? AspectRatio(
                               aspectRatio: _controllers[index].value.aspectRatio,
@@ -104,12 +125,11 @@ class _ProductVideoStreamingState extends State<ProductVideoStreaming> {
                               width: double.infinity,
                               height: 250,
                               color: Colors.black.withOpacity(0.4),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: U_Colors.yaleBlue,), // Show a loading indicator while initializing
+                              child: const Center(
+                                child: CircularProgressIndicator(color: U_Colors.yaleBlue),
                               ),
                             ),
-                            // Play button icon overlay
+                            // Play button overlay
                             Icon(
                               Icons.play_circle_filled,
                               color: Colors.white.withOpacity(0.4),
@@ -120,7 +140,7 @@ class _ProductVideoStreamingState extends State<ProductVideoStreaming> {
                       ),
                     );
                   },
-                  mainAxisExtent: 250, // Adjust the height of each grid item
+                  mainAxisExtent: 250, // Adjust height of each grid item
                 ),
               ],
             ),

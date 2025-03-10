@@ -8,10 +8,13 @@ import '../../../network/dio_client.dart';
 
 class InvestmentController {
 
+  static final Dio dio = DioClient.getInstance();
+
+
   /// **🔹 Fetch All Investments (GET Request with UTF-8 Decoding)**
   Future<InvestmentResponseModel?> getAllInvestments() async {
     try {
-      final response = await DioClient.getInstance().get(
+      final response = await dio.get(
         ApiConstants.INVESTMENTMS_URL!,
         options: Options(responseType: ResponseType.bytes), // Ensure response as raw bytes
       );
@@ -46,22 +49,46 @@ class InvestmentController {
   //   return null;
   // }
 
-  static Future<http.Response> postInvestmentHistoryDetails(
-      Map<String, dynamic> investmentHistoryDetails) async {
-    final url = Uri.parse('${ApiConstants.INVESTMENTMS_URL!}/transaction-history');
+
+  /// **🔹 Post Investment History Details using Dio**
+  static Future<Response> postInvestmentHistoryDetails(Map<String, dynamic> investmentHistoryDetails) async {
+    final String url = '${ApiConstants.INVESTMENTMS_URL}/transaction-history';
+
     try {
-      final response = await http.post(
+      final response = await dio.post(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(investmentHistoryDetails), // Encode the body as JSON
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+        data: investmentHistoryDetails, // No need to manually encode JSON, Dio handles it
       );
-      print(jsonEncode(investmentHistoryDetails));
+
+      print("✅ Investment History Request Sent: ${investmentHistoryDetails}");
       return response;
     } catch (e) {
-      print('Error posting payment details: $e');
-      rethrow; // Rethrow to handle it in the calling method
+      print('❌ Error posting investment history details: $e');
+      rethrow; // Rethrow for handling in calling method
     }
   }
+
+  // static Future<http.Response> postInvestmentHistoryDetails(
+  //     Map<String, dynamic> investmentHistoryDetails) async {
+  //   final url = Uri.parse('${ApiConstants.INVESTMENTMS_URL!}/transaction-history');
+  //   try {
+  //     final response = await http.post(
+  //       url,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: jsonEncode(investmentHistoryDetails), // Encode the body as JSON
+  //     );
+  //     print(jsonEncode(investmentHistoryDetails));
+  //     return response;
+  //   } catch (e) {
+  //     print('Error posting payment details: $e');
+  //     rethrow; // Rethrow to handle it in the calling method
+  //   }
+  // }
 }

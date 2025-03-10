@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get/get.dart';
@@ -16,8 +17,10 @@ import 'package:shimmer/shimmer.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 
+import '../../../network/dio_client.dart';
 import '../../../utils/constants/colors.dart';
 import '../../../utils/constants/sizes.dart';
+import '../../../utils/jwt/services/jwt_service.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import '../../product/screen/productHome/products_home_screen.dart';
 import '../../product/screen/video_Full_Screen.dart';
@@ -79,37 +82,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchImages() async {
     try {
-      final cacheManager = DefaultCacheManager();
-      final file = await cacheManager
-          .getSingleFile('${ApiConstants.USERS_URL}/pictures?userType=U');
+      Dio dio = DioClient.getInstance(); // Use singleton Dio instance with interceptors
 
-      print("api: ${ApiConstants.USERS_URL}/pictures?userType=U')");
-      if (file != null) {
-        final response = await file.readAsString();
-        List<dynamic> jsonResponse = json.decode(response);
+      final response = await dio.get('${ApiConstants.USERS_URL}/pictures?userType=U');
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = response.data;
         List<String> fetchedImages = List<String>.from(jsonResponse);
 
-        // Assuming the response contains exactly 10 images
         if (fetchedImages.length >= 10) {
           setState(() {
-            print("Image List aasfsd: ");
-            print(fetchedImages.toString());
+            print("✅ Image List: $fetchedImages");
 
-            // Assign specific images to imgList by their indices
             imgList = [
               fetchedImages[8], // First image
-              // fetchedImages[8], // Fourth image
               fetchedImages[9],
               fetchedImages[4], // Seventh image
             ];
 
-            // Assign specific images to other collections
-            goldCollectionImages = [fetchedImages[2]]; // Second image
-            diamondCollectionImages = [fetchedImages[1]]; // Ninth image
-            customJewelryImages = [fetchedImages[10]]; // Fifth image
-            menCollectionImages = [fetchedImages[0]]; // Tenth image
-            womenCollectionImages = [fetchedImages[6]]; // Eighth image
-            kidsCollectionImages = [fetchedImages[9]]; // Third image
+            goldCollectionImages = [fetchedImages[2]];
+            diamondCollectionImages = [fetchedImages[1]];
+            customJewelryImages = [fetchedImages[10]];
+            menCollectionImages = [fetchedImages[0]];
+            womenCollectionImages = [fetchedImages[6]];
+            kidsCollectionImages = [fetchedImages[9]];
 
             isLoading = false;
           });
@@ -120,11 +116,63 @@ class _HomeScreenState extends State<HomeScreen> {
                 Image.memory(base64Decode(image), fit: BoxFit.cover);
           }
         }
+      } else {
+        print("⚠️ Failed to fetch images: ${response.statusCode}");
       }
     } catch (e) {
-      print('Error fetching images: $e');
+      print('❌ Error fetching images: $e');
     }
   }
+
+
+  // Future<void> fetchImages() async {
+  //   try {
+  //     final cacheManager = DefaultCacheManager();
+  //     final file = await cacheManager
+  //         .getSingleFile('${ApiConstants.USERS_URL}/pictures?userType=U');
+  //
+  //     print("api: ${ApiConstants.USERS_URL}/pictures?userType=U')");
+  //     if (file != null) {
+  //       final response = await file.readAsString();
+  //       List<dynamic> jsonResponse = json.decode(response);
+  //       List<String> fetchedImages = List<String>.from(jsonResponse);
+  //
+  //       // Assuming the response contains exactly 10 images
+  //       if (fetchedImages.length >= 10) {
+  //         setState(() {
+  //           print("Image List aasfsd: ");
+  //           print(fetchedImages.toString());
+  //
+  //           // Assign specific images to imgList by their indices
+  //           imgList = [
+  //             fetchedImages[8], // First image
+  //             // fetchedImages[8], // Fourth image
+  //             fetchedImages[9],
+  //             fetchedImages[4], // Seventh image
+  //           ];
+  //
+  //           // Assign specific images to other collections
+  //           goldCollectionImages = [fetchedImages[2]]; // Second image
+  //           diamondCollectionImages = [fetchedImages[1]]; // Ninth image
+  //           customJewelryImages = [fetchedImages[10]]; // Fifth image
+  //           menCollectionImages = [fetchedImages[0]]; // Tenth image
+  //           womenCollectionImages = [fetchedImages[6]]; // Eighth image
+  //           kidsCollectionImages = [fetchedImages[9]]; // Third image
+  //
+  //           isLoading = false;
+  //         });
+  //
+  //         // Pre-cache images
+  //         for (var image in fetchedImages) {
+  //           imageCache[image] =
+  //               Image.memory(base64Decode(image), fit: BoxFit.cover);
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching images: $e');
+  //   }
+  // }
 
   final List<String> shopByImages = [
     'assets/gold/rings.jpg',
@@ -314,21 +362,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             //SizedBox(height: U_Sizes.spaceBtwItems),
-            Padding(
-              padding: const EdgeInsets.only(
+            const Padding(
+              padding: EdgeInsets.only(
                   left: 35.0, right: 35.0, top: 2.5, bottom: 5),
               child: DividerWithAvatar(
                   dividerThickness: 0.2,
                   dividerColor: U_Colors.yaleBlue,
                   imagePath: 'assets/logos/KALPCO_splash.png'),
             ),
-            SizedBox(height: U_Sizes.spaceBtwItems),
+            const SizedBox(height: U_Sizes.spaceBtwItems),
             GestureDetector(
               child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 10.0,
@@ -349,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProductVideoStreaming()),
+                  MaterialPageRoute(builder: (context) => const ProductVideoStreaming()),
                 );
               },
             ),
