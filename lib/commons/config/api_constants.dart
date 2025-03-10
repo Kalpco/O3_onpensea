@@ -16,6 +16,8 @@ class ApiConstants {
   static String? INVOICE_DOWNLOAD = dotenv.env['INVOICE_DOWNLOAD'];
   static String? COUPON_URL = dotenv.env['COUPON_BASE_URL'];
 
+  static String? AUTHENTICATION_URL = dotenv.env['AUTHENTICATION_URL'];
+
 
 
 }

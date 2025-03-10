@@ -1,58 +1,84 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
-
 import '../../../../../navigation_menu.dart';
+import '../../../../../network/dio_client.dart';
+import '../../../../../utils/jwt/services/jwt_service.dart';
+import '../login.dart';
 
 class LoginController extends GetxController {
-  static final dio = Dio();
+  static final dio = DioClient.getInstance(); // Use singleton Dio client
   var userType = ''.obs;
-  var userData = {}.obs; // Reactive variable to hold user data
+  var userData = {}.obs; // Holds user data reactively
 
-  static Future<bool> verifyUserCredentials(
-      String email, String password) async {
+  /// **🔹 Login Function**
+  static Future<bool> verifyUserCredentials(String email, String password) async {
     try {
-      final url =
-          '${ApiConstants.USERS_URL}/login';
-      print(
-          'Sending request to: $url with email: $email and password: $password');
+      final url = '${ApiConstants.AUTHENTICATION_URL}/auth/login';
 
-      final response = await dio
-          .get(url, queryParameters: {'email': email, 'password': password});
+      print("🔹 Sending login request to: $url");
+      print("email: " + email);
+      print("password: " + password);
+      print("url: " + url);
+      final response = await dio.post(
+        url,
+        data: {'email': email, 'password': password},
+      );
 
-      print('Received response: ${response.statusCode}');
-      print('Response data: ${response.data}');
-
-      if (response.statusCode! == 200 && response.statusCode! < 300) {
+      if (response.statusCode == 200) {
         final data = response.data;
-        if (data['code'] == 2004) {
-          Get.find<LoginController>().userData.value = data['data'];
-          Get.find<LoginController>().userType.value =
-              data['data']['userType']; // Update user data
-          return Future.value(true);
+
+        // Extract JWT from response body (if available)
+        String? token = data['token'];
+
+        // Extract JWT from headers (if API sends in header)
+        String? headerToken = response.headers.value('Authorization');
+
+        // Determine which token to use
+        String? finalToken = headerToken ?? token;
+
+        if (finalToken != null) {
+          await JwtService.saveToken(finalToken); // Save JWT securely
+          print("✅ JWT Token saved successfully!");
         } else {
-          return Future.value(false);
+          print("❌ No token found in response!");
+          return false;
         }
+
+        // Store user data in controller
+        Get.find<LoginController>().userData.value = data['data'];
+        Get.find<LoginController>().userType.value = data['data']['userType'];
+
+        return true;
       } else {
-        print('Unexpected status code: ${response.statusCode}');
-        return Future.value(false);
+        print("❌ Login failed: ${response.statusCode} - ${response.data}");
+        return false;
       }
     } catch (e) {
-      print('Error during login: $e');
-      return Future.value(false);
+      print('❌ Error during login: $e');
+      return false;
     }
   }
 
+  /// **🔹 Logout Function**
+  void logout() async {
+    await JwtService.deleteToken(); // Clear JWT token
+    userType.value = ''; // Reset user type
+    userData.value = {}; // Clear user data
+
+    Get.offAll(() => const LoginScreen()); // Navigate to home screen
+    print("✅ User logged out successfully!");
+  }
+
+  /// **🔹 Guest Login**
   void guestLogin() {
     userType.value = 'G';
-    userData.value = {};
-    Get.find<LoginController>().userType.value = 'G';
-    Get.find<LoginController>().userData.value = {
+    userData.value = {
       "userId": 0
-    }; // Clear user data for guest
-    //Get.find<LoginController>().userData.value = {"isDeliverable":"N"};// Clear user data for guest
-    Get.offAll(() => NavigationMenu());
+    }; // Guest user default data
+
+    Get.offAll(() => const NavigationMenu());
+    print("✅ Guest login activated!");
   }
 }
 
