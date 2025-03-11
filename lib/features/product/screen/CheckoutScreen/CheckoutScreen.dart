@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +11,7 @@ import 'package:onpensea/features/product/models/productResponseDTO.dart';
 import 'package:onpensea/features/product/screen/productHome/product_Fail_Page.dart';
 import 'package:onpensea/features/product/screen/productHome/product_Success_page.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../network/dio_client.dart';
 import '../../../../utils/constants/api_constants.dart';
 import '../../../../utils/constants/images_path.dart';
 import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
@@ -73,6 +76,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _isLoading = false;
   int? selectedAddressIndex;
   double finalPrice =0.0;
+  final Map<String, Uint8List> _imageCache = {}; // Global image cache
+
 
 
   @override
@@ -110,12 +115,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _message = 'Applying coupon...';
     });
     try {
-      final response = await http.get(
-        Uri.parse(couponApiUrl),
-      );
+      final dio = DioClient.getInstance();
+      final response = await dio.get(couponApiUrl);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
         print("data response $data");
         if (data['status'] == 1202) {
           setState(() {
@@ -377,11 +381,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ).toJson();
       final response =
       await TranactionOrderAPI.postTransactionDetails(walletOrderDetails);
-      print('response ${response.body}');
+      print('response ${response.data}');
       print(response.statusCode);
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('Wallet Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -401,7 +405,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         );
       } else {
         print(
-            'Failed to post wallet payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post wallet payment details: ${response.statusCode} - ${response.data}');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -574,10 +578,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
       } else {
         print(
-            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post payment details: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Error posting payment details: $e');
@@ -772,12 +776,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     children: [
                       Text('Product Information', style: Theme.of(context).textTheme.bodyLarge),
                       SizedBox(height: U_Sizes.spaceBtwItems),
-                      Image.network(
-                        imageUrl,
-                        height: 150,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                      FutureBuilder<Uint8List?>(
+                        future: fetchImage(imageUrl),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(color: U_Colors.yaleBlue),
+                            );
+                          } else if (snapshot.hasError || snapshot.data == null) {
+                            return Center(child: Icon(Icons.error, color: Colors.red));
+                          } else {
+                            return Image.memory(
+                              snapshot.data!,
+                              height: 150,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            );
+                          }
+                        },
                       ),
                       SizedBox(height: U_Sizes.spaceBtwItems),
                       Text('Product Name: ${widget.product.productName}'),
@@ -1001,11 +1017,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     ElevatedButton(
                       onPressed: (){
-                        if (_couponController.text.isEmpty){
+                        if (_couponController.text.isEmpty || _couponController.text.length < 6) {
                           setState(() {
-                            _message = 'Enter coupon code';
+                            _message = _couponController.text.isEmpty
+                                ? 'Enter coupon code'
+                                : 'Coupon code must be at least 6 characters';
                           });
-                        }else
+                        }
+                        else
                         {
                           _applyCoupon();
                         }
@@ -1228,5 +1247,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     double finalAmount = _updatedTotalPrice - (discountAmount * widget.quantity);
     return finalAmount;
   }
+
+  Future<Uint8List?> fetchImage(String url) async {
+    if (_imageCache.containsKey(url)) {
+      return _imageCache[url]!; // ✅ Return cached image if available
+    }
+
+    try {
+      final dio = DioClient.getInstance();
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      final imageBytes = Uint8List.fromList(response.data!);
+      _imageCache[url] = imageBytes; // ✅ Store image in cache
+      return imageBytes;
+    } catch (e) {
+      print("❌ Image loading error: $e");
+      return null;
+    }
+  }
+
 }
 

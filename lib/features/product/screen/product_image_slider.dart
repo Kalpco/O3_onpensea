@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -20,6 +22,7 @@ import 'package:onpensea/utils/constants/wishlistIcon.dart';
 import 'package:onpensea/utils/helper/helper_functions.dart';
 import 'package:photo_view/photo_view.dart';
 
+import '../../../network/dio_client.dart';
 import '../controller/wishlistController.dart';
 // import 'package:photo_view/photo_view.dart';
 
@@ -34,7 +37,7 @@ class ProductImageSlider extends StatefulWidget {
 
 class _ProductImageSliderState extends State<ProductImageSlider> {
   int _selectedIndex = 0;
-  final  WishlistController wishlistController = Get.find<WishlistController>();
+  final WishlistController wishlistController = Get.find<WishlistController>();
 
   @override
   Widget build(BuildContext context) {
@@ -45,25 +48,48 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
         child: Stack(
           children: [
             GestureDetector(
-              onTap: () => _showFullScreenImage(
-                  "${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}"),
+              onTap: () =>
+                  _showFullScreenImage(
+                      "${ApiConstants.baseUrl}${widget.product
+                          .productImageUri![_selectedIndex]}"),
               child: SizedBox(
                 height: 500,
                 child: Padding(
-                  padding: const EdgeInsets.all(U_Sizes.productImageRadius * 2),
-                  //child: Center(child: Image.network("${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}", fit: BoxFit.cover,)),
-                  child: Center(
-                      child: CachedNetworkImage(
-                        imageUrl:
-                        "${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}",
-                        fit: BoxFit.cover,
-                        progressIndicatorBuilder:
-                            (context, url, downloadProgress) =>
-                            CircularProgressIndicator(
-                              value: downloadProgress.progress,
-                              color: U_Colors.yaleBlue,
-                            ),
-                      )),
+                    padding: const EdgeInsets.all(
+                        U_Sizes.productImageRadius * 2),
+                    //child: Center(child: Image.network("${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}", fit: BoxFit.cover,)),
+                    child: Center(
+                      child: FutureBuilder<Uint8List?>(
+                        future: fetchImageList(
+                            "${ApiConstants.baseUrl}${widget.product
+                                .productImageUri![_selectedIndex]}"),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator(
+                                color: U_Colors.yaleBlue);
+                          } else if (snapshot.hasError) {
+                            return Icon(Icons.error, color: Colors.red);
+                          } else {
+                            return Image.memory(snapshot.data!);
+                          }
+                        },
+                      ),
+                    )
+                  // Center(
+                  //     child: CachedNetworkImage(
+                  //       imageUrl:
+                  //       "${ApiConstants.baseUrl}${widget.product.productImageUri![_selectedIndex]}",
+                  //       fit: BoxFit.cover,
+                  //       imageBuilder: (context, imageProvider) => Image(image: imageProvider),
+                  //       progressIndicatorBuilder:
+                  //           (context, url, downloadProgress) =>
+                  //           CircularProgressIndicator(
+                  //             value: downloadProgress.progress,
+                  //             color: U_Colors.yaleBlue,
+                  //           ),
+                  //       errorWidget: (context, url, error) => Icon(Icons.error, color: Colors.red),
+                  //     )),
                 ),
               ),
             ),
@@ -83,22 +109,24 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
                   itemCount: widget.product.productImageUri!.length,
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) => GestureDetector(
-                    child: U_RoundedImage(
-                      width: 80,
-                      backgroundColor: dark ? U_Colors.dark : U_Colors.grey,
-                      padding: const EdgeInsets.all(U_Sizes.sm),
-                      imageUrl:
-                      "${ApiConstants.baseUrl}${widget.product.productImageUri![index]}",
-                      onPressed: () {
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                      isSelected: index == _selectedIndex,
-                      isNetworkImage: true,
-                    ),
-                  ),
+                  itemBuilder: (context, index) =>
+                      GestureDetector(
+                        child: U_RoundedImage(
+                          width: 80,
+                          backgroundColor: dark ? U_Colors.dark : U_Colors.grey,
+                          padding: const EdgeInsets.all(U_Sizes.sm),
+                          imageUrl:
+                          "${ApiConstants.baseUrl}${widget.product
+                              .productImageUri![index]}",
+                          onPressed: () {
+                            setState(() {
+                              _selectedIndex = index;
+                            });
+                          },
+                          isSelected: index == _selectedIndex,
+                          isNetworkImage: true,
+                        ),
+                      ),
                 ),
               ),
             ),
@@ -167,25 +195,43 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
   }
 
   void _showFullScreenImage(String imageUrl) {
+    final ValueNotifier<Uint8List?> imageData = ValueNotifier<Uint8List?>(null);
+    final ValueNotifier<bool> isLoading = ValueNotifier<bool>(true);
+
+    // Fetch the image when dialog opens
+    _fetchImage(imageUrl, imageData, isLoading);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Dialog.fullscreen(
           child: Stack(
             children: [
-              PhotoView(
-                minScale: PhotoViewComputedScale.contained,
-                imageProvider: CachedNetworkImageProvider(imageUrl),
-                backgroundDecoration: BoxDecoration(color: U_Colors.whiteColor),
-                loadingBuilder: (context, event) => Center(
-                  child: CircularProgressIndicator(
-                    value: event == null
-                        ? null
-                        : event.cumulativeBytesLoaded /
-                        (event.expectedTotalBytes ?? 1),
-                    color: U_Colors.yaleBlue,
-                  ),
-                ),
+              ValueListenableBuilder<bool>(
+                valueListenable: isLoading,
+                builder: (context, loading, _) {
+                  return ValueListenableBuilder<Uint8List?>(
+                    valueListenable: imageData,
+                    builder: (context, imageData, _) {
+                      if (loading) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                              color: U_Colors.yaleBlue),
+                        );
+                      } else if (imageData == null) {
+                        return Center(child: Icon(
+                            Icons.error, color: Colors.red));
+                      } else {
+                        return PhotoView(
+                          minScale: PhotoViewComputedScale.contained,
+                          imageProvider: MemoryImage(imageData),
+                          backgroundDecoration: BoxDecoration(
+                              color: U_Colors.whiteColor),
+                        );
+                      }
+                    },
+                  );
+                },
               ),
               Positioned(
                 top: 10,
@@ -202,5 +248,38 @@ class _ProductImageSliderState extends State<ProductImageSlider> {
         );
       },
     );
+  }
+
+  void _fetchImage(String url, ValueNotifier<Uint8List?> imageData,
+      ValueNotifier<bool> isLoading) async {
+    try {
+      final dio = DioClient.getInstance();
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+
+      imageData.value = Uint8List.fromList(response.data!);
+    } catch (e) {
+      print("❌ Image loading error: $e");
+      imageData.value = null;
+    } finally {
+      isLoading.value = false;
+    }
+
+
+  }
+  Future<Uint8List?> fetchImageList(String url) async {
+    try {
+      final dio = DioClient.getInstance();
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return Uint8List.fromList(response.data!);
+    } catch (e) {
+      print("❌ Image loading error: $e");
+      return null;
+    }
   }
 }

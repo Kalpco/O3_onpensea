@@ -398,7 +398,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
       await TranactionOrderAPI.postTransactionDetails(walletOrderDetails);
       if (response.statusCode == 201) {
         print('Wallet Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -414,7 +414,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
         );
       } else {
         print(
-            'Failed to post wallet payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post wallet payment details: ${response.statusCode} - ${response.data}');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -581,10 +581,10 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
       } else {
         print(
-            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post payment details: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Error posting payment details: $e');

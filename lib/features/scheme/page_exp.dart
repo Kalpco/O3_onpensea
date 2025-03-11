@@ -47,7 +47,7 @@ class _PageExp extends State<PageExp> {
       final response = await TranactionOrderAPI.postTransactionDetails(transactionDetails);
 
       print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('Response body: ${response.data}');
 
       if (response.statusCode == 200) {
         print('Transaction posted successfully');

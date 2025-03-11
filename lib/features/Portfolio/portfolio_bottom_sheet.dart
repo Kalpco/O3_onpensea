@@ -256,10 +256,10 @@ class _PortfolioBottomSheetModal extends State<PortfolioBottomSheetModal> {
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
       } else {
         print(
-            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post payment details: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Error posting payment details: $e');

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -5,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:onpensea/commons/config/api_constants.dart';
 import 'dart:convert';
 
+import '../../../../network/dio_client.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../../authentication/screens/login/Controller/LoginController.dart';
 
@@ -19,39 +21,47 @@ class _AddAddressFormState extends State<AddAddressForm> {
   final loginController = Get.find<LoginController>();
 
   Future<void> _addAddress() async {
+    try {
+      int userId = loginController.userData['userId'];
+      final dio = DioClient.getInstance();
 
-    int userId = loginController.userData['userId'];
-
-    final url = Uri.parse("${ApiConstants.USERS_URL}/Address/$userId");
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "city": city,
-        "pinCode": pincode,
-        "state": state,
-        "address": address,
-        "mobileNo": mobileNo,
-        "email":email,
-        "name":name,
-        "fatherName":fatherName,
-        "lastName":lastName
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // Successfully added the address
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Address added successfully'),backgroundColor: Colors.green,),
+      final response = await dio.post(
+        "${ApiConstants.USERS_URL}/Address/$userId",
+        data: {
+          "city": city,
+          "pinCode": pincode,
+          "state": state,
+          "address": address,
+          "mobileNo": mobileNo,
+          "email": email,
+          "name": name,
+          "fatherName": fatherName,
+          "lastName": lastName
+        },
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+        }),
       );
-      Navigator.pop(context); // Close the modal
-    } else {
-      // Handle error
+
+      if (response.statusCode == 200) {
+        // Successfully added the address
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Address added successfully'),
+            backgroundColor: Colors.green,),
+        );
+        Navigator.pop(context); // Close the modal
+      } else {
+        // Handle error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add address. Please try again.'),
+              backgroundColor: Colors.red),
+        );
+      }
+    }
+    catch(addressException){
+      print("❌ Address add error: $addressException");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add address. Please try again.'),backgroundColor: Colors.red),
+        SnackBar(content: Text('Failed to add address. Please try again.'), backgroundColor: Colors.red),
       );
     }
   }

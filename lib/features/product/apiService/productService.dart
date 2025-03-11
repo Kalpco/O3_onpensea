@@ -23,9 +23,10 @@ class ProductService {
     final String url = '$baseUrl$userId/U/catalog?productCategory=$productCategory&productSubCategory=$subCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
     // final response = await http.get(Uri.parse(url));
     final  response = await dio.get(url);
+    print("response $response");
 
     if (response.statusCode == 200) {
-      return ProductWrapperResponseDTO.fromJson(json.decode(response.data));
+      return ProductWrapperResponseDTO.fromJson(response.data);
     } else {
       throw Exception('Failed to load products');
     }
@@ -40,9 +41,9 @@ class ProductService {
     // Construct the full URL with userId
     final String url = '$baseUrl$userId/$userType/catalog?productCategory=$productCategory&productSubCategory=$subCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
     print("url $url");
-    final response = await http.get(Uri.parse(url));
+    final  response = await dio.get(url);
     if (response.statusCode == 200) {
-      return ProductWrapperResponseDTO.fromJson(json.decode(response.body));
+      return ProductWrapperResponseDTO.fromJson(response.data);
     } else {
       throw Exception('Failed to load products');
     }
@@ -54,10 +55,10 @@ class ProductService {
 
     try {
       final url = '$baseUrl$userId/U/catalog?productCategory=$productCategory&productSubCategory=$productSubCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
-      final response = await http.get(Uri.parse(url));
+      final  response = await dio.get(url);
 
       if (response.statusCode == 200) {
-        return ProductWrapperResponseDTO.fromJson(json.decode(response.body));
+        return ProductWrapperResponseDTO.fromJson(response.data);
       } else {
         throw Exception('Failed to load products');
       }
@@ -72,10 +73,10 @@ class ProductService {
 
     try {
       final url = '$baseUrl$userId/$userType/catalog?productCategory=$productCategory&productSubCategory=$productSubCategory&typeOfStone=$typeOfStone&pageNo=$pageNo&size=$pageSize';
-      final response = await http.get(Uri.parse(url));
+      final  response = await dio.get(url);
 
       if (response.statusCode == 200) {
-        return ProductWrapperResponseDTO.fromJson(json.decode(response.body));
+        return ProductWrapperResponseDTO.fromJson(response.data);
       } else {
         throw Exception('Failed to load products');
       }
@@ -92,10 +93,10 @@ class ProductService {
 
     try {
       final url = '$baseUrl$userId/U/catalog?typeOfStone=$typeOfStone';
-      final response = await http.get(Uri.parse(url));
+      final  response = await dio.get(url);
 
       if (response.statusCode == 200) {
-        return ProductWrapperResponseDTO.fromJson(json.decode(response.body));
+        return ProductWrapperResponseDTO.fromJson(response.data);
       } else {
         throw Exception('Failed to load products');
       }
