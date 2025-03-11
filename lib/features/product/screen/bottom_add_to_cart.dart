@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -12,6 +13,8 @@ import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
 import 'package:onpensea/utils/helper/helper_functions.dart';
 import 'package:get/get.dart';
+import '../../../network/dio_client.dart';
+import '../../Home/widgets/DividerWithAvatar.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import 'CheckoutScreen/CheckoutScreen.dart';
 
@@ -49,6 +52,7 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
       _gstCharges = (widget.product.gstCharges ?? 0.0) * _quantity;
       _goldAndDiamondPrice = (widget.product.goldAndDiamondPrice ?? 0.0) * _quantity;
       print("increment price: $_totalPrice");
+      _showTotalPriceBottomSheet(context, _totalPrice,_quantity);
     });
   }
 
@@ -61,20 +65,51 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
         _gstCharges = (widget.product.gstCharges ?? 0.0) * _quantity;
         _goldAndDiamondPrice = (widget.product.goldAndDiamondPrice ?? 0.0) * _quantity;
         print("decrement price: $_totalPrice");
+        _showTotalPriceBottomSheet(context, _totalPrice, _quantity);
       });
     }
   }
 
+  void _showTotalPriceBottomSheet(BuildContext context, double totalPrice,int quantity) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash.png'),
+              SizedBox(height: 10),
+              Text(
+                "Your total price is ₹$totalPrice for quantity $quantity ." ,
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     Navigator.of(context).pop(); // Close the BottomSheet
+              //   },
+              //   child: Text("OK"),
+              // ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _addToCart() async {
     int userId = loginController.userData['userId'];
-    final url = '${ApiConstants.CART_BASE_URL}/$userId';
+    final String url = '${ApiConstants.CART_BASE_URL}/$userId';
 
     String? firstImage = widget.product.productImageUri?[0];
-
     String isProductActive = ((widget.product.productIsActive == true) ? "Y" : "N");
 
-print("first image: $firstImage");
-
+    print("first image: $firstImage");
     print("product quantity: $_quantity");
     print("product sum total: $_totalPrice");
 
@@ -114,14 +149,15 @@ print("first image: $firstImage");
       // }
     };
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(cartData),
+      final dio = DioClient.getInstance();
+      final response = await dio.post(
+        url,
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: cartData,
       );
 
       print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('Response body: ${response.data}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -133,7 +169,7 @@ print("first image: $firstImage");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to add item to cart: ${response.body}'),
+            content: Text('Failed to add item to cart: ${response.data}'),
             backgroundColor: U_Colors.yaleBlue,
           ),
         );

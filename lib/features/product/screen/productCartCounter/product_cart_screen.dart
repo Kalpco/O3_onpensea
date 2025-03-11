@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +12,7 @@ import 'dart:convert';
 import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/api_constants.dart';
+import '../../../../network/dio_client.dart';
 import '../../../Home/widgets/DividerWithAvatar.dart';
 import '../../../authentication/screens/login/Controller/LoginController.dart';
 import '../../../authentication/screens/login/login.dart';
@@ -31,6 +33,7 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
   List<dynamic>? cartData;
   bool isLoading = true;
   bool isUpdatingCart = false; // New loading state for cart updates
+  final dio = DioClient.getInstance();
 
   @override
   void initState() {
@@ -41,16 +44,15 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
 
   Future<void> fetchCartData() async {
     var userId = loginController.userData['userId'];
-    final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId');
-    print("url:  $url");
+    final String url = '${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId';
+    print("Fetching cart data from: $url");
     try {
-      final response = await http.get(url);
-
-      print("end: ${response.body}");
+      final response = await dio.get(url);
+      print("end: ${response.data}");
       print("response: ${response.statusCode}");
 
       if (response.statusCode == 200) {
-        final decodedResponse = json.decode(response.body);
+        final decodedResponse = response.data;
         if (decodedResponse['payload'] is List) { // Check if payload is a list
           setState(() {
             cartData = decodedResponse['payload'];
@@ -77,33 +79,6 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
     }
   }
 
-  // Future<void> fetchCartData() async {
-  //   var userId = loginController.userData['userId'];
-  //   final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId');
-  //   print("url:  $url");
-  //   try {
-  //     final response = await http.get(url);
-  //
-  //     print("end: ${response.body}");
-  //     print("response: ${response.statusCode}");
-  //
-  //     if (response.statusCode == 200) {
-  //       setState(() {
-  //         cartData = json.decode(response.body)['payload'];
-  //         print("payload: ${cartData?[0]}");
-  //         print("payload: ${cartData?[1]}");
-  //         isLoading = false;
-  //       });
-  //     } else {
-  //       print('Failed to load cart data');
-  //       setState(() {
-  //         isLoading = false;
-  //       });
-  //     }
-  //   } catch (e) {
-  //     print('Fetching cart data Error: $e');
-  //   }
-  // }
 
 
   Future<void> updateCartItemQuantity(String userId, String productId, int newQuantity, double unitPrice) async {
@@ -111,9 +86,8 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
       isUpdatingCart = true;  // Show loader
     });
 
-    final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId/cart/$productId/quantity/$newQuantity');
+    final String url = '${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/$userId/cart/$productId/quantity/$newQuantity';
     final newPrice = unitPrice * newQuantity;
-
 
     print("url: $url");
 
@@ -129,10 +103,11 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
     }).toList();
 
     try {
-      final response = await http.put(
+
+      final response = await dio.put(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'items': updatedCart}),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: {'items': updatedCart},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -141,10 +116,10 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
         });
         fetchCartData(); // Fetch updated data after success
       } else {
-        print('Failed to update cart: ${response.statusCode} - ${response.body}');
+        print('Failed to update cart: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
-      print('Error: $e');
+      print('❌ Error updating cart: $e');
     } finally {
       setState(() {
         isUpdatingCart = false;  // Hide loader
@@ -153,21 +128,20 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
   }
 
   Future<void> deleteCartItem(String userId, String productId) async {
-    final url = Uri.parse('${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/user/$userId/cart/$productId');
-    final updatedCart =
-    cartData!.where((item) => item['id'] != productId).toList();
+    final String url = '${API_CONSTANTS_1.ApiConstants.CART_BASE_URL}/user/$userId/cart/$productId';
+    final updatedCart = cartData!.where((item) => item['id'] != productId).toList();
 
     print('Deleting item from cart: $updatedCart'); // Debugging statement
 
     try {
-      final response = await http.delete(
+      final response = await dio.delete(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'items': updatedCart}),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: {'items': updatedCart},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Item deleted successfully');
+        print('✅ Item deleted successfully');
         setState(() {
           cartData = updatedCart;
         });
@@ -175,8 +149,7 @@ class _ProductCartScreenState extends State<ProductCartScreen> {
           SnackBar(content: Text('Item deleted from cart'),backgroundColor: Colors.red,),
         );
       } else {
-        print(
-            'Failed to delete item: ${response.statusCode} - ${response.body}');
+        print('❌ Failed to delete item: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Delete Error: $e');
