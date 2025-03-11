@@ -377,11 +377,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ).toJson();
       final response =
       await TranactionOrderAPI.postTransactionDetails(walletOrderDetails);
-      print('response ${response.body}');
+      print('response ${response.data}');
       print(response.statusCode);
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('Wallet Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -401,7 +401,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         );
       } else {
         print(
-            'Failed to post wallet payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post wallet payment details: ${response.statusCode} - ${response.data}');
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -574,10 +574,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
       } else {
         print(
-            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post payment details: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Error posting payment details: $e');

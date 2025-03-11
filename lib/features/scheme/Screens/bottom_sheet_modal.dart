@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:onpensea/features/scheme/Controller/investment_controller.dart';
@@ -246,6 +244,8 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
         "paidBy": "user"
       };
 
+      print("investmentHistoryDetails: $investmentHistoryDetalis");
+
       print('Transaction Details: $transactionDetails');
 
       final response =
@@ -255,9 +255,10 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
           await InvestmentController.postInvestmentHistoryDetails(
               investmentHistoryDetalis);
 
+
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
 
         if (responseInvestmentHistory.statusCode == 201) {
           print('Payment details posted successfully');
@@ -265,7 +266,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
         }
       } else {
         print(
-            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post payment details: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Error posting payment details: $e');

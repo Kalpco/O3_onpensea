@@ -187,12 +187,32 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _setProfileImage() {
-    String photoUrl = loginController.userData['photoUrl'];
-    profileImageUrl = '${ApiConstants.USERS_URL}$photoUrl';
-    userType = loginController.userData['userType'];
-    setState(() {});
+  // void _setProfileImage() {
+  //   String photoUrl = loginController.userData['photoUrl'];
+  //   profileImageUrl = '${ApiConstants.USERS_URL}$photoUrl';
+  //   userType = loginController.userData['userType'];
+  //   setState(() {});
+  // }
+
+  Future<void> _setProfileImage() async {
+    try {
+      String? userId = loginController.userData['userId']?.toString();
+      if (userId == null) return;
+
+      final response = await _dio.get("${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}");
+
+      if (response.statusCode == 200) {
+        profileImageUrl = response.data['imageUrl']; // Extract image URL from response
+      } else {
+        profileImageUrl = null;
+      }
+    } on DioException catch (e) {
+      print("Error fetching profile image: ${e.message}");
+      profileImageUrl = null;
+    }
+    setState(() {}); // Update UI
   }
+
 
   Future<void> _updateUserProfile() async {
     String name = _nameController.text;
@@ -253,6 +273,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _showFullScreenImage(BuildContext context) {
+    if (profileImageUrl == null) return;
+
     showDialog(
       context: context,
       builder: (context) {
@@ -263,12 +285,14 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               CachedNetworkImage(
                 imageUrl: profileImageUrl!,
+                httpHeaders: {"Authorization": "Bearer ${loginController.userData['token']}"},
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                placeholder: (context, url) =>
-                const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Center(
+                  child: Icon(Icons.error, color: Colors.red, size: 40),
+                ),
+                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
               ),
               Positioned(
                 top: 30,
@@ -286,6 +310,7 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
+
 
   Widget _buildProfileOption({
     required IconData icon,
@@ -379,18 +404,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: profileImageUrl != null
                             ? CachedNetworkImage(
                           imageUrl: profileImageUrl!,
+                          httpHeaders: {"Authorization": "Bearer ${loginController.userData['token']}"},
                           imageBuilder: (context, imageProvider) => CircleAvatar(
                             radius: 50,
                             backgroundImage: imageProvider,
                           ),
                           placeholder: (context, url) => CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Icon(Icons.error),
+                          errorWidget: (context, url, error) => CircleAvatar(
+                            radius: 50,
+                            child: Icon(Icons.person, size: 40), // Fallback Icon
+                          ),
                         )
                             : CircleAvatar(
                           radius: 50,
-                          child: CircularProgressIndicator(),
+                          child: Icon(Icons.person, size: 40), // Default Icon when image is missing
                         ),
                       ),
+
                       SizedBox(height: 15), // Space between image and text
                       Text(
                         'Hello, ${loginController.userData['name'] ?? 'Guest'}',

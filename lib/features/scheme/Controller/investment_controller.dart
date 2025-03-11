@@ -52,7 +52,8 @@ class InvestmentController {
 
   /// **🔹 Post Investment History Details using Dio**
   static Future<Response> postInvestmentHistoryDetails(Map<String, dynamic> investmentHistoryDetails) async {
-    final String url = '${ApiConstants.INVESTMENTMS_URL}/transaction-history';
+
+   final String url = '${ApiConstants.INVESTMENTMS_URL}/transaction-history';
 
     try {
       final response = await dio.post(
