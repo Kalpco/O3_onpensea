@@ -3,12 +3,13 @@ import '../utils/jwt/services/jwt_service.dart';
 
 class DioClient {
   static final Dio _dio = Dio();
+  static String? token; // Store the token globally
 
   static Dio getInstance() {
     _dio.interceptors.clear();
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        String? token = await JwtService.getToken();
+       token = await JwtService.getToken();
 
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
@@ -24,10 +25,16 @@ class DioClient {
           // Handle Unauthorized (JWT expired)
           print("❌ Unauthorized request. Clearing token...");
           JwtService.deleteToken();
+          token = null; // Reset token on 401
         }
         return handler.next(e);
       },
     ));
     return _dio;
+  }
+  /// **Fetch Token for CachedNetworkImage**
+  static Future<String?> getAuthToken() async {
+    token ??= await JwtService.getToken();
+    return token;
   }
 }

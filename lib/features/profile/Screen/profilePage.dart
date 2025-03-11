@@ -9,6 +9,7 @@ import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/features/authentication/screens/login/login.dart';
 import 'package:onpensea/features/product/screen/productHomeAppBar/common_top_bar.dart';
 import '../../../navigation_menu.dart';
+import '../../../network/dio_client.dart';
 import '../../../utils/constants/colors.dart';
 import '../../Admin/bottomNavigation.dart';
 import '../../Portfolio/PortfolioInitialScreen.dart';
@@ -196,9 +197,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _setProfileImage() async {
     try {
-      String? userId = loginController.userData['userId']?.toString();
-      if (userId == null) return;
-
       final response = await _dio.get("${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}");
 
       if (response.statusCode == 200) {
@@ -273,7 +271,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _showFullScreenImage(BuildContext context) {
-    if (profileImageUrl == null) return;
+    print("Bearer ${loginController.userData['token']}${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}");
+    // if (profileImageUrl == null) return;
 
     showDialog(
       context: context,
@@ -284,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Stack(
             children: [
               CachedNetworkImage(
-                imageUrl: profileImageUrl!,
+                imageUrl: "http://o3uat.kalpco.in/users/kalpco/v1.0.0/users/download/sbhaskar476@gmail.com/1000035004.jpg!",
                 httpHeaders: {"Authorization": "Bearer ${loginController.userData['token']}"},
                 fit: BoxFit.cover,
                 width: double.infinity,
@@ -517,22 +516,36 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             GestureDetector(
               onTap: () => _showFullScreenImage(context),
-              child: profileImageUrl != null
-                  ? CachedNetworkImage(
-                imageUrl: profileImageUrl!,
-                imageBuilder: (context, imageProvider) => CircleAvatar(
-                  radius: 50,
-                  backgroundImage: imageProvider,
-                ),
-                placeholder: (context, url) =>
-                    CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              )
-                  : CircleAvatar(
-                radius: 50,
-                child: CircularProgressIndicator(),
+              child: FutureBuilder<String?>(
+                future: DioClient.getAuthToken(), // Fetch token dynamically
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    return CircleAvatar(
+                      radius: 50,
+                      child: CircularProgressIndicator(), // Show loading if token is not ready
+                    );
+                  }
+
+                  return CachedNetworkImage(
+                    imageUrl: "${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}", // Ensure full URL
+                    httpHeaders: {
+                      "Authorization": "Bearer ${snapshot.data}", // Use the fetched token
+                    },
+                    imageBuilder: (context, imageProvider) => CircleAvatar(
+                      radius: 50,
+                      backgroundImage: imageProvider,
+                    ),
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => CircleAvatar(
+                      radius: 50,
+                      child: Icon(Icons.person, size: 40), // Fallback Icon
+                    ),
+                  );
+                },
               ),
             ),
+
+
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -597,15 +610,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   icon: Icons.logout,
                   text: 'Logout',
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
+                    Get.find<LoginController>().logout();
                   },
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
 
 
