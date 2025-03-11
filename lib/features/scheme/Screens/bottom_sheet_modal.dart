@@ -257,7 +257,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
-        print('Response Body: ${response.body}');
+        print('Response Body: ${response.data}');
 
         if (responseInvestmentHistory.statusCode == 201) {
           print('Payment details posted successfully');
@@ -265,7 +265,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
         }
       } else {
         print(
-            'Failed to post payment details: ${response.statusCode} - ${response.body}');
+            'Failed to post payment details: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
       print('Error posting payment details: $e');
