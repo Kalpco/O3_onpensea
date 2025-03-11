@@ -617,23 +617,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 20),
 
-
-
-
-
-
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //   children: [
-            //     _buildProfileOption(
-            //       icon: Icons.delete_forever,
-            //       text: 'Delete Profile',
-            //       onTap: () {
-            //         _showDeleteConfirmationDialog();
-            //       },
-            //     ),
-            //   ],
-            // ),
           ],
         ),
       ),
