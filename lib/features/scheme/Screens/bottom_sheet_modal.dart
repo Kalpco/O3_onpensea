@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -75,6 +77,8 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
 
   Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
 
+
+    print("payment success: $response");
     bool isCaptured = await _capturePaymentRazorPay(
         paymentId: response.paymentId!,
         responseDTO: razorpaySuccessResponseDTO);
@@ -114,15 +118,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
         transactionDTO: TransactionDTO(
             paymentGatewayTransactionId: response.paymentId,
             userId: userId,
-            transactionStatus: razorpaySuccessResponseDTO.status +
-                "_" +
-                razorpayFailureResponse.error.code +
-                "_" +
-                razorpayFailureResponse.error.reason +
-                "_" +
-                razorpayFailureResponse.error.field +
-                ":" +
-                razorpayFailureResponse.error.description,
+            transactionStatus: "${razorpaySuccessResponseDTO.status}_${razorpayFailureResponse.error.code}_${razorpayFailureResponse.error.reason}_${razorpayFailureResponse.error.field}:${razorpayFailureResponse.error.description}",
             transactionMessage: 'Payment created but not captured',
             transactionOrderId: response.orderId,
             createDate: DateTime.now()),
@@ -361,6 +357,7 @@ class _BottomSheetModalState extends State<BottomSheetModal> {
       if (capturePaymentResponse is CapturePaymentRazorPay) {
         print('Payment captured successfully: ${capturePaymentResponse}');
         capturePaymentRazorPayResponse = capturePaymentResponse;
+        print('✅ Payment captured successfully: ${jsonEncode(capturePaymentResponse)}');
         isSaved = true;
       } else if (capturePaymentResponse is RazorpayFailureResponse) {
         print(
