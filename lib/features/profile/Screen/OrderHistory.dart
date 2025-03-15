@@ -31,28 +31,34 @@ class _OrderHistoryState extends State<OrderHistory> {
 
       if (response.statusCode == 200) {
         final data = response.data['transactionList'];
-        setState(() {
-          transactions = List<Map<String, dynamic>>.from(data);
-        });
+
+        if (mounted) { // ✅ Check if widget is still mounted
+          setState(() {
+            transactions = List<Map<String, dynamic>>.from(data);
+          });
+        }
       } else {
-        // Handle error response
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to fetch order history'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to fetch order history'),
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
-      // Handle network or other errors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
