@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../network/dio_client.dart';
 import '../../../../utils/constants/api_constants.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../../../utils/constants/images_path.dart';
@@ -136,12 +137,11 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
       _message = 'Applying coupon...';
     });
     try {
-      final response = await http.get(
-        Uri.parse(couponApiUrl),
-      );
+      final dio = DioClient.getInstance();
+      final response = await dio.get(couponApiUrl);
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
         print("data response $data");
         if (data['status'] == 1202) {
           setState(() {
@@ -1174,6 +1174,12 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                           Expanded(
                             child: TextField(
                               controller: _couponController,
+                              onChanged: (value) {
+                                _couponController.value = _couponController.value.copyWith(
+                                  text: value.toUpperCase(), // Forces uppercase conversion
+                                  selection: TextSelection.collapsed(offset: value.length),
+                                );
+                              },
                               decoration: InputDecoration(
                                 hintText: 'Enter your coupon code',
                                 border: InputBorder.none,
@@ -1184,11 +1190,14 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                           ),
                           ElevatedButton(
                             onPressed: (){
-                              if (_couponController.text.isEmpty){
+                              if (_couponController.text.isEmpty || _couponController.text.length < 6) {
                                 setState(() {
-                                  _message = 'Enter coupon code';
+                                  _message = _couponController.text.isEmpty
+                                      ? 'Enter coupon code'
+                                      : 'Coupon code must be at least 6 characters';
                                 });
-                              }else
+                              }
+                              else
                               {
                                 _applyCoupon();
                               }
