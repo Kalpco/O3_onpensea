@@ -1123,7 +1123,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   )
                       : _message.contains('Coupon applied')
                     ?  Text('Checkout \₹ ${calculateFinalAmount().toStringAsFixed(2)}')
-          : Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
+                    : Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: deliverable == 'Y' ? U_Colors.chatprimaryColor : Colors.grey,
                   ),

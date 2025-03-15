@@ -189,7 +189,7 @@ class _SignUpFormState extends State<SignUpForm> {
       _isLoading.value = true;
       try {
         final url =
-        Uri.parse('${ApiConstants.USERS_URL!}/users');
+        Uri.parse('${ApiConstants.USER_REGISTER}');
         final request = http.MultipartRequest('POST', url);
         print(url);
         request.fields['name'] = _firstNameController.text;

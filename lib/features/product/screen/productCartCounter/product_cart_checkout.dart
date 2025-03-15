@@ -28,6 +28,7 @@ import '../addAddress/add_address_form.dart';
 import '../customeFloatingActionButton/custom_floating_action_button.dart';
 import '../productHome/wallet_Product_Fail_Page.dart';
 import '../productHome/wallet_Product_Success_Page.dart';
+import 'cartImageWidget.dart';
 
 class ProductCartCheckout extends StatefulWidget {
   final List<dynamic>? cartData;
@@ -927,13 +928,16 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                                     ),
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        "${API_CONSTANTS_1.ApiConstants.PRODUCTS_BASE_URL}${product['productImageUri'] ?? ''}",
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Icon(Icons.error, color: Colors.red, size: 50);
-                                        },
+                                      child: CartImageWidget(
+                                        imageUrl: "${API_CONSTANTS_1.ApiConstants.PRODUCTS_BASE_URL}${product['productImageUri'] ?? ''}",
                                       ),
+                                      // Image.network(
+                                      //   "${API_CONSTANTS_1.ApiConstants.PRODUCTS_BASE_URL}${product['productImageUri'] ?? ''}",
+                                      //   fit: BoxFit.cover,
+                                      //   errorBuilder: (context, error, stackTrace) {
+                                      //     return Icon(Icons.error, color: Colors.red, size: 50);
+                                      //   },
+                                      // ),
                                     ),
                                   ),
                                   SizedBox(width: 10),
