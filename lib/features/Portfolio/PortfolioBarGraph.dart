@@ -65,7 +65,7 @@ class _BarChartSampleState extends State<BarChartSample> {
   }
 
   Future<void> loadScheme() async {
-    response = await SchemeContoller.getScheme(investmentId);
+    response = await SchemeController.getScheme(investmentId);
     listMonths = response?['list'];
     totalNoOfInstallment = response?['totalNoOfInstallment'];
     status = response?['status'];

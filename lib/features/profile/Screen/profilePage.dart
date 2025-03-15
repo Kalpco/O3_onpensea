@@ -43,7 +43,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _emailController.text = loginController.userData['email'] ?? '';
     _phoneController.text = loginController.userData['mobileNo'] ?? '';
     _lastNameController.text = loginController.userData['lastName'] ?? '';
-    _setProfileImage();
   }
 
   @override
@@ -188,30 +187,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // void _setProfileImage() {
-  //   String photoUrl = loginController.userData['photoUrl'];
-  //   profileImageUrl = '${ApiConstants.USERS_URL}$photoUrl';
-  //   userType = loginController.userData['userType'];
-  //   setState(() {});
-  // }
-
-  Future<void> _setProfileImage() async {
-    try {
-      final response = await _dio.get("${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}");
-
-      if (response.statusCode == 200) {
-        profileImageUrl = response.data['imageUrl']; // Extract image URL from response
-      } else {
-        profileImageUrl = null;
-      }
-    } on DioException catch (e) {
-      print("Error fetching profile image: ${e.message}");
-      profileImageUrl = null;
-    }
-    setState(() {}); // Update UI
-  }
-
-
   Future<void> _updateUserProfile() async {
     String name = _nameController.text;
     String email = _emailController.text;
@@ -283,7 +258,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Stack(
             children: [
               CachedNetworkImage(
-                imageUrl: "http://o3uat.kalpco.in/users/kalpco/v1.0.0/users/download/sbhaskar476@gmail.com/1000035004.jpg!",
+                imageUrl: "${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}",
                 httpHeaders: {"Authorization": "Bearer ${loginController.userData['token']}"},
                 fit: BoxFit.cover,
                 width: double.infinity,
@@ -400,23 +375,32 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       GestureDetector(
                         onTap: () => _showFullScreenImage(context),
-                        child: profileImageUrl != null
-                            ? CachedNetworkImage(
-                          imageUrl: profileImageUrl!,
-                          httpHeaders: {"Authorization": "Bearer ${loginController.userData['token']}"},
-                          imageBuilder: (context, imageProvider) => CircleAvatar(
-                            radius: 50,
-                            backgroundImage: imageProvider,
-                          ),
-                          placeholder: (context, url) => CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => CircleAvatar(
-                            radius: 50,
-                            child: Icon(Icons.person, size: 40), // Fallback Icon
-                          ),
-                        )
-                            : CircleAvatar(
-                          radius: 50,
-                          child: Icon(Icons.person, size: 40), // Default Icon when image is missing
+                        child: FutureBuilder<String?>(
+                          future: DioClient.getAuthToken(), // Fetch token dynamically
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData || snapshot.data == null) {
+                              return CircleAvatar(
+                                radius: 50,
+                                child: CircularProgressIndicator(), // Show loading if token is not ready
+                              );
+                            }
+
+                            return CachedNetworkImage(
+                              imageUrl: "${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}", // Ensure full URL
+                              httpHeaders: {
+                                "Authorization": "Bearer ${snapshot.data}", // Use the fetched token
+                              },
+                              imageBuilder: (context, imageProvider) => CircleAvatar(
+                                radius: 50,
+                                backgroundImage: imageProvider,
+                              ),
+                              placeholder: (context, url) => CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => CircleAvatar(
+                                radius: 50,
+                                child: Icon(Icons.person, size: 40), // Fallback Icon
+                              ),
+                            );
+                          },
                         ),
                       ),
 
@@ -500,10 +484,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   leading: Icon(Icons.logout),
                   title: Text('Logout'),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
+                    Get.find<LoginController>().logout();
                   },
                 ),
               ],

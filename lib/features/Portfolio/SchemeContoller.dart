@@ -1,29 +1,35 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:http/http.dart' as http;
 import 'package:onpensea/commons/config/api_constants.dart';
-import 'dart:convert';
-
+import '../../network/dio_client.dart';
 import '../authentication/screens/login/Controller/LoginController.dart';
 
+class SchemeController {
+  static final Dio _dio = DioClient.getInstance(); // Get Dio instance with interceptor
 
-class SchemeContoller {
-
-  static Future<Map<dynamic,dynamic>?> getScheme(String investmentId) async {
+  static Future<Map<dynamic, dynamic>?> getScheme(String investmentId) async {
     final loginController = Get.find<LoginController>(); // Access the LoginController
     int userId = loginController.userData['userId'];
-    var client = http.Client();
-    var uri = Uri.parse("${ApiConstants.PORTFOLIO_URL}/users/$userId/investment/$investmentId");
 
-    var response = await client.get(uri);
-    if (response.statusCode == 200) {
-      print(uri);
-      print(response.body);
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load data');
+    String url = "${ApiConstants.PORTFOLIO_URL}/users/$userId/investment/$investmentId";
+
+    try {
+      final response = await _dio.get(url);
+
+      if (response.statusCode == 200) {
+        print("✅ API Success: $url");
+        print(response.data);
+        return response.data;
+      } else {
+        print("❌ API Error: ${response.statusCode} - ${response.statusMessage}");
+        return null;
+      }
+    } on DioException catch (e) {
+      print("❌ Dio Error: ${e.response?.statusCode} - ${e.message}");
+      return null;
+    } catch (e) {
+      print("❌ Unexpected Error: $e");
+      return null;
     }
   }
-
-
 }
