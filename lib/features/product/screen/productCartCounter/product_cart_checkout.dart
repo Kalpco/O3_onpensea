@@ -1240,19 +1240,20 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
   // Method to fetch updated user data after adding address
   Future<void> _fetchUserData() async {
     try {
+      final _dio = DioClient.getInstance();
       int userId = loginController.userData['userId'];
-      final url = Uri.parse("${API_CONSTANTS_1.ApiConstants.USERS_URL}/$userId");
-      final response = await http.get(url);
+      final String url = "${API_CONSTANTS_1.ApiConstants.USERS_URL}/$userId";
+      final response = await _dio.get(url);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data);
         if (data['code'] == 2006) {
           // Update user data in the login controller
           loginController.userData.value = data['data'];
           setState(() {}); // Refresh the UI with the updated data
         }
       } else {
-        print('Failed to fetch user data: ${response.body}');
+        print('Failed to fetch user data: ${response.data}');
       }
     } catch (e) {
       print('Error fetching user data: $e');

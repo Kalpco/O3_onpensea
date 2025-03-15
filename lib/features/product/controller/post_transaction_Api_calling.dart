@@ -14,11 +14,11 @@ class TranactionOrderAPI {
     print("transaction: $_baseUrl");
 
     try {
-      Dio dio = DioClient.getInstance(); // Get Dio instance with Interceptor
+      final dio = DioClient.getInstance(); // Get Dio instance with Interceptor
 
       final response = await dio.post(
         url,
-        data: jsonEncode(transactionDetails), // Encode the body as JSON
+        data: transactionDetails, // Encode the body as JSON
         options: Options(
           headers: {'Content-Type': 'application/json'}, // JSON headers
         ),
@@ -27,7 +27,11 @@ class TranactionOrderAPI {
       print("✅ Transaction Posted: ${response.data}");
       return response;
     } catch (e) {
-      print("❌ Error posting transaction details: $e");
+      if (e is DioException) {
+        print('Error posting payment details: ${e.response?.data}');
+      } else {
+        print('Unexpected error: $e');
+      }
       rethrow; // Rethrow for handling in the calling method
     }
   }
