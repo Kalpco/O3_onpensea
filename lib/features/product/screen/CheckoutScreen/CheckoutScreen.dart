@@ -1006,6 +1006,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   children: [
                     Expanded(
                       child: TextField(
+                        onChanged: (value) {
+                          _couponController.value = _couponController.value.copyWith(
+                            text: value.toUpperCase(), // Forces uppercase conversion
+                            selection: TextSelection.collapsed(offset: value.length),
+                          );
+                        },
                         controller: _couponController,
                         decoration: InputDecoration(
                           hintText: 'Enter your coupon code',
@@ -1016,6 +1022,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     ElevatedButton(
+
                       onPressed: (){
                         if (_couponController.text.isEmpty || _couponController.text.length < 6) {
                           setState(() {
@@ -1031,6 +1038,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       },
                       child: Text('Apply'),
                       style: ElevatedButton.styleFrom(
+
                         backgroundColor: U_Colors.yaleBlue,
                           shadowColor: Colors.transparent,
                           elevation: 0,
