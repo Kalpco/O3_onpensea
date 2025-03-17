@@ -25,9 +25,13 @@ class _LoginFormState extends State<LoginForm> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
+  //inal ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
+  // Separate loading states
+  final ValueNotifier<bool> _isLoginLoading = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isGuestLoading = ValueNotifier<bool>(false);
 
-  bool _isPasswordVisible = false; // Add this state variable to toggle password visibility
+  bool _isPasswordVisible =
+      false; // Add this state variable to toggle password visibility
 
   final loginController = Get.put(LoginController());
 
@@ -35,7 +39,8 @@ class _LoginFormState extends State<LoginForm> {
   void dispose() {
     emailController.dispose();
     passController.dispose();
-    _isLoading.dispose();
+    _isLoginLoading.dispose();
+    _isGuestLoading.dispose();
     super.dispose();
   }
 
@@ -63,17 +68,21 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: U_Sizes.inputFieldSpaceBtw),
             TextFormField(
               controller: passController,
-              obscureText: !_isPasswordVisible, // Use the state variable to toggle visibility
+              obscureText: !_isPasswordVisible,
+              // Use the state variable to toggle visibility
               decoration: InputDecoration(
                 prefixIcon: Icon(Iconsax.password_check),
                 labelText: "Password",
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _isPasswordVisible ? Iconsax.eye : Iconsax.eye_slash, // Toggle icon based on state
+                    _isPasswordVisible
+                        ? Iconsax.eye
+                        : Iconsax.eye_slash, // Toggle icon based on state
                   ),
                   onPressed: () {
                     setState(() {
-                      _isPasswordVisible = !_isPasswordVisible; // Toggle visibility
+                      _isPasswordVisible =
+                          !_isPasswordVisible; // Toggle visibility
                     });
                   },
                 ),
@@ -100,14 +109,14 @@ class _LoginFormState extends State<LoginForm> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    _isLoading.value = true;
+                    _isLoginLoading.value = true;
                     try {
                       String email = emailController.text;
                       String password = passController.text;
 
                       bool success =
-                      await LoginController.verifyUserCredentials(
-                          email, password);
+                          await LoginController.verifyUserCredentials(
+                              email, password);
 
                       if (success) {
                         Get.to(() => NavigationMenu());
@@ -123,12 +132,12 @@ class _LoginFormState extends State<LoginForm> {
                             content: Text('An error occurred during sign in')),
                       );
                     } finally {
-                      _isLoading.value = false;
+                      _isLoginLoading.value = false;
                     }
                   }
                 },
                 child: ValueListenableBuilder<bool>(
-                  valueListenable: _isLoading,
+                  valueListenable: _isLoginLoading,
                   builder: (context, isLoading, child) {
                     if (isLoading) {
                       return CircularProgressIndicator(
@@ -166,14 +175,39 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => loginController.guestLogin(),
+                onPressed: () async {
+                  _isGuestLoading.value = true; // Show loader
+                  bool success = await loginController.guestLogin();
+                  _isGuestLoading.value = false; // Hide loader after API call
+
+                  if (success) {
+                    // ✅ Navigate only if API call succeeds
+                    Get.offAll(() => const NavigationMenu());
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text('❌ Guest login failed. Please try again!')),
+                    );
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: U_Colors.whiteColor,
                   side: const BorderSide(color: U_Colors.yaleBlue),
                 ),
-                child: const Text(
-                  U_TextStrings.LoginGuest,
-                  style: TextStyle(color: U_Colors.yaleBlue),
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _isGuestLoading,
+                  builder: (context, isLoading, child) {
+                    return isLoading
+                        ? CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                U_Colors.yaleBlue),
+                          )
+                        : const Text(
+                            U_TextStrings.LoginGuest,
+                            style: TextStyle(color: U_Colors.yaleBlue),
+                          );
+                  },
                 ),
               ),
             ),
@@ -183,4 +217,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

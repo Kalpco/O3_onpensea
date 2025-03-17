@@ -12,7 +12,8 @@ class LoginController extends GetxController {
   var userData = {}.obs; // Holds user data reactively
 
   /// **🔹 Login Function**
-  static Future<bool> verifyUserCredentials(String email, String password) async {
+  static Future<bool> verifyUserCredentials(
+      String email, String password) async {
     try {
       final url = ApiConstants.USER_LOGIN;
 
@@ -79,23 +80,34 @@ class LoginController extends GetxController {
     }
   }
 
-  // /// **🔹 Logout Function**
-  // void logout() async {
-  //   await JwtService.deleteToken(); // Clear JWT token
-  //   userType.value = ''; // Reset user type
-  //   userData.value = {}; // Clear user data
-  //
-  //   Get.offAll(() => const LoginScreen()); // Navigate to home screen
-  //   print("✅ User logged out successfully!");
-  // }
+  /// **🔹 Guest Login: Get Guest Token and Store It**
+  Future<bool> guestLogin() async {
+    print("🔹 Attempting guest login...");
+    try {
+      final response =
+          await dio.post('${ApiConstants.AUTHENTICATION_URL}/guest-login');
 
-  /// **🔹 Guest Login**
-  void guestLogin() {
-    userType.value = 'G';
-    userData.value = {"userId": 0}; // Guest user default data
+      if (response.statusCode == 200) {
+        String guestToken = response.data['token'];
 
-    Get.offAll(() => const NavigationMenu());
-    print("✅ Guest login activated!");
+        // ✅ Save guest token in local storage
+        await JwtService.saveToken(guestToken);
+        print("✅ Guest logged in with token: $guestToken");
+
+        // ✅ Update userType and userData
+        userType.value = 'G';
+        userData.value = {"userId": 0}; // Default guest user data
+
+        return true; // Return success
+      } else {
+        print(
+            "❌ Guest login failed: ${response.statusCode} - ${response.data}");
+        return false;
+      }
+    } catch (e) {
+      print("❌ Error during guest login: $e");
+      return false;
+    }
   }
 }
 
