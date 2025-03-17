@@ -12,8 +12,8 @@ class LoginController extends GetxController {
   var userData = {}.obs; // Holds user data reactively
 
   /// **🔹 Login Function**
-  static Future<bool> verifyUserCredentials(String email,
-      String password) async {
+  static Future<bool> verifyUserCredentials(
+      String email, String password) async {
     try {
       final url = ApiConstants.USER_LOGIN;
 
@@ -47,14 +47,8 @@ class LoginController extends GetxController {
         }
 
         // Store user data in controller
-        Get
-            .find<LoginController>()
-            .userData
-            .value = data['data'];
-        Get
-            .find<LoginController>()
-            .userType
-            .value = data['data']['userType'];
+        Get.find<LoginController>().userData.value = data['data'];
+        Get.find<LoginController>().userType.value = data['data']['userType'];
 
         return true;
       } else {
@@ -87,11 +81,11 @@ class LoginController extends GetxController {
   }
 
   /// **🔹 Guest Login: Get Guest Token and Store It**
-  Future<void> guestLogin() async {
-    print("guestL: ");
+  Future<bool> guestLogin() async {
+    print("🔹 Attempting guest login...");
     try {
-      final response = await dio.post(
-          '${ApiConstants.AUTHENTICATION_URL}/guest-login');
+      final response =
+          await dio.post('${ApiConstants.AUTHENTICATION_URL}/guest-login');
 
       if (response.statusCode == 200) {
         String guestToken = response.data['token'];
@@ -102,16 +96,17 @@ class LoginController extends GetxController {
 
         // ✅ Update userType and userData
         userType.value = 'G';
-        userData.value = {"userId": 0}; // Guest user default data
+        userData.value = {"userId": 0}; // Default guest user data
 
-        // ✅ Navigate to the home screen
-        Get.offAll(() => const NavigationMenu());
+        return true; // Return success
       } else {
         print(
             "❌ Guest login failed: ${response.statusCode} - ${response.data}");
+        return false;
       }
     } catch (e) {
       print("❌ Error during guest login: $e");
+      return false;
     }
   }
 }
