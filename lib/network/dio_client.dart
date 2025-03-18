@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import '../commons/config/api_constants.dart';
 import '../utils/jwt/services/jwt_service.dart';
 
 class DioClient {
@@ -10,66 +9,32 @@ class DioClient {
     _dio.interceptors.clear();
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        token = await JwtService.getToken();
-
-        if (token == null) {
-          await _fetchGuestToken(); // ✅ Fetch guest token if no user JWT is found
-          token = await JwtService.getToken();
-        }
+       token = await JwtService.getToken();
 
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
-          print("✅ Using token: $token");
+          print("✅ Added Authorization header: Bearer $token");
         } else {
-          print("❌ No token found");
+          print("❌ No token found, request sent without Authorization header.");
         }
 
         return handler.next(options);
       },
-      onError: (DioException e, handler) async{
+      onError: (DioException e, handler) {
         if (e.response?.statusCode == 401) {
-
-          print("❌ 401 Unauthorized. Fetching new guest token...");
-          await _fetchGuestToken();  // ✅ Refresh guest token if unauthorized
-          token = await JwtService.getToken();
-
-          if (token != null) {
-            print("🔄 Retrying request with new token...");
-
-            // ✅ Clone the original request before retrying
-            RequestOptions requestOptions = e.requestOptions;
-            requestOptions.headers['Authorization'] = 'Bearer $token';
-
-            return handler.resolve(await _dio.fetch(requestOptions)); // ✅ Retry request
-          }
+          // Handle Unauthorized (JWT expired)
+          print("❌ Unauthorized request. Clearing token...");
+          JwtService.deleteToken();
+          token = null; // Reset token on 401
         }
         return handler.next(e);
       },
     ));
     return _dio;
   }
-
   /// **Fetch Token for CachedNetworkImage**
   static Future<String?> getAuthToken() async {
     token ??= await JwtService.getToken();
     return token;
-  }
-
-  /// **🔹 Fetch Guest Token and Save it**
-  static Future<void> _fetchGuestToken() async {
-    try {
-      final response =
-          await _dio.post('${ApiConstants.AUTHENTICATION_URL}/guest-login');
-
-      if (response.statusCode == 200) {
-        String guestToken = response.data['token'];
-        await JwtService.saveToken(guestToken);
-        print("✅ Guest logged in with token: $guestToken");
-      } else {
-        print("❌ Failed to get guest token");
-      }
-    } catch (e) {
-      print("❌ Error fetching guest token: $e");
-    }
   }
 }

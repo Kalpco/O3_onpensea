@@ -12,8 +12,7 @@ class LoginController extends GetxController {
   var userData = {}.obs; // Holds user data reactively
 
   /// **🔹 Login Function**
-  static Future<bool> verifyUserCredentials(String email,
-      String password) async {
+  static Future<bool> verifyUserCredentials(String email, String password) async {
     try {
       final url = ApiConstants.USER_LOGIN;
 
@@ -47,14 +46,8 @@ class LoginController extends GetxController {
         }
 
         // Store user data in controller
-        Get
-            .find<LoginController>()
-            .userData
-            .value = data['data'];
-        Get
-            .find<LoginController>()
-            .userType
-            .value = data['data']['userType'];
+        Get.find<LoginController>().userData.value = data['data'];
+        Get.find<LoginController>().userType.value = data['data']['userType'];
 
         return true;
       } else {
@@ -86,33 +79,23 @@ class LoginController extends GetxController {
     }
   }
 
-  /// **🔹 Guest Login: Get Guest Token and Store It**
-  Future<void> guestLogin() async {
-    print("guestL: ");
-    try {
-      final response = await dio.post(
-          '${ApiConstants.AUTHENTICATION_URL}/guest-login');
+  // /// **🔹 Logout Function**
+  // void logout() async {
+  //   await JwtService.deleteToken(); // Clear JWT token
+  //   userType.value = ''; // Reset user type
+  //   userData.value = {}; // Clear user data
+  //
+  //   Get.offAll(() => const LoginScreen()); // Navigate to home screen
+  //   print("✅ User logged out successfully!");
+  // }
 
-      if (response.statusCode == 200) {
-        String guestToken = response.data['token'];
+  /// **🔹 Guest Login**
+  void guestLogin() {
+    userType.value = 'G';
+    userData.value = {"userId": 0}; // Guest user default data
 
-        // ✅ Save guest token in local storage
-        await JwtService.saveToken(guestToken);
-        print("✅ Guest logged in with token: $guestToken");
-
-        // ✅ Update userType and userData
-        userType.value = 'G';
-        userData.value = {"userId": 0}; // Guest user default data
-
-        // ✅ Navigate to the home screen
-        Get.offAll(() => const NavigationMenu());
-      } else {
-        print(
-            "❌ Guest login failed: ${response.statusCode} - ${response.data}");
-      }
-    } catch (e) {
-      print("❌ Error during guest login: $e");
-    }
+    Get.offAll(() => const NavigationMenu());
+    print("✅ Guest login activated!");
   }
 }
 
