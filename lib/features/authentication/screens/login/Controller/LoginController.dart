@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
 import '../../../../../navigation_menu.dart';
@@ -30,6 +29,7 @@ class LoginController extends GetxController {
 
         // Extract JWT from response body (if available)
         String? token = data['token'];
+        print("helo");
 
         // Extract JWT from headers (if API sends in header)
         String? headerToken = response.headers.value('Authorization');
