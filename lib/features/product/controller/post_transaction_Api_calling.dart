@@ -18,10 +18,10 @@ class TranactionOrderAPI {
 
       final response = await dio.post(
         url,
-        data: transactionDetails, // Encode the body as JSON
         options: Options(
           headers: {'Content-Type': 'application/json'}, // JSON headers
         ),
+        data: transactionDetails,
       );
 
       print("✅ Transaction Posted: ${response.data}");

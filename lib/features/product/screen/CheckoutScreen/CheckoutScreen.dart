@@ -575,6 +575,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
       final response =
       await TranactionOrderAPI.postTransactionDetails(transactionDetails);
+      print('Transaction API Hitting :${response.statusCode} ');
+
+      print('Response Body: ${response.data}');
+
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
