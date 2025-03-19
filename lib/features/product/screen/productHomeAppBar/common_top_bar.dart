@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../../commons/config/api_constants.dart';
 import '../../../../navigation_menu.dart';
+import '../../../../network/dio_client.dart';
 import '../../../../utils/constants/colors.dart';
 import '../../../../utils/jwt/services/jwt_service.dart';
 import '../../../Admin/bottomNavigation.dart';
@@ -236,11 +237,21 @@ class _CommonTopAppBarState extends State<CommonTopAppBar> {
                 ListTile(
                   leading: Icon(Icons.arrow_back_rounded),
                   title: Text('Back'),
-                  onTap: () {
+                  onTap: () async {
+                    // **Clear JWT Token**
+                    await JwtService.deleteToken(); // Remove the saved token
+                    DioClient.token = null; // Reset the token globally in Dio client
+                    loginController.userData.clear(); // Clear guest user data
+                    loginController.userType.value = ''; // Reset user type
+
+                    print("✅ Guest token cleared successfully!");
+
+                    // Navigate to Login Page
                     navController.selectIndex.value = 2;
-                    Get.to(() => LoginScreen());
+                    Get.off(() => LoginScreen()); // Use `off` to remove previous history
                   },
                 ),
+
               if (loginController.userData["userId"] != 0) ...[
                 ListTile(
                   leading: const Icon(Icons.supervised_user_circle),

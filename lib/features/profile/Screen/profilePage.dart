@@ -175,11 +175,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   await _deleteProfile(); // Call delete API if OTP is correct
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Invalid OTP')),
+                    const SnackBar(content: Text('Invalid OTP')),
                   );
                 }
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         );
@@ -214,7 +214,9 @@ class _ProfilePageState extends State<ProfilePage> {
     };
 
     try {
-      final response = await _dio.put(
+      Dio dio = DioClient.getInstance(); // Get the Dio instance
+
+      final response = await dio.put(
         '${ApiConstants.USERS_URL}/${loginController.userData['userId']}',
         data: updatedData,
       );
@@ -223,27 +225,36 @@ class _ProfilePageState extends State<ProfilePage> {
         loginController.userData.assignAll(updatedData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Profile updated"),
+            content: Text("Profile updated successfully"),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile'),
+            content: Text("Failed to update profile. Try again."),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
+    } on DioException catch (e) {
+      String errorMessage = "An error occurred";
+
+      if (e.response != null) {
+        errorMessage = "Error: ${e.response?.statusCode} - ${e.response?.statusMessage}";
+      } else {
+        errorMessage = "Network error: ${e.message}";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: $e'),
+          content: Text(errorMessage),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
+
 
   void _showFullScreenImage(BuildContext context) {
     print("Bearer ${loginController.userData['token']}${ApiConstants.USERS_URL}${loginController.userData['photoUrl']}");
