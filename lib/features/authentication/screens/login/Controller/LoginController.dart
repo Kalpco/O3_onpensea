@@ -9,9 +9,11 @@ class LoginController extends GetxController {
   static final dio = DioClient.getInstance(); // Use singleton Dio client
   var userType = ''.obs;
   var userData = {}.obs; // Holds user data reactively
+  var isLoading = false.obs; // ✅ Loading state
 
   /// **🔹 Login Function**
-  static Future<bool> verifyUserCredentials(String email, String password) async {
+  static Future<bool> verifyUserCredentials(
+      String email, String password) async {
     try {
       final url = ApiConstants.USER_LOGIN;
 
@@ -79,23 +81,45 @@ class LoginController extends GetxController {
     }
   }
 
-  // /// **🔹 Logout Function**
-  // void logout() async {
-  //   await JwtService.deleteToken(); // Clear JWT token
-  //   userType.value = ''; // Reset user type
-  //   userData.value = {}; // Clear user data
-  //
-  //   Get.offAll(() => const LoginScreen()); // Navigate to home screen
-  //   print("✅ User logged out successfully!");
-  // }
+  /// **🔹 Guest Login with Loader**
+  void guestLogin() async {
+    try {
+      isLoading.value = true; // ✅ Start loading
+      final url = "${ApiConstants.AUTHENTICATION_URL}/guest-login";
+      print("🔹 Sending guest login request to: $url");
 
-  /// **🔹 Guest Login**
-  void guestLogin() {
-    userType.value = 'G';
-    userData.value = {"userId": 0}; // Guest user default data
+      final response = await dio.post(url);
 
-    Get.offAll(() => const NavigationMenu());
-    print("✅ Guest login activated!");
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        // Extract JWT token
+        String? token = data['token'];
+        String? headerToken = response.headers.value('Authorization');
+        String? finalToken = headerToken ?? token;
+
+        if (finalToken != null) {
+          await JwtService.saveToken(finalToken);
+          print("✅ Guest JWT Token saved successfully!");
+        } else {
+          print("❌ No token found in response!");
+        }
+
+        // Store guest user data
+        userType.value = 'G';
+        userData.value = {"userId": 0};
+
+        // Navigate to home screen
+        Get.offAll(() => const NavigationMenu());
+        print("✅ Guest login successful!");
+      } else {
+        print("❌ Guest login failed: ${response.statusCode}");
+      }
+    } catch (e) {
+      print('❌ Error during guest login: $e');
+    } finally {
+      isLoading.value = false; // ✅ Stop loading
+    }
   }
 }
 

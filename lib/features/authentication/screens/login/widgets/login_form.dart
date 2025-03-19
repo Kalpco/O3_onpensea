@@ -165,18 +165,28 @@ class _LoginFormState extends State<LoginForm> {
             ),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => loginController.guestLogin(),
+              child: Obx(() => ElevatedButton(
+                onPressed: loginController.isLoading.value ? null : () => loginController.guestLogin(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: U_Colors.whiteColor,
                   side: const BorderSide(color: U_Colors.yaleBlue),
                 ),
-                child: const Text(
+                child: loginController.isLoading.value
+                    ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(U_Colors.yaleBlue),
+                  ),
+                )
+                    : const Text(
                   U_TextStrings.LoginGuest,
                   style: TextStyle(color: U_Colors.yaleBlue),
                 ),
-              ),
-            ),
+              )),
+            )
+
           ],
         ),
       ),
