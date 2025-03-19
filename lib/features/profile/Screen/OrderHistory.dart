@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:onpensea/features/authentication/screens/login/widgets/login_form.dart';
 import 'package:onpensea/features/profile/Screen/orderDetails.dart';
+import '../../../network/dio_client.dart';
 import '../../../utils/constants/colors.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import '../../../utils/constants/api_constants.dart';
@@ -15,7 +16,7 @@ class OrderHistory extends StatefulWidget {
 
 class _OrderHistoryState extends State<OrderHistory> {
   final loginController = Get.find<LoginController>();
-  final Dio _dio = Dio();
+  final dio = DioClient.getInstance();
   List<Map<String, dynamic>> transactions = [];
 
   @override
@@ -26,7 +27,7 @@ class _OrderHistoryState extends State<OrderHistory> {
 
   Future<void> _fetchOrderHistory() async {
     try {
-      final response = await _dio.get(
+      final response = await dio.get(
           '${API_CONSTANTS_1.ApiConstants.TRANSACTION_MASTER_BASE_URL}/users/${loginController.userData['userId']}');
 
       if (response.statusCode == 200) {

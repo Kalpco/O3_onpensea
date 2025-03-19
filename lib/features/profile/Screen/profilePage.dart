@@ -31,7 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _lastNameController = TextEditingController();
   final loginController = Get.find<LoginController>();
   final navController = Get.find<NavigationController>();
-  final Dio _dio = Dio();
+  final dio = DioClient.getInstance();
   String? profileImageUrl;
   String? userType;
   int? random;
@@ -55,12 +55,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _deleteProfile() async {
-    String userId = loginController.userData['userId'].toString();
+    int userId = loginController.userData['userId'];
     String deleteApiUrl =
-        '${ApiConstants.USERS_URL}deleteUser/$userId';
+        '${ApiConstants.USERS_URL}/deleteUser/$userId';
 
     try {
-      final deleteResponse = await http.delete(Uri.parse(deleteApiUrl));
+
+      final deleteResponse = await dio.delete(deleteApiUrl);
+      print('User ID: ${deleteResponse.data}');
 
       if (deleteResponse.statusCode == 200) {
         loginController.userData.clear();
@@ -78,6 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       }
     } catch (e) {
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('An error occurred: $e')),
       );
@@ -211,10 +214,12 @@ class _ProfilePageState extends State<ProfilePage> {
       "companyName": loginController.userData['companyName'],
       "gstNumber": loginController.userData['gstNumber'],
       "companyAddress": loginController.userData['companyAddress'],
+      "photoUrl":loginController.userData['photoUrl'],
+
     };
 
     try {
-      final response = await _dio.put(
+      final response = await dio.put(
         '${ApiConstants.USERS_URL}/${loginController.userData['userId']}',
         data: updatedData,
       );

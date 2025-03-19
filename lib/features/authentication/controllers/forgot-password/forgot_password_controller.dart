@@ -6,7 +6,7 @@ class ForgotPasswordController {
   // PUT request (for updating)
   static Future<bool?> putRequest(Map<String, dynamic> data) async {
     final response = await http.put(
-      Uri.parse('${ApiConstants.USERS_URL}/forgot-password'),
+      Uri.parse('${ApiConstants.AUTHENTICATION_URL}/forgot-password'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(data),
     );
