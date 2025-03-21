@@ -37,6 +37,7 @@ import 'package:readmore/readmore.dart';
 
 import '../../../utils/constants/api_constants.dart';
 import '../../navigation_menu.dart';
+import '../../network/dio_client.dart';
 import '../authentication/screens/login/Controller/LoginController.dart';
 
 class AdminProductDetail extends StatefulWidget {
@@ -109,12 +110,12 @@ class _AdminProductDetailState extends State<AdminProductDetail> {
   //   }
   // }
   Future<void> deleteProduct() async {
-    // API URL
+    final dioClient = DioClient.getInstance();
     final String apiUrl =
         '${ApiConstants.baseUrl}/merchant/${widget.product.productOwnerId}/M/catalog/${widget.product.id}';
     print('apiUrl:$apiUrl');
     try {
-      final response = await http.delete(Uri.parse(apiUrl));
+      final response = await dioClient.delete(apiUrl);
 
       // Check for a 200 OK response
       if (response.statusCode == 200) {

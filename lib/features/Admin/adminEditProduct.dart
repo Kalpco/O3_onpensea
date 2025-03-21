@@ -1,18 +1,18 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:onpensea/features/Admin/adminHomeScreen.dart';
-import 'package:onpensea/features/product/models/products.dart';
-import 'package:onpensea/utils/constants/colors.dart';
-import '../../commons/config/api_constants.dart';
 import 'dart:convert';
-import 'package:path/path.dart' as path;
+import 'dart:io';
+import 'package:dio/dio.dart' as dio; // Prefix 'dio' to avoid conflicts
+import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile; // Hiding conflicting classes
+import 'package:iconsax/iconsax.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
+import 'package:onpensea/utils/constants/colors.dart';
 import 'package:flutter/services.dart';
-
 import '../../navigation_menu.dart';
+import '../../network/dio_client.dart';
+import '../authentication/screens/login/Controller/LoginController.dart';
+import '../product/models/products.dart';
+
 
 class AdminEditProduct extends StatefulWidget {
   AdminEditProduct({super.key, required this.product});
@@ -41,6 +41,7 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
   TextEditingController productMakingChargesPercentage =
       TextEditingController();
    TextEditingController discountPercentage = TextEditingController();
+  bool isLoading = false;
 
   bool? productDiscountApplied;
 
@@ -67,66 +68,147 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
   }
 
   //posting data to backend via this method
+
   Future<void> updateProduct() async {
     if (formKey.currentState!.validate()) {
       try {
-        final url = Uri.parse(
-            '${ApiConstants.PRODUCTS_BASE_URL}/merchant/${widget.product.productOwnerId}/catalog/${widget.product.id}');
-        final request = http.MultipartRequest('PUT', url);
-        request.fields['productCategory'] = productCategory.text;
-        request.fields['productSubCategory'] = productSubCategory.text;
-        request.fields['productName'] = name.text;
-        request.fields['productDescription'] = description.text;
-        request.fields['productSize'] = productSize.text;
-        request.fields['productWeight'] = goldWeight.text;
-        request.fields['purity'] = goldPurity.text;
-        request.fields['productOwnerName'] = productOwnerName.text;
-        request.fields['productQuantity'] = productQuantity.text;
-        request.fields['productMakingChargesPercentage'] =
-            int.tryParse(productMakingChargesPercentage.text) != null
-                ? int.parse(productMakingChargesPercentage.text).toString()
-                : '0';
-        request.fields['discountApplied'] = (productDiscountApplied ?? false).toString();
-        request.fields['discountPercentage'] =
-        int.tryParse(discountPercentage.text) != null
-            ? int.parse(discountPercentage.text).toString()
-            : '0';//For gems DTO
+        setState(() {
+          isLoading = true; // Show loader
+        });
 
-        // Create the gemsDTO object
-        Map<String, dynamic> gems = {
-          'noOfSmallStones': noOfSmallStones.text,
-          'weightOfSmallStones': weightOfSmallStones.text,
-          'clarityOfSolitareDiamond': clarityOfSolitareDiamond.text,
+        final dioClient = DioClient.getInstance();
+        final String url =
+            '${ApiConstants.PRODUCTS_BASE_URL}/merchant/${widget.product.productOwnerId}/catalog/${widget.product.id}';
+        print("url -> ${url}");
+
+        dio.FormData formData = dio.FormData();
+        formData.fields.addAll([
+          MapEntry('productCategory', productCategory.text),
+          MapEntry('productSubCategory', productSubCategory.text),
+          MapEntry('productName', name.text),
+          MapEntry('productDescription', description.text),
+          MapEntry('productSize', productSize.text),
+          MapEntry('productWeight', goldWeight.text),
+          MapEntry('purity', goldPurity.text),
+          MapEntry('productOwnerName', productOwnerName.text),
+          MapEntry('productQuantity', productQuantity.text),
+          MapEntry(
+            'productMakingChargesPercentage',
+            int.tryParse(productMakingChargesPercentage.text)?.toString() ?? '0',
+          ),
+          MapEntry(
+            'discountApplied',
+            (productDiscountApplied ?? false).toString(),
+          ),
+          MapEntry(
+            'discountPercentage',
+            int.tryParse(discountPercentage.text)?.toString() ?? '0',
+          ),
+        ]);
+        Map<String, dynamic> gemsData = {
+          "noOfSmallStones": noOfSmallStones.text.isEmpty ? "0" : noOfSmallStones.text,
+          "weightOfSmallStones": weightOfSmallStones.text.isEmpty ? "0.0" : weightOfSmallStones.text,
+          "clarityOfSolitareDiamond": clarityOfSolitareDiamond.text.isEmpty ? "NA" : clarityOfSolitareDiamond.text,
         };
-        request.fields['gemsDTO'] = jsonEncode(gems);
 
-        // gemsDTO added for post method
+        formData.fields.add(MapEntry('gemsDTO', jsonEncode(gemsData)));
 
-        // Send the request
-        final response = await request.send();
-        print("response: $response");
-        if (response.statusCode == 201) {
-          // Show a snackbar or dialog after submission
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        print("form data ${formData.fields}");
+
+        final response = await dioClient.put(url, data: formData);
+
+        setState(() {
+          isLoading = false; // Hide loader
+        });
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
               content: Text('Product Has Been Updated Successfully'),
-              backgroundColor: Colors.green));
+              backgroundColor: Colors.green,
+            ),
+          );
           Get.offAll(() => NavigationMenu());
         } else {
-          final responseBody = await response.stream.bytesToString();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Something went wrong: $responseBody')),
+            SnackBar(content: Text('Something went wrong: ${response.data}')),
           );
         }
       } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        if (e is dio.DioException) {
+          print('Backend Error: ${e.response?.data}');
+        }
+        print('Error occurred during product update: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred during product edit')),
+          const SnackBar(content: Text('An error occurred during product edit')),
         );
       }
-
-      // can clear the fields after submission if needed.
-      // resetForm();
     }
   }
+
+  // Future<void> updateProduct() async {
+  //   if (formKey.currentState!.validate()) {
+  //     try {
+  //       final url = Uri.parse(
+  //           '${ApiConstants.PRODUCTS_BASE_URL}/merchant/${widget.product.productOwnerId}/catalog/${widget.product.id}');
+  //       final request = http.MultipartRequest('PUT', url);
+  //       request.fields['productCategory'] = productCategory.text;
+  //       request.fields['productSubCategory'] = productSubCategory.text;
+  //       request.fields['productName'] = name.text;
+  //       request.fields['productDescription'] = description.text;
+  //       request.fields['productSize'] = productSize.text;
+  //       request.fields['productWeight'] = goldWeight.text;
+  //       request.fields['purity'] = goldPurity.text;
+  //       request.fields['productOwnerName'] = productOwnerName.text;
+  //       request.fields['productQuantity'] = productQuantity.text;
+  //       request.fields['productMakingChargesPercentage'] =
+  //           int.tryParse(productMakingChargesPercentage.text) != null
+  //               ? int.parse(productMakingChargesPercentage.text).toString()
+  //               : '0';
+  //       request.fields['discountApplied'] = (productDiscountApplied ?? false).toString();
+  //       request.fields['discountPercentage'] =
+  //       int.tryParse(discountPercentage.text) != null
+  //           ? int.parse(discountPercentage.text).toString()
+  //           : '0';//For gems DTO
+  //
+  //       // Create the gemsDTO object
+  //       Map<String, dynamic> gems = {
+  //         'noOfSmallStones': noOfSmallStones.text,
+  //         'weightOfSmallStones': weightOfSmallStones.text,
+  //         'clarityOfSolitareDiamond': clarityOfSolitareDiamond.text,
+  //       };
+  //       request.fields['gemsDTO'] = jsonEncode(gems);
+  //
+  //       // gemsDTO added for post method
+  //
+  //       // Send the request
+  //       final response = await request.send();
+  //       print("response: $response");
+  //       if (response.statusCode == 201) {
+  //         // Show a snackbar or dialog after submission
+  //         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //             content: Text('Product Has Been Updated Successfully'),
+  //             backgroundColor: Colors.green));
+  //         Get.offAll(() => NavigationMenu());
+  //       } else {
+  //         final responseBody = await response.stream.bytesToString();
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Something went wrong: $responseBody')),
+  //         );
+  //       }
+  //     } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('An error occurred during product edit')),
+  //       );
+  //     }
+  //
+  //     // can clear the fields after submission if needed.
+  //     // resetForm();
+  //   }
+  // }
 
   void resetForm() {
     name.clear();

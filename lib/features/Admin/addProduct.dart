@@ -1,16 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:dio/dio.dart' as dio; // Prefix 'dio' to avoid conflicts
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile; // Hiding conflicting classes
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:onpensea/utils/constants/colors.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'dart:convert';
+import '../../network/dio_client.dart';
+import '../authentication/screens/login/Controller/LoginController.dart';
 
-import '../authentication/screens/login/Controller/LoginController.dart';  // For jsonEncode
 class AddProduct extends StatefulWidget {
   @override
   AddProductFormState createState() => AddProductFormState();
@@ -77,6 +77,77 @@ class AddProductFormState extends State<AddProduct> {
     );
   }
 
+  // Future<void> submitForm() async {
+  //   if (formKey.currentState!.validate()) {
+  //     try {
+  //       setState(() {
+  //         isLoading = true; // Show loader
+  //       });
+  //
+  //       final dio = DioClient.getInstance();
+  //       int userId = loginController.userData['userId'];
+  //       final String url = '${ApiConstants.PRODUCTS_BASE_URL}/merchant/$userId/M/catalog';
+  //
+  //       FormData formData = FormData.fromMap({
+  //         'productName': productName.text,
+  //         'productDescription': productDescription.text,
+  //         'productOwnerName': productOwnerName.text,
+  //         'productCategory': selectedProductCategory!,
+  //         'productSubCategory': selectedSubCategory!,
+  //         'productSize': productSize.text,
+  //         'productWeight': productWeight.text,
+  //         'purity': purity.text,
+  //         'productPrice': productPrice.text,
+  //         'productQuantity': productQuantity.text,
+  //         'productMakingChargesPercentage': productMakingChargesPercentage.text,
+  //         'discountApplied': (selectedDiscountApplied ?? false).toString(),
+  //         'discountPercentage': discountPercentage.text,
+  //         'gemsDTO[noOfSmallStones]': noOfSmallStones.text,
+  //         'gemsDTO[weightOfSmallStones]': weightOfSmallStones.text,
+  //         'gemsDTO[clarityOfSolitareDiamond]': clarityOfSolitareDiamond.text,
+  //         'gemsDTO[typeOfStone]': selectedDiamondType ?? '',
+  //       });
+  //
+  //       // Attach images only if selectedImages is not null or empty
+  //       if (selectedImages != null && selectedImages.isNotEmpty) {
+  //         for (File image in selectedImages) {
+  //           formData.files.add(
+  //             MapEntry(
+  //               'productImageUri',
+  //               await MultipartFile.fromFile(image.path, filename: image.path.split('/').last),
+  //             ),
+  //           );
+  //         }
+  //       }
+  //
+  //       final response = await dio.post(url, data: formData);
+  //
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //
+  //       if (response.statusCode == 201) {
+  //         clearFields();
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Product added successfully'), backgroundColor: Colors.green),
+  //         );
+  //       } else {
+  //         throw Exception('Failed to add product. Status Code: ${response.statusCode}');
+  //       }
+  //     } catch (e) {
+  //       setState(() {
+  //         isLoading = false;
+  //       });
+  //
+  //       print('Error occurred during adding product: $e');
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Unable to add product. Please try again!')),
+  //       );
+  //     }
+  //   }
+  // }
+
+
   Future<void> submitForm() async {
     if (formKey.currentState!.validate())
     {
@@ -84,42 +155,53 @@ class AddProductFormState extends State<AddProduct> {
         setState(() {
           isLoading = true; // Show loader
         });
+        final dioClient = DioClient.getInstance();
         int userId = loginController.userData['userId'];
-        final url = Uri.parse('${ApiConstants.PRODUCTS_BASE_URL}/merchant/$userId/M/catalog');
-        final request = http.MultipartRequest('POST', url);
+        final String url = '${ApiConstants.PRODUCTS_BASE_URL}/merchant/$userId/M/catalog';
+        print("url -> ${url}");
 
-        request.fields['productName'] = productName.text;
-        request.fields['productDescription'] = productDescription.text;
-        request.fields['productOwnerName'] = productOwnerName.text;
-        request.fields['productCategory'] = selectedProductCategory!;
-        request.fields['productSubCategory'] = selectedSubCategory!;
-        request.fields['productSize'] = productSize.text;
-        request.fields['productWeight'] = productWeight.text;
-        request.fields['purity'] = purity.text;
-        request.fields['productPrice'] = productPrice.text;
-        request.fields['productQuantity'] = productQuantity.text;
-        request.fields['productMakingChargesPercentage'] = productMakingChargesPercentage.text;
-        request.fields['discountApplied'] = (selectedDiscountApplied ?? false).toString();
-        request.fields['discountPercentage'] = discountPercentage.text;//For gems DTO
-        Map<String, dynamic> gems = {
-          'noOfSmallStones': noOfSmallStones.text,
-          'weightOfSmallStones': weightOfSmallStones.text,
-          'clarityOfSolitareDiamond': clarityOfSolitareDiamond.text,
-          'typeOfStone': selectedDiamondType,
+        dio.FormData formData = dio.FormData();
+        formData.fields.addAll([
+          MapEntry('productName', productName.text),
+          MapEntry('productDescription', productDescription.text),
+          MapEntry('productOwnerName', productOwnerName.text),
+          MapEntry('productCategory', selectedProductCategory!),
+          MapEntry('productSubCategory', selectedSubCategory!),
+          MapEntry('productSize', productSize.text),
+          MapEntry('productWeight', productWeight.text),
+          MapEntry('purity', purity.text),
+          MapEntry('productPrice', productPrice.text),
+          MapEntry('productQuantity', productQuantity.text),
+          MapEntry('productMakingChargesPercentage', productMakingChargesPercentage.text),
+          MapEntry('discountApplied', (selectedDiscountApplied ?? false).toString()),
+          MapEntry('discountPercentage', discountPercentage.text)
+        ]);
+        Map<String, dynamic> gemsData = {
+          "noOfSmallStones": noOfSmallStones.text.isEmpty ? "0" : noOfSmallStones.text,
+          "weightOfSmallStones": weightOfSmallStones.text.isEmpty ? "0.0" : weightOfSmallStones.text,
+          "clarityOfSolitareDiamond": clarityOfSolitareDiamond.text.isEmpty ? "NA" : clarityOfSolitareDiamond.text,
+          "typeOfStone": selectedDiamondType ?? "NA",
         };
-        request.fields['gemsDTO'] = jsonEncode(gems);
 
-        if (selectedImages != null) {
+        formData.fields.add(MapEntry('gemsDTO', jsonEncode(gemsData)));
+
+        if (selectedImages.isNotEmpty) {
           for (File image in selectedImages) {
-            request.files.add(
-                await http.MultipartFile.fromPath('productImageUri', image!.path));
+            formData.files.add(
+              MapEntry(
+                'productImageUri[]',
+                await dio.MultipartFile.fromFile(image.path),
+              ),
+            );
           }
         }
+        print("form data ${formData.fields}");
 
-        final response = await request.send();
+        final response = await dioClient.post(url, data: formData);
         setState(() {
           isLoading = false;
         });
+        print("product response - ${response.data}");
         if (response.statusCode == 201)
         {
           clearFields();
@@ -127,8 +209,16 @@ class AddProductFormState extends State<AddProduct> {
             SnackBar(content: Text('Product added successfully'),backgroundColor: Colors.green),
           );
         }
+        else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add product: ${response.statusMessage}')),
+          );
+        }
       }
       catch (e) {
+        if (e is dio.DioException) {
+          print('Backend Error: ${e.response?.data}');
+        }
         print('Error occured during adding product: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Unable to add product')),
@@ -136,6 +226,9 @@ class AddProductFormState extends State<AddProduct> {
       }
     }
   }
+
+
+
   void clearFields() {
     // Clear gemsDTO-related fields
     noOfSmallStones.clear();
