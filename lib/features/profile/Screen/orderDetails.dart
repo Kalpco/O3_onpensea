@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../network/dio_client.dart';
 import '../../../utils/constants/api_constants.dart';
 import '../../../utils/constants/colors.dart';
 import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
@@ -73,6 +75,32 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     }
   }
 
+
+  final Map<String, Uint8List> _imageCache = {};
+
+  Future<Uint8List?> fetchImageWithToken(String url) async {
+    if (_imageCache.containsKey(url)) {
+      return _imageCache[url]; // ✅ Return cached image if available
+    }
+
+    try {
+      final dio = DioClient.getInstance(); // ✅ Use your Dio instance with token
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      final imageBytes = Uint8List.fromList(response.data!);
+      _imageCache[url] = imageBytes; // ✅ Store image in cache
+      return imageBytes;
+    } catch (e) {
+      print("❌ Image loading error: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
@@ -129,15 +157,26 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 // borderRadius: BorderRadius.circular(20),
                                 ),
                             child: productDetail['productPic'] != null
-                                ? Image.network(
-                                    imageUrl,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Icon(
-                                    Icons.image_not_supported,
-                                    size: 40,
-                                    color: Colors.grey,
-                                  ),
+                                ? FutureBuilder<Uint8List?>(
+                              future: fetchImageWithToken(imageUrl),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const Center(child: CircularProgressIndicator(color: U_Colors.yaleBlue,));
+                                } else if (snapshot.hasError || snapshot.data == null) {
+                                  return const Icon(Icons.error, color: Colors.red, size: 50);
+                                } else {
+                                  return ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.memory(snapshot.data!, fit: BoxFit.cover),
+                                  );
+                                }
+                              },
+                            )
+                                : const Icon(
+                              Icons.image_not_supported,
+                              size: 40,
+                              color: Colors.grey,
+                            ),
                           ),
                           SizedBox(width: 16),
                           // Product Information

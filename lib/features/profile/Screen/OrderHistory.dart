@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
@@ -57,6 +58,31 @@ class _OrderHistoryState extends State<OrderHistory> {
           ),
         );
       }
+    }
+  }
+
+  final Map<String, Uint8List> _imageCache = {};
+
+  Future<Uint8List?> fetchImageWithToken(String url) async {
+    if (_imageCache.containsKey(url)) {
+      return _imageCache[url]; // ✅ Return cached image if available
+    }
+
+    try {
+      final dio = DioClient.getInstance(); // ✅ Use your Dio instance with token
+      final response = await dio.get<List<int>>(
+        url,
+        options: Options(
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      final imageBytes = Uint8List.fromList(response.data!);
+      _imageCache[url] = imageBytes; // ✅ Store image in cache
+      return imageBytes;
+    } catch (e) {
+      print("❌ Image loading error: $e");
+      return null;
     }
   }
 
@@ -168,13 +194,27 @@ class _OrderHistoryState extends State<OrderHistory> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.error, color: Colors.red, size: 50);
+                child: FutureBuilder<Uint8List?>(
+                  future: fetchImageWithToken(imageUrl),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator(color: U_Colors.yaleBlue,));
+                    } else if (snapshot.hasError || snapshot.data == null) {
+                      return const Icon(Icons.error, color: Colors.red, size: 50);
+                    } else {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.memory(
+                          snapshot.data!,
+                          height: 150,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    }
                   },
-                ),
+                )
+
               ),
             ),
             SizedBox(width: 10),
