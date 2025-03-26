@@ -121,11 +121,14 @@ class _OrderHistoryState extends State<OrderHistory> {
           itemBuilder: (context, index) {
             final transaction = transactions[index];
             final product = transaction['productTransactionDTOList'][0];
+
             int userId = transaction['userId'];
             int transactionId = transaction['transactionId'];
             int? addressId = transaction['userAddressId'];
             String transactionOrderId = transaction['transactionOrderId'];
+
             final productList = transaction['productTransactionDTOList'];
+            print("productlist ${productList.toString()}");
             final imageUrl = "${ApiConstants.baseUrl}${product['productPic']}";
             print("my image $imageUrl");
             return _buildOrderCard(
@@ -142,7 +145,9 @@ class _OrderHistoryState extends State<OrderHistory> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => OrderDetailsPage(
-                      productList: productList,
+                        productList: productList
+                            .where((product) => product['transactionId'] == transactionId)
+                            .toList(),
                       userId:userId,
                       transactionId:transactionId,
                       addressId:addressId,

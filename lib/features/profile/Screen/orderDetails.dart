@@ -32,7 +32,7 @@ class OrderDetailsPage extends StatefulWidget {
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
   bool isLoading = false; // For showing the loader
-  final Dio dio = Dio();
+  final dio = DioClient.getInstance();
 
   Future<void> downloadInvoice() async {
     setState(() {
@@ -62,7 +62,10 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           backgroundColor: Colors.green,
         ),
       );
-    } catch (e) {
+    }on DioException catch (e){
+      print("exception: $e" );
+    }
+    catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Failed to download invoice: $e'),
