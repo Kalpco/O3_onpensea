@@ -63,22 +63,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   final LoginController loginController = Get.find<LoginController>();
   final Razorpay _razorpay = Razorpay();
-  final RazorpayOrderAPI razorpayOrderAPI = RazorpayOrderAPI(ApiConstants.key, ApiConstants.secretId);
-  final RazorpayCapturePayment capturePayment = RazorpayCapturePayment(ApiConstants.key, ApiConstants.secretId);
+  final RazorpayOrderAPI razorpayOrderAPI =
+      RazorpayOrderAPI(ApiConstants.key, ApiConstants.secretId);
+  final RazorpayCapturePayment capturePayment =
+      RazorpayCapturePayment(ApiConstants.key, ApiConstants.secretId);
   late RazorpaySuccessResponseDTO razorpaySuccessResponseDTO;
   late CapturePaymentRazorPay capturePaymentRazorPayResponse;
   late RazorpayFailureResponse razorpayFailureResponse;
   bool _isWalletRedeemable = false; // To track if wallet can be redeemed
   bool _isRedeemChecked = false; // To track if "Yes" is selected
-  bool _isNotRedeemChecked = true;// Track selected option ("Yes" or "No")
+  bool _isNotRedeemChecked = true; // Track selected option ("Yes" or "No")
   double walletAmount = 0.0; // Field to store wallet amount
   double _updatedTotalPrice = 0.0;
   bool _isLoading = false;
   int? selectedAddressIndex;
-  double finalPrice =0.0;
+  double finalPrice = 0.0;
   final Map<String, Uint8List> _imageCache = {}; // Global image cache
-
-
 
   @override
   void initState() {
@@ -95,20 +95,18 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _razorpay.clear();
     super.dispose();
   }
+
   final TextEditingController _couponController = TextEditingController();
   String _message = '';
   static String couponBaseUrl = '${API_CONSTANTS_1.ApiConstants.COUPON_URL}';
 
-
   Future<void> _applyCoupon() async {
-
-    if(widget.product.discountApplied == false){
+    if (widget.product.discountApplied == false) {
       setState(() {
-        _message ='Coupon can\'t be applied to this product.';
+        _message = 'Coupon can\'t be applied to this product.';
       });
       return;
     }
-
     final String couponCode = _couponController.text;
     final String couponApiUrl = '$couponBaseUrl/couponCode/$couponCode';
     setState(() {
@@ -117,36 +115,49 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final dio = DioClient.getInstance();
       final response = await dio.get(couponApiUrl);
-
+      final data = response.data;
       if (response.statusCode == 200) {
-        final data = response.data;
         print("data response $data");
         if (data['status'] == 1202) {
           setState(() {
-            double _discountAppliedAmount = _updatedTotalPrice - calculateFinalAmount();
-            _message = '${data['couponMessage'] ?? 'Coupon applied successfully!'} You saved ₹${_discountAppliedAmount.toStringAsFixed(2)}.';
+            double _discountAppliedAmount =
+                _updatedTotalPrice - calculateFinalAmount();
+            _message =
+                '${data['couponMessage'] ?? 'Coupon applied successfully!'} You saved ₹${_discountAppliedAmount.toStringAsFixed(2)}.';
           });
         } else {
           setState(() {
             _message = data['couponMessage'] ?? 'Invalid coupon code.';
           });
         }
-      } else if (response.statusCode == 400) {
-        setState(() {
-          _message = 'Invalid coupon code!';
-        });
       }
-      else {
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final response = e.response!;
+        final data = response.data;
+        if (response.statusCode == 400) {
+          if (data['status'] == 1203) {
+            setState(() {
+              _message = 'Invalid coupon code!';
+            });
+            return;
+          }
+        }
         setState(() {
           _message = 'Failed to apply coupon. Please try again.';
+        });
+      } else {
+        setState(() {
+          _message = 'An error occurred: ${e.message}';
         });
       }
     } catch (e) {
       setState(() {
-        _message = 'An error occurred: $e';
+        _message = 'An unexpected error occurred: $e';
       });
     }
   }
+
   Future<void> _fetchWalletAmount() async {
     try {
       int userId = loginController.userData['userId'];
@@ -170,15 +181,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     print('Payment Success -> : ${response.paymentId}');
     bool isCaptured = await _capturePaymentRazorPay(
         paymentId: response.paymentId!,
-        responseDTO: razorpaySuccessResponseDTO
-    );
+        responseDTO: razorpaySuccessResponseDTO);
 
     if (isCaptured) {
       _postTransactionDetails(
         responseDTO: razorpaySuccessResponseDTO,
         product: widget.product,
         paymentId: response.paymentId!,
-        successResponseCapturePayment:capturePaymentRazorPayResponse,
+        successResponseCapturePayment: capturePaymentRazorPayResponse,
       );
 
       Navigator.push(
@@ -188,8 +198,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               paymentId: response.paymentId!,
               product: widget.product,
               order: razorpaySuccessResponseDTO,
-              addressId:selectedAddressData?['id']
-          ),
+              addressId: selectedAddressData?['id']),
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
@@ -198,54 +207,61 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           backgroundColor: Colors.green, // Change to yellow
         ),
       );
-
     } else {
       final loginController = Get.find<LoginController>();
       int userId = loginController.userData['userId'];
 
-      final failedCapturePaymentDetails= TransactionRequestResponseWrapperDTO(
+      final failedCapturePaymentDetails = TransactionRequestResponseWrapperDTO(
         productTransactionDTOList: [
           ProductTransactionDTO(
-            productId: widget.product.id,
-            productPrice: widget.product.productPrice,
-            gstCharge: widget.gstCharges,
-            makingCharges : widget.makingCharges,
-            productQuantity : widget.quantity,
-            productWeight : widget.product.productWeight,
-            purity : widget.product.purity,
-            merchantId : widget.product.productOwnerId,
-            payedFromWallet : _isRedeemChecked,
-            walletAmount: walletAmount,
-            createDate :  DateTime.now(),
-            userId: userId,
-            userAddressId: selectedAddressData?['id'],
-            productPic: widget.product.productImageUri![0].toString(),
-            productName: widget.product.productName,
-            totalAmount: widget.totalPrice,
-            discountedPrice: finalPrice,
-            discountPercentage: widget.product.discountPercentage?.toDouble(),
-            goldAndDiamondPrice: widget.goldAndDiamondPrice,
-            discountApplied: widget.product.discountApplied
-
-
-          ),
+              productId: widget.product.id,
+              productPrice: widget.product.productPrice,
+              gstCharge: widget.gstCharges,
+              makingCharges: widget.makingCharges,
+              productQuantity: widget.quantity,
+              productWeight: widget.product.productWeight,
+              purity: widget.product.purity,
+              merchantId: widget.product.productOwnerId,
+              payedFromWallet: _isRedeemChecked,
+              walletAmount: walletAmount,
+              createDate: DateTime.now(),
+              userId: userId,
+              userAddressId: selectedAddressData?['id'],
+              productPic: widget.product.productImageUri![0].toString(),
+              productName: widget.product.productName,
+              totalAmount: widget.totalPrice,
+              discountedPrice: finalPrice,
+              discountPercentage: widget.product.discountPercentage?.toDouble(),
+              goldAndDiamondPrice: widget.goldAndDiamondPrice,
+              discountApplied: widget.product.discountApplied),
         ],
         transactionDTO: TransactionDTO(
             paymentGatewayTransactionId: response.paymentId,
             userId: userId,
-            transactionStatus: razorpaySuccessResponseDTO.status+"_"+ razorpayFailureResponse.error.code +"_"+razorpayFailureResponse.error.reason+"_"+razorpayFailureResponse.error.field+":"+razorpayFailureResponse.error.description,
+            transactionStatus: razorpaySuccessResponseDTO.status +
+                "_" +
+                razorpayFailureResponse.error.code +
+                "_" +
+                razorpayFailureResponse.error.reason +
+                "_" +
+                razorpayFailureResponse.error.field +
+                ":" +
+                razorpayFailureResponse.error.description,
             transactionMessage: 'Payment created but not captured',
             transactionOrderId: response.orderId,
-            payedFromWallet : _isRedeemChecked,
+            payedFromWallet: _isRedeemChecked,
             walletAmount: walletAmount,
             transactionAmount: finalPrice,
             userAddressId: selectedAddressData?['id'],
-            couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+            couponCode: _couponController.text.isNotEmpty
+                ? _couponController.text
+                : null,
             isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
             createDate: DateTime.now()),
       ).toJson();
 
-      await TranactionOrderAPI.postTransactionDetails(failedCapturePaymentDetails);
+      await TranactionOrderAPI.postTransactionDetails(
+          failedCapturePaymentDetails);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -266,48 +282,50 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final loginController = Get.find<LoginController>();
     int userId = loginController.userData['userId'];
 
-    final failedCapturePaymentDetails= TransactionRequestResponseWrapperDTO(
+    final failedCapturePaymentDetails = TransactionRequestResponseWrapperDTO(
       productTransactionDTOList: [
         ProductTransactionDTO(
-          productId: widget.product.id,
-          productPrice: widget.product.productPrice,
-          gstCharge: widget.gstCharges,
-          makingCharges : widget.makingCharges,
-          productQuantity : widget.quantity,
-          productWeight : widget.product.productWeight,
-          purity : widget.product.purity,
-          merchantId : widget.product.productOwnerId,
-          payedFromWallet : _isRedeemChecked,
-          walletAmount: walletAmount,
-          createDate :  DateTime.now(),
-          userId: userId,
-          userAddressId: selectedAddressData?['id'],
-          productPic: widget.product.productImageUri![0].toString(),
-          productName: widget.product.productName,
-          totalAmount: widget.totalPrice,
+            productId: widget.product.id,
+            productPrice: widget.product.productPrice,
+            gstCharge: widget.gstCharges,
+            makingCharges: widget.makingCharges,
+            productQuantity: widget.quantity,
+            productWeight: widget.product.productWeight,
+            purity: widget.product.purity,
+            merchantId: widget.product.productOwnerId,
+            payedFromWallet: _isRedeemChecked,
+            walletAmount: walletAmount,
+            createDate: DateTime.now(),
+            userId: userId,
+            userAddressId: selectedAddressData?['id'],
+            productPic: widget.product.productImageUri![0].toString(),
+            productName: widget.product.productName,
+            totalAmount: widget.totalPrice,
             discountedPrice: finalPrice,
-          discountPercentage: widget.product.discountPercentage?.toDouble(),
-          goldAndDiamondPrice: widget.goldAndDiamondPrice,
-            discountApplied: widget.product.discountApplied
-
-
-        ),
+            discountPercentage: widget.product.discountPercentage?.toDouble(),
+            goldAndDiamondPrice: widget.goldAndDiamondPrice,
+            discountApplied: widget.product.discountApplied),
       ],
       transactionDTO: TransactionDTO(
           userId: userId,
           transactionOrderId: razorpaySuccessResponseDTO.id,
-          transactionStatus: razorpaySuccessResponseDTO.status+"_"+ response.message!+"_"+response.code.toString(),
+          transactionStatus: razorpaySuccessResponseDTO.status +
+              "_" +
+              response.message! +
+              "_" +
+              response.code.toString(),
           transactionMessage: response.message,
           payedFromWallet: _isRedeemChecked,
           walletAmount: walletAmount,
           transactionAmount: finalPrice,
           userAddressId: selectedAddressData?['id'],
-          couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+          couponCode:
+              _couponController.text.isNotEmpty ? _couponController.text : null,
           isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
           createDate: DateTime.now()),
-
     ).toJson();
-    await TranactionOrderAPI.postTransactionDetails(failedCapturePaymentDetails);
+    await TranactionOrderAPI.postTransactionDetails(
+        failedCapturePaymentDetails);
 
     Navigator.push(
       context,
@@ -326,9 +344,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     print('External Wallet: ${response.walletName}');
   }
 
-  Future<void> _createOrder(BuildContext context,double myFinalAmount) async {
-
-    if(myFinalAmount <= 0.00){
+  Future<void> _createOrder(BuildContext context, double myFinalAmount) async {
+    if (myFinalAmount <= 0.00) {
       setState(() {
         _isLoading = true; // Show the loader
       });
@@ -338,49 +355,49 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         );
       final loginController = Get.find<LoginController>();
       int userId = loginController.userData['userId'];
-      final walletOrderDetails= TransactionRequestResponseWrapperDTO(
+      final walletOrderDetails = TransactionRequestResponseWrapperDTO(
         productTransactionDTOList: [
           ProductTransactionDTO(
-            productId: widget.product.id,
-            productPrice: widget.product.productPrice,
-            gstCharge: widget.gstCharges,
-            makingCharges : widget.makingCharges,
-            productQuantity : widget.quantity,
-            productWeight : widget.product.productWeight,
-            purity : widget.product.purity,
-            merchantId : widget.product.productOwnerId,
-            payedFromWallet : _isRedeemChecked,
-            walletAmount: walletAmount,
-            createDate :  DateTime.now(),
-            userId: userId,
-            userAddressId: selectedAddressData?['id'],
-            productPic: widget.product.productImageUri![0].toString(),
-            productName: widget.product.productName,
-            totalAmount: widget.totalPrice,
+              productId: widget.product.id,
+              productPrice: widget.product.productPrice,
+              gstCharge: widget.gstCharges,
+              makingCharges: widget.makingCharges,
+              productQuantity: widget.quantity,
+              productWeight: widget.product.productWeight,
+              purity: widget.product.purity,
+              merchantId: widget.product.productOwnerId,
+              payedFromWallet: _isRedeemChecked,
+              walletAmount: walletAmount,
+              createDate: DateTime.now(),
+              userId: userId,
+              userAddressId: selectedAddressData?['id'],
+              productPic: widget.product.productImageUri![0].toString(),
+              productName: widget.product.productName,
+              totalAmount: widget.totalPrice,
               discountedPrice: finalPrice,
               discountPercentage: widget.product.discountPercentage?.toDouble(),
               goldAndDiamondPrice: widget.goldAndDiamondPrice,
-              discountApplied: widget.product.discountApplied
-
-          ),
+              discountApplied: widget.product.discountApplied),
         ],
         transactionDTO: TransactionDTO(
           userId: userId,
           transactionStatus: 'Wallet_Created_Captured',
           transactionMessage: 'Payment captured from wallet',
           createDate: DateTime.now(),
-          paymentGatewayTransactionId:DateTime.now().millisecondsSinceEpoch.toString(),
-          payedFromWallet:_isRedeemChecked,
-          walletAmount:widget.totalPrice,
+          paymentGatewayTransactionId:
+              DateTime.now().millisecondsSinceEpoch.toString(),
+          payedFromWallet: _isRedeemChecked,
+          walletAmount: widget.totalPrice,
           transactionAmount: finalPrice,
           userAddressId: selectedAddressData?['id'],
-          couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+          couponCode:
+              _couponController.text.isNotEmpty ? _couponController.text : null,
           isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
-          transactionOrderId:DateTime.now().millisecondsSinceEpoch.toString(),
+          transactionOrderId: DateTime.now().millisecondsSinceEpoch.toString(),
         ),
       ).toJson();
       final response =
-      await TranactionOrderAPI.postTransactionDetails(walletOrderDetails);
+          await TranactionOrderAPI.postTransactionDetails(walletOrderDetails);
       print('response ${response.data}');
       print(response.statusCode);
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -392,10 +409,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             builder: (context) => WalletProductSuccessPage(
               orderId: DateTime.now().millisecondsSinceEpoch.toString(),
               // product: widget.product,
-              totalPrice:finalPrice,
+              totalPrice: finalPrice,
             ),
           ),
-
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -412,7 +428,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               builder: (context) => WalletProductFailPage(
                   orderId: DateTime.now().millisecondsSinceEpoch.toString(),
                   // product: widget.product,
-                  totalPrice:finalPrice)),
+                  totalPrice: finalPrice)),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -424,75 +440,76 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       setState(() {
         _isLoading = false; // Show the loader
       });
-
-    }
-    else{
+    } else {
       try {
         final amountInPaise = (finalPrice * 100).toInt();
         print("Final Amount is -> $amountInPaise");
-        final  orderResponse = await razorpayOrderAPI
-            .createOrder(amountInPaise, 'INR', 'order_receipt#1');
-        if(orderResponse is RazorpaySuccessResponseDTO){
+        final orderResponse = await razorpayOrderAPI.createOrder(
+            amountInPaise, 'INR', 'order_receipt#1');
+        if (orderResponse is RazorpaySuccessResponseDTO) {
           print('Order created successfully: $orderResponse');
           razorpaySuccessResponseDTO = orderResponse;
 
           _openCheckout(orderResponse);
-
-        }
-        else if(orderResponse is RazorpayFailureResponse){
+        } else if (orderResponse is RazorpayFailureResponse) {
           print('Failed to create order: ${orderResponse.error.code}');
           final loginController = Get.find<LoginController>();
           int userId = loginController.userData['userId'];
 
-          final failedOrderDetails= TransactionRequestResponseWrapperDTO(
+          final failedOrderDetails = TransactionRequestResponseWrapperDTO(
             productTransactionDTOList: [
               ProductTransactionDTO(
-                productId: widget.product.id,
-                productPrice: widget.product.productPrice,
-                gstCharge: widget.gstCharges,
-                makingCharges : widget.makingCharges,
-                productQuantity : widget.quantity,
-                productWeight : widget.product.productWeight,
-                purity : widget.product.purity,
-                merchantId : widget.product.productOwnerId,
-                payedFromWallet : _isRedeemChecked,
-                walletAmount: walletAmount,
-                createDate :  DateTime.now(),
-                userId: userId,
-                userAddressId: selectedAddressData?['id'],
-                productPic: widget.product.productImageUri![0].toString(),
-                productName: widget.product.productName,
-                totalAmount: widget.totalPrice,
+                  productId: widget.product.id,
+                  productPrice: widget.product.productPrice,
+                  gstCharge: widget.gstCharges,
+                  makingCharges: widget.makingCharges,
+                  productQuantity: widget.quantity,
+                  productWeight: widget.product.productWeight,
+                  purity: widget.product.purity,
+                  merchantId: widget.product.productOwnerId,
+                  payedFromWallet: _isRedeemChecked,
+                  walletAmount: walletAmount,
+                  createDate: DateTime.now(),
+                  userId: userId,
+                  userAddressId: selectedAddressData?['id'],
+                  productPic: widget.product.productImageUri![0].toString(),
+                  productName: widget.product.productName,
+                  totalAmount: widget.totalPrice,
                   discountedPrice: finalPrice,
-                  discountPercentage: widget.product.discountPercentage?.toDouble(),
+                  discountPercentage:
+                      widget.product.discountPercentage?.toDouble(),
                   goldAndDiamondPrice: widget.goldAndDiamondPrice,
-                  discountApplied: widget.product.discountApplied
-
-
-              ),
+                  discountApplied: widget.product.discountApplied),
             ],
             transactionDTO: TransactionDTO(
                 userId: userId,
-                transactionStatus: orderResponse.error.description +"_"+orderResponse.error.reason+"_"+orderResponse.error.field+":"+orderResponse.error.code,
+                transactionStatus: orderResponse.error.description +
+                    "_" +
+                    orderResponse.error.reason +
+                    "_" +
+                    orderResponse.error.field +
+                    ":" +
+                    orderResponse.error.code,
                 transactionMessage: 'Failed to create order',
-                payedFromWallet : _isRedeemChecked,
+                payedFromWallet: _isRedeemChecked,
                 walletAmount: walletAmount,
                 transactionAmount: finalPrice,
                 userAddressId: selectedAddressData?['id'],
                 transactionOrderId: razorpaySuccessResponseDTO.id,
-                couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
-                isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
+                couponCode: _couponController.text.isNotEmpty
+                    ? _couponController.text
+                    : null,
+                isCouponApplied:
+                    _message.contains('Coupon applied') ? 'YES' : 'NO',
                 createDate: DateTime.now()),
           ).toJson();
 
           await TranactionOrderAPI.postTransactionDetails(failedOrderDetails);
         }
-
       } catch (e) {
         print('Failed to placed order : $e');
       }
     }
-
   }
 
   void _openCheckout(RazorpaySuccessResponseDTO order) async {
@@ -520,53 +537,51 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   void _postTransactionDetails(
       {required RazorpaySuccessResponseDTO responseDTO,
-        required ProductResponseDTO product,
-        required String paymentId,
-        required CapturePaymentRazorPay successResponseCapturePayment}) async {
+      required ProductResponseDTO product,
+      required String paymentId,
+      required CapturePaymentRazorPay successResponseCapturePayment}) async {
     final loginController = Get.find<LoginController>();
     int activeUserId = loginController.userData['userId'];
 
     try {
-
-
-      final transactionDetails= TransactionRequestResponseWrapperDTO(
+      final transactionDetails = TransactionRequestResponseWrapperDTO(
         productTransactionDTOList: [
           ProductTransactionDTO(
-            productId: product.id,
-            productPrice: widget.product.productPrice,
-            gstCharge: widget.gstCharges,
-            makingCharges : widget.makingCharges,
-            productQuantity : widget.quantity,
-            productWeight : product.productWeight?.toDouble(),
-            purity : product.purity,
-            merchantId : widget.product.productOwnerId,
-            payedFromWallet : _isRedeemChecked,
-            walletAmount: walletAmount,
-            createDate :  DateTime.now(),
-            userId: activeUserId,
-            userAddressId: selectedAddressData?['id'],
-            productPic: product.productImageUri![0].toString(),
-            productName: product.productName?.toString(),
-            totalAmount: widget.totalPrice,
+              productId: product.id,
+              productPrice: widget.product.productPrice,
+              gstCharge: widget.gstCharges,
+              makingCharges: widget.makingCharges,
+              productQuantity: widget.quantity,
+              productWeight: product.productWeight?.toDouble(),
+              purity: product.purity,
+              merchantId: widget.product.productOwnerId,
+              payedFromWallet: _isRedeemChecked,
+              walletAmount: walletAmount,
+              createDate: DateTime.now(),
+              userId: activeUserId,
+              userAddressId: selectedAddressData?['id'],
+              productPic: product.productImageUri![0].toString(),
+              productName: product.productName?.toString(),
+              totalAmount: widget.totalPrice,
               discountedPrice: finalPrice,
               discountPercentage: widget.product.discountPercentage?.toDouble(),
               goldAndDiamondPrice: widget.goldAndDiamondPrice,
-              discountApplied: widget.product.discountApplied
-
-
-          ),
+              discountApplied: widget.product.discountApplied),
         ],
         transactionDTO: TransactionDTO(
             paymentGatewayTransactionId: paymentId,
             userId: activeUserId,
-            transactionStatus: responseDTO.status +"_"+successResponseCapturePayment.status,
+            transactionStatus:
+                responseDTO.status + "_" + successResponseCapturePayment.status,
             transactionMessage: 'Payment Completed Successfully',
             transactionOrderId: responseDTO.id,
             payedFromWallet: _isRedeemChecked,
             walletAmount: walletAmount,
             transactionAmount: finalPrice,
             userAddressId: selectedAddressData?['id'],
-            couponCode: _couponController.text.isNotEmpty ? _couponController.text : null,
+            couponCode: _couponController.text.isNotEmpty
+                ? _couponController.text
+                : null,
             isCouponApplied: _message.contains('Coupon applied') ? 'YES' : 'NO',
             createDate: DateTime.now()),
       ).toJson();
@@ -574,11 +589,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       print('Transaction Details: $transactionDetails');
 
       final response =
-      await TranactionOrderAPI.postTransactionDetails(transactionDetails);
+          await TranactionOrderAPI.postTransactionDetails(transactionDetails);
       print('Transaction API Hitting :${response.statusCode} ');
 
       print('Response Body: ${response.data}');
-
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
@@ -593,28 +607,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   Future<bool> _capturePaymentRazorPay(
-      {required String paymentId, required RazorpaySuccessResponseDTO responseDTO}) async {
+      {required String paymentId,
+      required RazorpaySuccessResponseDTO responseDTO}) async {
     bool isSaved = false;
     try {
-      final capturePaymentResponse = await capturePayment
-          .capturePayment(responseDTO.amount, responseDTO.currency, paymentId);
-      if(capturePaymentResponse is CapturePaymentRazorPay){
+      final capturePaymentResponse = await capturePayment.capturePayment(
+          responseDTO.amount, responseDTO.currency, paymentId);
+      if (capturePaymentResponse is CapturePaymentRazorPay) {
         print('Payment captured successfully: ${capturePaymentResponse}');
         capturePaymentRazorPayResponse = capturePaymentResponse;
-        isSaved= true;
-      }
-      else if(capturePaymentResponse is RazorpayFailureResponse){
-        print('Failed to capture payment: ${capturePaymentResponse.error.code}');
+        isSaved = true;
+      } else if (capturePaymentResponse is RazorpayFailureResponse) {
+        print(
+            'Failed to capture payment: ${capturePaymentResponse.error.code}');
         razorpayFailureResponse = capturePaymentResponse;
-        isSaved= false;
+        isSaved = false;
       }
-
     } catch (e) {
       print('Failed to captured order: $e');
-      isSaved= false;
+      isSaved = false;
     }
     return isSaved;
   }
+
   void _showDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -642,7 +657,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     // Text
                     Text(
                       'Get in Touch',
-                      style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.poppins(
+                          fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8.0),
                     Text(
@@ -651,12 +667,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 10.0),
-                    DividerWithAvatar(imagePath: 'assets/logos/KALPCO_splash_1.png'),
+                    DividerWithAvatar(
+                        imagePath: 'assets/logos/KALPCO_splash_1.png'),
                     SizedBox(height: 10.0),
                     // Space between text and buttons
                     Text(
                       'Contact us',
-                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.poppins(
+                          fontSize: 14, fontWeight: FontWeight.w600),
                       textAlign: TextAlign.start,
                     ),
                     // Buttons
@@ -667,10 +685,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       children: <Widget>[
                         TextButton.icon(
                           onPressed: () {
-                            _launchURL('tel:+919987734001'); // Replace with actual phone number
+                            _launchURL(
+                                'tel:+919987734001'); // Replace with actual phone number
                           },
-                          icon: Icon(Icons.phone, size: 14, color: Colors.black),
-                          label: Text('+919987734001', style: TextStyle(fontSize: 12)),
+                          icon:
+                              Icon(Icons.phone, size: 14, color: Colors.black),
+                          label: Text('+919987734001',
+                              style: TextStyle(fontSize: 12)),
                         ),
                         // SizedBox(width: 5), // Space between buttons
                         TextButton.icon(
@@ -678,8 +699,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             // Action for Email button
                             _launchURL('mailto:support@kalpco.com');
                           },
-                          icon: Icon(Icons.email, size: 14, color: Colors.black),
-                          label: Text('support@kalpco.com', style: TextStyle(fontSize: 12)),
+                          icon:
+                              Icon(Icons.email, size: 14, color: Colors.black),
+                          label: Text('support@kalpco.com',
+                              style: TextStyle(fontSize: 12)),
                         ),
                       ],
                     ),
@@ -715,9 +738,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   // Method to fetch updated user data after adding address
   Future<void> _fetchUserData() async {
     try {
-       final _dio = DioClient.getInstance(); // Get Dio instance with interceptor
+      final _dio = DioClient.getInstance(); // Get Dio instance with interceptor
       int userId = loginController.userData['userId'];
-      final String userUrl= "${API_CONSTANTS_1.ApiConstants.USERS_URL}/$userId";
+      final String userUrl =
+          "${API_CONSTANTS_1.ApiConstants.USERS_URL}/$userId";
       final response = await _dio.get(userUrl);
 
       if (response.statusCode == 200) {
@@ -739,12 +763,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     final userData = loginController.userData;
     final productPrice = widget.product.productPrice ?? 0.0;
-    final imageUrl = "${ApiConstants.baseUrl}${widget.product.productImageUri![0]}";
+    final imageUrl =
+        "${ApiConstants.baseUrl}${widget.product.productImageUri![0]}";
     final String deliverable = loginController.userData['isDeliverable'] ?? 'N';
     int userId = loginController.userData['userId'];
 
     return Scaffold(
-      floatingActionButton:CustomFloatingActionButton(
+      floatingActionButton: CustomFloatingActionButton(
         onPressed: () => _showDialog(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -779,17 +804,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Product Information', style: Theme.of(context).textTheme.bodyLarge),
+                      Text('Product Information',
+                          style: Theme.of(context).textTheme.bodyLarge),
                       SizedBox(height: U_Sizes.spaceBtwItems),
                       FutureBuilder<Uint8List?>(
                         future: fetchImage(imageUrl),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return Center(
-                              child: CircularProgressIndicator(color: U_Colors.yaleBlue),
+                              child: CircularProgressIndicator(
+                                  color: U_Colors.yaleBlue),
                             );
-                          } else if (snapshot.hasError || snapshot.data == null) {
-                            return Center(child: Icon(Icons.error, color: Colors.red));
+                          } else if (snapshot.hasError ||
+                              snapshot.data == null) {
+                            return Center(
+                                child: Icon(Icons.error, color: Colors.red));
                           } else {
                             return Image.memory(
                               snapshot.data!,
@@ -802,7 +832,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                       SizedBox(height: U_Sizes.spaceBtwItems),
                       Text('Product Name: ${widget.product.productName}'),
-                      Text('Total Price: ₹${widget.totalPrice.toStringAsFixed(2)}'),
+                      Text(
+                          'Total Price: ₹${widget.totalPrice.toStringAsFixed(2)}'),
                       Text('Quantity: ${widget.quantity}'),
                     ],
                   ),
@@ -837,11 +868,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         // Text('Name: ${userData['name']}'),
                         // Text('Mobile: ${userData['mobileNo']}'),
                         // Text('Email: ${userData['email']}'),
-                        Text('Address :', style: Theme.of(context).textTheme.bodyLarge),
+                        Text('Address :',
+                            style: Theme.of(context).textTheme.bodyLarge),
                         SizedBox(height: U_Sizes.spaceBwtTwoSections),
 
                         // Horizontally scrolling addresses
-                        if (userData['address'] != null && userData['address'].isNotEmpty)
+                        if (userData['address'] != null &&
+                            userData['address'].isNotEmpty)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -852,73 +885,89 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   itemCount: userData['address'].length,
                                   itemBuilder: (context, index) {
                                     var address = userData['address'][index];
-                                    bool isSelected = selectedAddressIndex == index;
+                                    bool isSelected =
+                                        selectedAddressIndex == index;
 
                                     return GestureDetector(
                                       onTap: () {
                                         setState(() {
                                           selectedAddressIndex = index;
-                                          selectedAddressData = userData['address'][index];
+                                          selectedAddressData =
+                                              userData['address'][index];
                                         });
-                                        print('Selected Address: ${userData['address'][index]}');
-                                        print('Selected Address ID: ${selectedAddressData?['id']}');
+                                        print(
+                                            'Selected Address: ${userData['address'][index]}');
+                                        print(
+                                            'Selected Address ID: ${selectedAddressData?['id']}');
                                       },
                                       child: Container(
                                         width: 250,
-                                        margin: EdgeInsets.symmetric(horizontal: 8.0),
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 8.0),
                                         decoration: BoxDecoration(
                                           border: Border.all(
-                                            color: isSelected ? U_Colors.yaleBlue : Colors.grey,
+                                            color: isSelected
+                                                ? U_Colors.yaleBlue
+                                                : Colors.grey,
                                           ),
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                           color: isSelected
-                                              ? U_Colors.satinSheenGold.withOpacity(0.2)
+                                              ? U_Colors.satinSheenGold
+                                                  .withOpacity(0.2)
                                               : Colors.white,
                                         ),
                                         padding: EdgeInsets.all(10),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               'Name: ${address['name']} ${address['fatherName']} ${address['lastName']}',
                                               style: TextStyle(
-                                                  color:
-                                                  isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  color: isSelected
+                                                      ? U_Colors.yaleBlue
+                                                      : Colors.black),
                                             ),
                                             SizedBox(height: 4),
                                             Text(
                                               'City: ${address['city']}',
                                               style: TextStyle(
-                                                  color:
-                                                  isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  color: isSelected
+                                                      ? U_Colors.yaleBlue
+                                                      : Colors.black),
                                             ),
                                             SizedBox(height: 4),
                                             Text(
                                               'State: ${address['state']}',
                                               style: TextStyle(
-                                                  color:
-                                                  isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  color: isSelected
+                                                      ? U_Colors.yaleBlue
+                                                      : Colors.black),
                                             ),
                                             SizedBox(height: 4),
                                             Text(
                                               'PinCode: ${address['pinCode']}',
                                               style: TextStyle(
-                                                  color:
-                                                  isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  color: isSelected
+                                                      ? U_Colors.yaleBlue
+                                                      : Colors.black),
                                             ),
                                             SizedBox(height: 4),
                                             Text(
                                               'Address: ${address['address']}',
                                               style: TextStyle(
-                                                  color:
-                                                  isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  color: isSelected
+                                                      ? U_Colors.yaleBlue
+                                                      : Colors.black),
                                             ),
                                             SizedBox(height: 4),
                                             Text(
                                               'Mobile: ${address['mobileNo']}',
                                               style: TextStyle(
-                                                  color:
-                                                  isSelected ? U_Colors.yaleBlue : Colors.black),
+                                                  color: isSelected
+                                                      ? U_Colors.yaleBlue
+                                                      : Colors.black),
                                             ),
                                           ],
                                         ),
@@ -934,15 +983,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   padding: const EdgeInsets.only(top: 10.0),
                                   child: Text(
                                     'Please choose an address.',
-                                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ),
                             ],
                           )
                         else
-                        // Message when no addresses are available
-                          Text('No address available', style: TextStyle(color: Colors.grey)),
-
+                          // Message when no addresses are available
+                          Text('No address available',
+                              style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   ),
@@ -1012,42 +1063,43 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     Expanded(
                       child: TextField(
                         onChanged: (value) {
-                          _couponController.value = _couponController.value.copyWith(
-                            text: value.toUpperCase(), // Forces uppercase conversion
-                            selection: TextSelection.collapsed(offset: value.length),
+                          _couponController.value =
+                              _couponController.value.copyWith(
+                            text: value.toUpperCase(),
+                            // Forces uppercase conversion
+                            selection:
+                                TextSelection.collapsed(offset: value.length),
                           );
                         },
                         controller: _couponController,
                         decoration: InputDecoration(
                           hintText: 'Enter your coupon code',
                           border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12.0),
+                          enabledBorder: InputBorder.none,
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12.0),
                         ),
                       ),
                     ),
                     ElevatedButton(
-
-                      onPressed: (){
-                        if (_couponController.text.isEmpty || _couponController.text.length < 6) {
+                      onPressed: () {
+                        if (_couponController.text.isEmpty ||
+                            _couponController.text.length < 6) {
                           setState(() {
                             _message = _couponController.text.isEmpty
                                 ? 'Enter coupon code'
                                 : 'Coupon code must be at least 6 characters';
                           });
-                        }
-                        else
-                        {
+                        } else {
                           _applyCoupon();
                         }
                       },
                       child: Text('Apply'),
                       style: ElevatedButton.styleFrom(
-
                         backgroundColor: U_Colors.yaleBlue,
-                          shadowColor: Colors.transparent,
-                          elevation: 0,
-                          side: BorderSide.none,
+                        shadowColor: Colors.transparent,
+                        elevation: 0,
+                        side: BorderSide.none,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
@@ -1061,7 +1113,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 _message,
                 style: TextStyle(
                   fontSize: 16.0,
-                  color: _message.contains('Invalid') || _message.contains('Failed')? Colors.red : Colors.green,
+                  color: _message.contains('Invalid') ||
+                          _message.contains('Failed')
+                      ? Colors.red
+                      : Colors.green,
                 ),
               ),
 
@@ -1079,43 +1134,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Redeem Amount', style: Theme.of(context).textTheme.bodyLarge),
+                        Text('Redeem Amount',
+                            style: Theme.of(context).textTheme.bodyLarge),
                         SizedBox(height: U_Sizes.spaceBtwItems),
-                        Text('Rs. ${walletAmount.toStringAsFixed(2)} is available in your wallet.'),
+                        Text(
+                            'Rs. ${walletAmount.toStringAsFixed(2)} is available in your wallet.'),
                         SizedBox(height: U_Sizes.spaceBtwItems),
                         _isWalletRedeemable
                             ? Row(
-                          children: [
-                            Text('Do you want to redeem it?'),
-                            Checkbox(
-                              value: _isRedeemChecked,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _isRedeemChecked = value ?? false;
-                                  _isNotRedeemChecked = !_isRedeemChecked;
-                                  _updatedTotalPrice = _isRedeemChecked
-                                      ? widget.totalPrice - walletAmount
-                                      : widget.totalPrice;
-                                  if (_updatedTotalPrice <= 0.00) _updatedTotalPrice = 0.00;
-                                });
-                              },
-                            ),
-                            Text('Yes'),
-                            Checkbox(
-                              value: _isNotRedeemChecked,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _isNotRedeemChecked = value ?? false;
-                                  _isRedeemChecked = !_isNotRedeemChecked;
-                                  _updatedTotalPrice = _isNotRedeemChecked
-                                      ? widget.totalPrice
-                                      : _updatedTotalPrice;
-                                });
-                              },
-                            ),
-                            Text('No'),
-                          ],
-                        )
+                                children: [
+                                  Text('Do you want to redeem it?'),
+                                  Checkbox(
+                                    value: _isRedeemChecked,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        _isRedeemChecked = value ?? false;
+                                        _isNotRedeemChecked = !_isRedeemChecked;
+                                        _updatedTotalPrice = _isRedeemChecked
+                                            ? widget.totalPrice - walletAmount
+                                            : widget.totalPrice;
+                                        if (_updatedTotalPrice <= 0.00)
+                                          _updatedTotalPrice = 0.00;
+                                      });
+                                    },
+                                  ),
+                                  Text('Yes'),
+                                  Checkbox(
+                                    value: _isNotRedeemChecked,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        _isNotRedeemChecked = value ?? false;
+                                        _isRedeemChecked = !_isNotRedeemChecked;
+                                        _updatedTotalPrice = _isNotRedeemChecked
+                                            ? widget.totalPrice
+                                            : _updatedTotalPrice;
+                                      });
+                                    },
+                                  ),
+                                  Text('No'),
+                                ],
+                              )
                             : SizedBox.shrink(),
                       ],
                     ),
@@ -1130,19 +1188,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ElevatedButton(
                   child: _isLoading
                       ? SizedBox(
-                    width: 24.0, // Set width
-                    height: 24.0, // Set height
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
+                          width: 24.0, // Set width
+                          height: 24.0, // Set height
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
                       : _message.contains('Coupon applied')
-                    ?  Text('Checkout \₹ ${calculateFinalAmount().toStringAsFixed(2)}')
-                    : Text('Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
+                          ? Text(
+                              'Checkout \₹ ${calculateFinalAmount().toStringAsFixed(2)}')
+                          : Text(
+                              'Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: deliverable == 'Y' ? U_Colors.chatprimaryColor : Colors.grey,
+                    backgroundColor: deliverable == 'Y'
+                        ? U_Colors.chatprimaryColor
+                        : Colors.grey,
                   ),
                   onPressed: () async {
                     if (deliverable == 'Y') {
-                       finalPrice = _message.contains('Coupon applied')
+                      finalPrice = _message.contains('Coupon applied')
                           ? calculateFinalAmount()
                           : _updatedTotalPrice;
 
@@ -1153,18 +1215,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         });
                         await _createOrder(context, finalPrice);
                         setState(() {
-                          _isLoading = false; // Stop loading after order is created
+                          _isLoading =
+                              false; // Stop loading after order is created
                         });
-
                       } else {
                         // Handled amount dialog logic
                         await showAmountDialog(context, finalPrice);
-
                       }
                     } else {
                       // handled alert dialog if not deliverable
                       _showAlertDialog();
-
                     }
                   },
                 ),
@@ -1232,7 +1292,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       },
                       child: Text('OK'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:  U_Colors.chatprimaryColor,
+                        backgroundColor: U_Colors.chatprimaryColor,
                       ),
                     ),
                   ],
@@ -1256,8 +1316,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   double calculateFinalAmount() {
-    double discountAmount = widget.product.productMakingCharges! * (widget.product.discountPercentage! / 100) ;
-    double finalAmount = _updatedTotalPrice - (discountAmount * widget.quantity);
+    double discountAmount = widget.product.productMakingCharges! *
+        (widget.product.discountPercentage! / 100);
+    double finalAmount =
+        _updatedTotalPrice - (discountAmount * widget.quantity);
     return finalAmount;
   }
 
@@ -1281,6 +1343,4 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return null;
     }
   }
-
 }
-
