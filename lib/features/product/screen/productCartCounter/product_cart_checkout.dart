@@ -538,13 +538,13 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
         widget.cartData!.map<ProductTransactionDTO>((item){
           return ProductTransactionDTO(
             productId: item['id'],
-            productPrice:item['productPrice']?.toDouble(),
-            makingCharges : item['productMakingCharges']?.toDouble(),
-            productQuantity : item['productQuantity']?.toInt(),
+            productPrice:item['productPrice'],
+            makingCharges : item['productMakingCharges'],
+            productQuantity : item['productQuantity'],
             productWeight : item['productWeight']?.toDouble(),
             purity : item['purity'],
             gstCharge: item['gstCharges']?.toDouble(),
-            merchantId: item['productOwnerId']?.toInt(),
+            merchantId: item['productOwnerId'],
             payedFromWallet : _isRedeemChecked,
             walletAmount: walletAmount,
             createDate :  DateTime.now(),
@@ -554,7 +554,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
             productName: item['productName'],
             totalAmount: item['totalPrice'],
               discountedPrice: totalFinalPrice,
-              discountPercentage: item['discountPercentage'],
+              discountPercentage: item['discountPercentage']?.toDouble(),
               goldAndDiamondPrice: item['goldAndDiamondPrice'],
               discountApplied: item['discountApplied']
 
@@ -579,6 +579,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
 
       final response =
       await TranactionOrderAPI.postTransactionDetails(transactionDetails);
+      print('Transaction status: ${response.statusCode}');
 
       if (response.statusCode == 201) {
         print('Payment details posted successfully');
