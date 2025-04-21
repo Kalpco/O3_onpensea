@@ -1,70 +1,55 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onpensea/features/Admin/addProduct.dart';
-import 'package:onpensea/features/Admin/addProductActionButton.dart';
+import 'package:iconsax/iconsax.dart';
+import 'package:onpensea/features/customizedProduct/admin/addCustomProductActionButton.dart';
 import 'package:onpensea/features/product/apiService/productService.dart';
 import 'package:onpensea/features/product/models/productResponseDTO.dart';
-import 'package:onpensea/features/product/screen/customeFloatingActionButton/custom_floating_action_button.dart';
-import 'package:onpensea/features/product/screen/productCartCounter/cart_counter_icon.dart';
-import 'package:onpensea/features/product/screen/productCategory/product_home_category.dart';
-import 'package:onpensea/features/product/screen/productContainer/product_search_container.dart';
-import 'package:onpensea/features/product/screen/productGridLayout/product_grid_layout.dart';
-import 'package:onpensea/features/product/screen/productHeading/product_section_heading.dart';
-import 'package:onpensea/features/product/screen/productHomeAppBar/home_app_bar.dart';
-import 'package:onpensea/features/product/screen/productImageText/product_vertical_image_text.dart';
-import 'package:onpensea/features/product/screen/productWidget/product_cart_vertical.dart';
-import 'package:onpensea/utils/constants/appBar.dart';
-import 'package:onpensea/utils/constants/colors.dart';
-import 'package:onpensea/utils/constants/sizes.dart';
-import 'package:onpensea/utils/constants/text_strings.dart';
+import 'package:onpensea/features/product/screen/productHome/products_home_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../utils/constants/colors.dart';
 import '../../../../utils/constants/images_path.dart';
 import '../../../../utils/constants/primary_header_container.dart';
-import '../../../Home/widgets/DividerWithAvatar.dart';
-import '../../../authentication/screens/login/Controller/LoginController.dart';
-import '../../models/products.dart';
+import '../../../../utils/constants/sizes.dart';
+import '../../../../utils/constants/text_strings.dart';
+import '../../Home/widgets/DividerWithAvatar.dart';
+import '../../authentication/screens/login/Controller/LoginController.dart';
+import '../../product/screen/customeFloatingActionButton/custom_floating_action_button.dart';
+import '../../product/screen/productGridLayout/product_grid_layout.dart';
+import '../../product/screen/productHeading/product_section_heading.dart';
+import '../../product/screen/productHomeAppBar/home_app_bar.dart';
+import '../models/customizedProductResponseDTO.dart';
+import '../models/customizedWrapperResponseDTO.dart';
+import 'adminCustomProductCartVertical.dart';
+import 'adminCustomProductSubCategory.dart';
 
-class ProductHomeScreen extends StatefulWidget {
-  const ProductHomeScreen(
-      {super.key, this.productCategory, this.subCategory, this.typeOfStone});
 
-  final String? productCategory;
-  final String? subCategory;
-  final String? typeOfStone;
+
+class AdminCustomProductSubcategoryDetailPage extends StatefulWidget {
+  final String? productSubCategory;
+
+  AdminCustomProductSubcategoryDetailPage({required this.productSubCategory});
 
   @override
-  State<ProductHomeScreen> createState() => _ProductHomeScreenState();
+  _AdminCustomProductSubcategoryDetailPageState createState() => _AdminCustomProductSubcategoryDetailPageState();
 }
 
-class _ProductHomeScreenState extends State<ProductHomeScreen> {
+class _AdminCustomProductSubcategoryDetailPageState extends State<AdminCustomProductSubcategoryDetailPage> {
   ScrollController scrollController = ScrollController();
-  TextEditingController searchController = TextEditingController();
-
   final loginController = Get.find<LoginController>();
-  late Future<ProductWrapperResponseDTO> futureProducts;
-  late List<ProductResponseDTO> products = [];
-  late List<ProductResponseDTO> originalList = List.from(products);
+  late Future<CustomizedProductWrapperResponseDTO> futureProducts;
+  late List<CustomizedProductResponseDTO> customProducts = [];
+  late List<CustomizedProductResponseDTO> originalList = List.from(customProducts);
   String? userType;
   int pageNo = 0;
   final int pageSize = 20;
   bool isLoading = false;
-  bool hasMoreData = true; // Track if more data is available
-
+  bool hasMoreData = true;
 
   @override
   void initState() {
     super.initState();
-    products.clear();
-    userType = loginController.userData['userType'];
-    print('user type : $userType');
-   // futureProducts = ProductService().fetchProducts(widget.productCategory,widget.typeOfStone);
-   //  userType = loginController.userData['userType'];
-   //  print(widget.typeOfStone);
-   //  print("++++++++++++++++++++++++++++++++++++");
     loaderFunction(); // Load the first page of products
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -82,22 +67,22 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
       isLoading = true;
     });
     try {
-      final response = await ProductService().fetchProducts(widget.productCategory,widget.subCategory,widget.typeOfStone,pageNo, pageSize);
+      final response = await ProductService().fetchAdminCustomProducts(widget.productSubCategory,pageNo, pageSize);
       setState(() {
         print("pageNo: $pageNo");
         pageNo++; // Increment page number
-        products.addAll(response.productListResponseDTO); // Add new products
-        originalList = List.from(products); // Store original list
+        customProducts.addAll(response.customizedProductResponseDTOList); // Add new products
+        originalList = List.from(customProducts); // Store original list
         // Check if there's more data
-        print("products {$products}");
-        if (response.productListResponseDTO.length < pageSize) {
+        print("products {$customProducts}");
+        if (response.customizedProductResponseDTOList.length < pageSize) {
           hasMoreData = false;
         }
       });
     } catch (e) {
       print('Error loading products: $e');
       Get.snackbar(
-        '${U_TextStrings.noProductAvailable}',
+        '${U_TextStrings.noProductFound}',
         '',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
@@ -106,29 +91,13 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
         duration: Duration(seconds: 1),
 
       );
+
     }
     setState(() {
       isLoading = false;
     });
   }
 
-  void onSearch() {
-    if (searchController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Search Something..."),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } else {
-      // Perform search action
-      print("Searching for: ${searchController.text}");
-      // Call your API or perform navigation here
-    }
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,21 +118,14 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                     Container(
                       width: 380,
                       child: TextFormField(
-                        controller: searchController,
                         decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.search, color: Colors.black),
                           hintText: 'Search',
                           hintStyle: TextStyle(color: Colors.grey),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide.none,
-                          ),
+                          border: InputBorder.none,
                           filled: true,
                           fillColor: Colors.white,
                           contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.search, color: Colors.black),
-                            onPressed: onSearch, // Call the search function
-                          ),
                         ),
                         style: TextStyle(color: Colors.black),
                       ),
@@ -182,7 +144,7 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                           ),
                           const SizedBox(height: U_Sizes.spaceBtwItems),
                           // Categories list
-                          ProductHomeCategory(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone),
+                          AdminCustomProductSubCategory(productSubCategory:widget.productSubCategory),
                         ],
                       ),
                     ),
@@ -197,10 +159,10 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                   child: Column(
                     children: [
                       ProductGridLayout(
-                        itemCount: products.length,
+                        itemCount: customProducts.length,
                         itemBuilder: (context, index) {
-                          final product = products[index];
-                          return ProductCartVertical(product: product);
+                          final customProduct = customProducts[index];
+                          return AdminCustomProductCartVertical(customProduct: customProduct);
                         },
                       ),
                       if (isLoading)
@@ -236,19 +198,17 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
           ),
         ),
       ),
-        floatingActionButton:
-         CustomFloatingActionButton(onPressed: () => _showDialog(context),
-    ),
+      floatingActionButton: AddCustomProductActionButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
     );
-  }
 
-  // @override
-  // void dispose() {
-  //   scrollController.dispose();
-  //   super.dispose();
-  // }
+  }
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   void _showDialog(BuildContext context) {
     showDialog(

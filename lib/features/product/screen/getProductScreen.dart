@@ -62,7 +62,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   void getUserType() {
     userType = loginController.userData['userType'];
-    print("userType:$userType");
+    print("userType is :$userType");
     print("product details : ${widget.product.discountApplied}");
   }
 

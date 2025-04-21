@@ -6,6 +6,7 @@ import 'package:onpensea/features/product/models/productResponseDTO.dart';
 import 'package:http/http.dart' as http;
 import '../../../network/dio_client.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
+import '../../customizedProduct/models/customizedWrapperResponseDTO.dart';
 
 class ProductService {
   final LoginController loginController = Get.find<LoginController>();
@@ -104,6 +105,49 @@ class ProductService {
       throw Exception('Failed to load products: $e');
     }
   }
+
+
+  //fetch Custom Products for User
+  Future<CustomizedProductWrapperResponseDTO> fetchCustomProducts(String? subCategory, int pageNo, int pageSize) async {
+    // Construct the full URL with userId
+    try{
+      final String url = '$baseUrl$userId/U/customized?productSubCategory=$subCategory&pageNo=$pageNo&size=$pageSize';
+      final  response = await dio.get(url);
+      print("response $response");
+
+      if (response.statusCode == 200) {
+        return CustomizedProductWrapperResponseDTO.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load products');
+      }
+    }catch(e){
+      print("❌ Error fetching products: $e");
+      throw Exception('Failed to fetch products');
+    }
+
+  }
+
+
+//For fetching Admin Custom data only
+  Future<CustomizedProductWrapperResponseDTO> fetchAdminCustomProducts(String? subCategory, int pageNo, int pageSize) async {
+    // Construct the full URL with userId
+    try{
+      final String url = '$baseUrl$userId/$userType/customized?productSubCategory=$subCategory&pageNo=$pageNo&size=$pageSize';
+      final  response = await dio.get(url);
+      print("response $response");
+
+      if (response.statusCode == 200) {
+        return CustomizedProductWrapperResponseDTO.fromJson(response.data);
+      } else {
+        throw Exception('Failed to load products');
+      }
+    }catch(e){
+      print("❌ Error fetching products: $e");
+      throw Exception('Failed to fetch products');
+    }
+
+  }
+
 
 
 

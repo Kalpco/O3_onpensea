@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onpensea/features/Admin/addProduct.dart';
 import 'package:onpensea/features/Admin/addProductActionButton.dart';
+import 'package:onpensea/features/customizedProduct/models/customizedProductResponseDTO.dart';
+import 'package:onpensea/features/customizedProduct/models/customizedWrapperResponseDTO.dart';
 import 'package:onpensea/features/product/apiService/productService.dart';
 import 'package:onpensea/features/product/models/productResponseDTO.dart';
 import 'package:onpensea/features/product/screen/customeFloatingActionButton/custom_floating_action_button.dart';
@@ -24,30 +26,30 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../utils/constants/images_path.dart';
 import '../../../../utils/constants/primary_header_container.dart';
-import '../../../Home/widgets/DividerWithAvatar.dart';
-import '../../../authentication/screens/login/Controller/LoginController.dart';
-import '../../models/products.dart';
+import '../../Home/widgets/DividerWithAvatar.dart';
+import '../../authentication/screens/login/Controller/LoginController.dart';
+import 'customProductCartVertical.dart';
+import 'customProductSubCategory.dart';
 
-class ProductHomeScreen extends StatefulWidget {
-  const ProductHomeScreen(
-      {super.key, this.productCategory, this.subCategory, this.typeOfStone});
 
-  final String? productCategory;
+class CustomProductScreen extends StatefulWidget {
+  const CustomProductScreen(
+      {super.key, this.subCategory});
+
   final String? subCategory;
-  final String? typeOfStone;
 
   @override
-  State<ProductHomeScreen> createState() => _ProductHomeScreenState();
+  State<CustomProductScreen> createState() => _CustomProductScreenState();
 }
 
-class _ProductHomeScreenState extends State<ProductHomeScreen> {
+class _CustomProductScreenState extends State<CustomProductScreen> {
   ScrollController scrollController = ScrollController();
   TextEditingController searchController = TextEditingController();
 
   final loginController = Get.find<LoginController>();
-  late Future<ProductWrapperResponseDTO> futureProducts;
-  late List<ProductResponseDTO> products = [];
-  late List<ProductResponseDTO> originalList = List.from(products);
+  late Future<CustomizedProductWrapperResponseDTO> futureProducts;
+  late List<CustomizedProductResponseDTO> customProducts = [];
+  late List<CustomizedProductResponseDTO> originalList = List.from(customProducts);
   String? userType;
   int pageNo = 0;
   final int pageSize = 20;
@@ -58,13 +60,9 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
   @override
   void initState() {
     super.initState();
-    products.clear();
+    customProducts.clear();
     userType = loginController.userData['userType'];
     print('user type : $userType');
-   // futureProducts = ProductService().fetchProducts(widget.productCategory,widget.typeOfStone);
-   //  userType = loginController.userData['userType'];
-   //  print(widget.typeOfStone);
-   //  print("++++++++++++++++++++++++++++++++++++");
     loaderFunction(); // Load the first page of products
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -82,15 +80,15 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
       isLoading = true;
     });
     try {
-      final response = await ProductService().fetchProducts(widget.productCategory,widget.subCategory,widget.typeOfStone,pageNo, pageSize);
+      final response = await ProductService().fetchCustomProducts(widget.subCategory,pageNo, pageSize);
       setState(() {
         print("pageNo: $pageNo");
         pageNo++; // Increment page number
-        products.addAll(response.productListResponseDTO); // Add new products
-        originalList = List.from(products); // Store original list
+        customProducts.addAll(response.customizedProductResponseDTOList); // Add new products
+        originalList = List.from(customProducts); // Store original list
         // Check if there's more data
-        print("products {$products}");
-        if (response.productListResponseDTO.length < pageSize) {
+        print("Custom Products :- {$customProducts}");
+        if (response.customizedProductResponseDTOList.length < pageSize) {
           hasMoreData = false;
         }
       });
@@ -182,7 +180,7 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                           ),
                           const SizedBox(height: U_Sizes.spaceBtwItems),
                           // Categories list
-                          ProductHomeCategory(productCategory:widget.productCategory,typeOfStone:widget.typeOfStone),
+                          CustomProductSubCategory(productSubCategory:widget.subCategory),
                         ],
                       ),
                     ),
@@ -197,10 +195,10 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
                   child: Column(
                     children: [
                       ProductGridLayout(
-                        itemCount: products.length,
+                        itemCount: customProducts.length,
                         itemBuilder: (context, index) {
-                          final product = products[index];
-                          return ProductCartVertical(product: product);
+                          final customProduct = customProducts[index];
+                          return CustomProductCartVertical(customProduct: customProduct);
                         },
                       ),
                       if (isLoading)
@@ -236,9 +234,9 @@ class _ProductHomeScreenState extends State<ProductHomeScreen> {
           ),
         ),
       ),
-        floatingActionButton:
-         CustomFloatingActionButton(onPressed: () => _showDialog(context),
-    ),
+      floatingActionButton:
+      CustomFloatingActionButton(onPressed: () => _showDialog(context),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
     );

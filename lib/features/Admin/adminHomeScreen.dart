@@ -20,6 +20,7 @@ import '../../../utils/constants/sizes.dart';
 import '../../network/dio_client.dart';
 import '../Home/widgets/DividerWithAvatar.dart';
 import '../authentication/screens/login/Controller/LoginController.dart';
+import '../customizedProduct/admin/adminCustomProductScreen.dart';
 import 'adminProductsHomeScreen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -36,6 +37,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   List<String> menCollectionImages = [];
   List<String> womenCollectionImages = [];
   List<String> kidsCollectionImages = [];
+  List<String> customizedJewelleryCollectionImages = [];
+
   final loginController = Get.find<LoginController>();
   bool isLoading = true;
   int _currentPage = 0;
@@ -96,10 +99,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
             goldCollectionImages = [fetchedImages[2]];
             diamondCollectionImages = [fetchedImages[1]];
-            customJewelryImages = [fetchedImages[10]];
+            customJewelryImages = [fetchedImages[11]];
             menCollectionImages = [fetchedImages[0]];
             womenCollectionImages = [fetchedImages[6]];
             kidsCollectionImages = [fetchedImages[9]];
+            customizedJewelleryCollectionImages = [fetchedImages[5]];
+
 
             isLoading = false;
           });
@@ -865,6 +870,61 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             //     );
             //   },
             // ),
+            SizedBox(
+              height: 70,
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(width: 20),
+                Text(
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: U_Colors.yaleBlue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  "Premium Design Collection",
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 35.0, right: 35.0, top: 2.5, bottom: 5),
+              child: DividerWithAvatar(
+                  dividerThickness: 0.2,
+                  dividerColor: U_Colors.yaleBlue,
+                  imagePath: 'assets/logos/KALPCO_splash.png'),
+            ),
+            SizedBox(height: U_Sizes.spaceBtwItems),
+            GestureDetector(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10.0,
+                      spreadRadius: 2.0,
+                      offset: Offset(2.0, 2.0),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: customizedJewelleryCollectionImages.isNotEmpty
+                      ? buildImage(customizedJewelleryCollectionImages[0])
+                      : Container(),
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AdminCustomProductScreen(subCategory:"Ring")),
+                );
+              },
+            ),
             SizedBox(
               height: 70,
             ),
