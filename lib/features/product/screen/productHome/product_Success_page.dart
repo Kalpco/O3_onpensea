@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +8,8 @@ import 'package:onpensea/features/product/models/order_api_success.dart';
 import 'package:onpensea/features/product/screen/productBottomBar/bottom_bar.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
+import '../../../../commons/config/api_constants.dart';
+import '../../../../network/dio_client.dart';
 import '../../../../utils/constants/images_path.dart';
 import '../../../Home/widgets/DividerWithAvatar.dart';
 import '../../../authentication/screens/login/Controller/LoginController.dart';
@@ -31,6 +34,7 @@ class ProductOrderSuccessSummaryPage extends StatefulWidget {
 
 class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSummaryPage> {
   final loginController = Get.find<LoginController>();
+  final dio = DioClient.getInstance();
 
   @override
   void initState() {
@@ -44,8 +48,11 @@ class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSumm
     final orderId = widget.order.id;
     final paymentId = widget.paymentId;
     final totalAmount = widget.order.amount / 100;
+    final email = loginController.userData['email']?.toString();
+    final name = loginController.userData['name']?.toString() ?? '';
 
-    if (mobileNumber.isNotEmpty) {
+
+    if (mobileNumber != null && mobileNumber.isNotEmpty) {
       final userApiUrl =
           'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=Your%20order%20with%20Kalpco%20has%20been%20confirmed!%20Payment%20reference%20no%20is-$orderId.%20Your%20order%20will%20be%20delivered%20within%205%20working%20days.%20You%20can%20reach%20out%20us%20at%20our%20support%20no.%209987734001&sendername=KLPCOP&smstype=TRANS&numbers=$mobileNumber&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707171724181792368';
       final userResponse = await http.get(Uri.parse(userApiUrl));
@@ -62,6 +69,63 @@ class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSumm
         print('Admin confirmation message sent successfully');
       } else {
         print('Failed to send admin confirmation message');
+      }
+    }
+    else if(email != null && email.isNotEmpty){
+      try
+      {
+        final response = await dio.post(
+          "${ApiConstants.USERS_URL}/orderConfirmationMail",
+          data: jsonEncode({
+            "email": email,
+            "name": name,
+            "paymentId": paymentId.toString(),
+          }),
+          options: Options(
+            headers: {
+              "Content-Type": "application/json",
+            },
+          ),
+        );
+        if (response.statusCode == 201) {
+          print('Order confirmation mail sent successfully');
+
+        } else {
+          print('Failed to send order confirmation mail');
+
+        }
+      }
+      catch(e){
+        print('Failed to send order confirmation mail : $e');
+      }
+
+    }
+    else{
+      try
+      {
+        final response = await dio.post(
+          "${ApiConstants.USERS_URL}/orderConfirmationMail",
+          data: jsonEncode({
+            "email": email,
+            "name": name,
+            "paymentId": paymentId.toString(),
+          }),
+          options: Options(
+            headers: {
+              "Content-Type": "application/json",
+            },
+          ),
+        );
+        if (response.statusCode == 201) {
+          print('Order confirmation mail sent successfully');
+
+        } else {
+          print('Failed to send order confirmation mail');
+
+        }
+      }
+      catch(e){
+        print('Failed to send order confirmation mail : $e');
       }
     }
   }

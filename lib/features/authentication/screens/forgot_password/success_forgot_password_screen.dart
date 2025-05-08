@@ -21,7 +21,7 @@ class SuccessForgotPasswordScreen extends StatelessWidget {
               'PASSWORD\n   UPDATED',
               style: GoogleFonts.poppins(
                 fontSize: 40,
-                color: U_Colors.success,
+                color: U_Colors.satinSheenGold,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -36,7 +36,7 @@ class SuccessForgotPasswordScreen extends StatelessWidget {
               'Your password has been updated!',
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.black54,
+                color: U_Colors.satinSheenGold,
               ),
               textAlign: TextAlign.center,
             ),
@@ -49,7 +49,7 @@ class SuccessForgotPasswordScreen extends StatelessWidget {
                   side: BorderSide.none,
                   backgroundColor: U_Colors.yaleBlue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onPressed: () {

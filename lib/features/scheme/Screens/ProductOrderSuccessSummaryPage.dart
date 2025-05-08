@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:http/http.dart' as http;
 import 'package:onpensea/features/scheme/Screens/widgets/BottomBar.dart';
 import 'package:onpensea/utils/constants/colors.dart';
 import 'package:onpensea/utils/constants/images_path.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
 
+import '../../../commons/config/api_constants.dart';
+import '../../../network/dio_client.dart';
 import '../../Home/widgets/DividerWithAvatar.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
 import '../../product/models/order_api_success.dart';
 import '../models/investment_response_model.dart';
 
 
-class ProductOrderSuccessSummaryPage extends StatelessWidget {
+class ProductOrderSuccessSummaryPage extends StatefulWidget {
   String paymentId;
   RazorpaySuccessResponseDTO order;
-  Datum? investment;
   final int addressId;
 
 
@@ -26,6 +28,100 @@ class ProductOrderSuccessSummaryPage extends StatelessWidget {
         required this.addressId
 
       });
+
+  @override
+  State<ProductOrderSuccessSummaryPage> createState() => _ProductOrderSuccessSummaryPageState();
+}
+
+class _ProductOrderSuccessSummaryPageState extends State<ProductOrderSuccessSummaryPage> {
+  Datum? investment;
+  final dio = DioClient.getInstance();
+  final loginController = Get.find<LoginController>();
+
+
+  @override
+  void initState() {
+    super.initState();
+    _sendOrderConfirmationMessage();
+  }
+  Future<void> _sendOrderConfirmationMessage() async {
+    final userData = loginController.userData;
+    final mobileNumber = userData['mobileNo'] ?? '';
+    final orderId = widget.order.id;
+    final paymentId = widget.paymentId;
+    final totalAmount = widget.order.amount / 100;
+    String email = loginController.userData['email'];
+    String name = loginController.userData['name'];
+
+
+    if (mobileNumber != null && mobileNumber.isNotEmpty) {
+      final userApiUrl =
+          'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=Your%20order%20with%20Kalpco%20has%20been%20confirmed!%20Payment%20reference%20no%20is-$orderId.%20Your%20order%20will%20be%20delivered%20within%205%20working%20days.%20You%20can%20reach%20out%20us%20at%20our%20support%20no.%209987734001&sendername=KLPCOP&smstype=TRANS&numbers=$mobileNumber&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707171724181792368';
+      final userResponse = await http.get(Uri.parse(userApiUrl));
+      if (userResponse.statusCode == 200) {
+        print('Order confirmation message sent successfully');
+      } else {
+        print('Failed to send order confirmation message');
+      }
+
+      final adminApiUrl =
+          'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=Dear%20Merchant,%20customer%20has%20placed%20an%20order%20with%20order%20id%20:%20$orderId%20,%20payment%20id%20:%20$paymentId%20and%20payment%20amount%20of%20Rs.%20$totalAmount%20.%20Please%20review%20and%20process%20it%20promptly.%20Regards,%20Kalpco.&sendername=KLPCOP&smstype=TRANS&numbers=9566234975&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707173753113649256';
+      final adminResponse = await http.get(Uri.parse(adminApiUrl));
+      if (adminResponse.statusCode == 200) {
+        print('Admin confirmation message sent successfully');
+      } else {
+        print('Failed to send admin confirmation message');
+      }
+    }
+    else if(email != null && email.isNotEmpty){
+      try
+      {
+        final response = await dio.post(
+          "${ApiConstants.USERS_URL}/orderConfirmationMail",
+          data: {
+            "email": email,
+            "name": name,
+            "paymentId": paymentId.toString(),
+          },
+        );
+        if (response.statusCode == 201) {
+          print('Order confirmation mail sent successfully');
+
+        } else {
+          print('Failed to send order confirmation mail');
+
+        }
+      }
+      catch(e){
+        print('Failed to send order confirmation mail : $e');
+      }
+
+    }
+    else{
+      try
+      {
+        final response = await dio.post(
+          "${ApiConstants.USERS_URL}/orderConfirmationMail",
+          data: {
+            "email": email,
+            "name": name,
+            "paymentId": paymentId.toString(),
+          },
+        );
+        if (response.statusCode == 201) {
+          print('Order confirmation mail sent successfully');
+
+        } else {
+          print('Failed to send order confirmation mail');
+
+        }
+      }
+      catch(e){
+        print('Failed to send order confirmation mail : $e');
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +254,7 @@ class ProductOrderSuccessSummaryPage extends StatelessWidget {
                                       EdgeInsets.symmetric(horizontal: 20.0),
                                   width: MediaQuery.of(context).size.width,
                                   child: Text(
-                                    "Order Id :                        ${order.id}",
+                                    "Order Id :                        ${widget.order.id}",
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
@@ -170,7 +266,7 @@ class ProductOrderSuccessSummaryPage extends StatelessWidget {
                                       EdgeInsets.symmetric(horizontal: 20.0),
                                   width: MediaQuery.of(context).size.width,
                                   child: Text(
-                                    "Payment Id :" + paymentId,
+                                    "Payment Id :" + widget.paymentId,
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
@@ -299,7 +395,7 @@ class ProductOrderSuccessSummaryPage extends StatelessWidget {
                                   width: MediaQuery.of(context).size.width,
                                   child: Text(
                                     "Total Amount :     " +
-                                        (order.amount/100).toStringAsFixed(2),
+                                        (widget.order.amount/100).toStringAsFixed(2),
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),

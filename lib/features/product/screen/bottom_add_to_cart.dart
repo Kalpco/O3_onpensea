@@ -16,6 +16,7 @@ import 'package:get/get.dart';
 import '../../../network/dio_client.dart';
 import '../../Home/widgets/DividerWithAvatar.dart';
 import '../../authentication/screens/login/Controller/LoginController.dart';
+import '../../authentication/screens/signUp/signupWidgets/FlipSignUp.dart';
 import 'CheckoutScreen/CheckoutScreen.dart';
 
 class BottomAddToCart extends StatefulWidget {
@@ -230,7 +231,7 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SignUpScreen()),
+                                    builder: (context) =>  FlipSignupScreen()),
                               );
                             },
                             child: Container(
@@ -310,7 +311,7 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const SignUpScreen()),
+                                    builder: (context) =>  FlipSignupScreen()),
                               );
                             },
                             child: Container(
@@ -389,7 +390,7 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const SignUpScreen()),
+                                builder: (context) =>  FlipSignupScreen()),
                           );
                         },
                         child: Container(
@@ -475,7 +476,7 @@ class _BottomAddToCartState extends State<BottomAddToCart> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const SignUpScreen()),
+                                builder: (context) =>  FlipSignupScreen()),
                           );
                         },
                         child: Container(

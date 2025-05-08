@@ -24,11 +24,6 @@ class LoginHeader extends StatelessWidget {
             image: AssetImage(U_ImagePath.kalpcoUpdatedLogo),
           ),
         ),
-        // Center(
-        //   heightFactor: 2,
-        //   child: Text('KALPCO',
-        //       style: TextStyle(color: U_Colors.yaleBlue,fontSize: 24,fontWeight: FontWeight.bold)),
-        // ),
         Center(
           child: Text(U_TextStrings.loginSubTitle,
               style: TextStyle(color: Colors.black)),

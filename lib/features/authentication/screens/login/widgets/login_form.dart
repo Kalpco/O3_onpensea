@@ -11,7 +11,9 @@ import 'package:onpensea/utils/helper/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../signUp/signupWidgets/FlipSignUp.dart';
 import '../Controller/LoginController.dart';
 
 class LoginForm extends StatefulWidget {
@@ -29,7 +31,7 @@ class _LoginFormState extends State<LoginForm> {
 
   bool _isPasswordVisible = false; // Add this state variable to toggle password visibility
 
-  final loginController = Get.put(LoginController());
+  final loginController = Get.find<LoginController>();
 
   @override
   void dispose() {
@@ -55,7 +57,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
+                  return 'Please enter your email/mobile';
                 }
                 return null;
               },
@@ -110,6 +112,7 @@ class _LoginFormState extends State<LoginForm> {
                           email, password);
 
                       if (success) {
+                        await saveLoginStatus();
                         Get.to(() => NavigationMenu());
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -152,14 +155,14 @@ class _LoginFormState extends State<LoginForm> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Get.off(() => const SignUpScreen()),
+                onPressed: () => Get.off(() =>   FlipSignupScreen()),//
                 child: Text(
                   U_TextStrings.createAccount,
                   style: TextStyle(color: U_Colors.whiteColor),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: U_Colors.yaleBlue,
-                  side: BorderSide(color: U_Colors.satinSheenGold),
+                  side: BorderSide(color: U_Colors.yaleBlue),
                 ),
               ),
             ),
@@ -191,6 +194,11 @@ class _LoginFormState extends State<LoginForm> {
         ),
       ),
     );
+  }
+
+  Future<void> saveLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
   }
 }
 

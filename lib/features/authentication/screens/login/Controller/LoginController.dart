@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../navigation_menu.dart';
 import '../../../../../network/dio_client.dart';
 import '../../../../../utils/jwt/services/jwt_service.dart';
@@ -72,6 +73,8 @@ class LoginController extends GetxController {
       userType.value = '';
       userData.clear();
 
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
       // Redirect user to Login Screen
       Get.offAll(() => const LoginScreen());
 

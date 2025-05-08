@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:onpensea/utils/theme/theme.dart';
+import 'package:screen_protector/screen_protector.dart';
 import 'package:upgrader/upgrader.dart';
-import 'features/authentication/screens/login/login.dart'; // Import your update checker
+import 'features/authentication/screens/login/login.dart';
+import 'navigation_menu.dart'; // Import your update checker
 
 
 class App extends StatefulWidget {
-  const App({super.key});
+  final bool isLoggedIn;
+  const App({super.key, required this.isLoggedIn});
 
   @override
   _AppState createState() => _AppState();
@@ -17,12 +19,19 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    // Check for updates when the app starts
+    _secureScreen();
+  }
+
+  Future<void> _secureScreen() async {
+    try {
+      await ScreenProtector.preventScreenshotOn();
+    } catch (e) {
+      print('Error preventing screenshot: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
@@ -41,7 +50,7 @@ class _AppState extends State<App> {
           // Hide release notes if you don't want them
           messages: MyCustomUpgraderMessages(), // Custom messages
         ),
-        child: const LoginScreen(),
+        child: widget.isLoggedIn ? const NavigationMenu() : const LoginScreen(),
       ),
     );
   }

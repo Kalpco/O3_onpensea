@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:onpensea/commons/config/api_constants.dart' as API_CONSTANTS_1;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +105,8 @@ class _ProfilePageState extends State<ProfilePage> {
               order: razorpaySuccessResponseDTO),
         ),
       );
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Payment failed")));
     }
   }
 
@@ -399,29 +403,172 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _sendOtp() async {
-    String mobileNumber = loginController.userData['mobileNo'];
+    final mobileNumber = loginController.userData['mobileNo']?.toString();
+    final email = loginController.userData['email']?.toString();
+    final name = loginController.userData['name']?.toString() ?? '';
+    print("email $email");
+    print("mobile $mobileNumber");
+    print("User data: ${loginController.userData}");
+    print("name $name");
+
     random =
         _generateRandomOtp(); // Replace this with actual OTP generation logic
-    print("this id the Otp for deactivating$random");
-    String otpApiUrl =
-        'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=$random%20is%20your%20OTP%20for%20deleting%20account%20with%20Kalpco.%20For%20security%20reasons,%20do%20not%20share%20this%20OTP%20with%20anyone.&sendername=KLPCOP&smstype=TRANS&numbers=$mobileNumber&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707172950380816178';
+    print("this is the Otp for deactivating user : $random");
+    print('Sending to API: email=$email, name=$name, otp=$random');
 
-    try {
-      final response = await http.get(Uri.parse(otpApiUrl));
+    if(mobileNumber != null && mobileNumber.isNotEmpty) {
+      String otpApiUrl =
+          'http://sms.messageindia.in/v2/sendSMS?username=kalpco&message=$random%20is%20your%20OTP%20for%20deleting%20account%20with%20Kalpco.%20For%20security%20reasons,%20do%20not%20share%20this%20OTP%20with%20anyone.&sendername=KLPCOP&smstype=TRANS&numbers=$mobileNumber&apikey=dd7511bb-77f8-4e3a-8a45-e1d35bd44c9a&peid=1701171705702775945&templateid=1707172950380816178';
 
-      if (response.statusCode == 200) {
-        _showOtpValidationDialog(); // Show OTP validation dialog after sending OTP
-      } else {
+      try {
+        final response = await http.get(Uri.parse(otpApiUrl));
+
+        if (response.statusCode == 200) {
+          _showOtpValidationDialog(); // Show OTP validation dialog after sending OTP
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to send mobile OTP')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send OTP')),
+          SnackBar(content: Text('An error occurred in mobile otp : $e')),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e')),
-      );
+    }
+    else if(email != null && email.isNotEmpty)
+      {
+        try
+            {
+              final response = await dio.post(
+                "${API_CONSTANTS_1.ApiConstants.USERS_URL}/accountDeletionOTP",
+                data: jsonEncode({
+                  "email": email,
+                  "name": name,
+                  "otp": random.toString(),
+                }),
+                options: Options(
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                ),
+              );
+              if (response.statusCode == 201) {
+                _showOtpValidationDialog();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to send email OTP')),
+                );
+              }
+            }
+            catch(e){
+          print('error $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('An error occurred in email otp : $e')),
+              );
+
+            }
+
+      }
+    else{
+      try
+      {
+        final response = await dio.post(
+          "${API_CONSTANTS_1.ApiConstants.USERS_URL}/accountDeletionOTP",
+          data: jsonEncode({
+            "email": email,
+            "name": name,
+            "otp": random.toString(),
+          }),
+          options: Options(
+            headers: {
+              "Content-Type": "application/json",
+            },
+          ),
+        );
+        if (response.statusCode == 201) {
+          _showOtpValidationDialog();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to send email OTP')),
+          );
+        }
+      }
+      catch(e){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred in email otp if mobile and email available : $e')),
+        );
+
+      }
     }
   }
+
+  // void _showDeleteConfirmationDialog() {
+  //   String _selectedOption = 'email'; // default selected option
+  //
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             title: Text('Delete Profile'),
+  //             content: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 Text('Choose method to delete your profile:'),
+  //                 ListTile(
+  //                   title: Text('Email'),
+  //                   leading: Radio<String>(
+  //                     value: 'email',
+  //                     groupValue: _selectedOption,
+  //                     onChanged: (value) {
+  //                       setState(() {
+  //                         _selectedOption = value!;
+  //                       });
+  //                     },
+  //                   ),
+  //                 ),
+  //                 ListTile(
+  //                   title: Text('SMS'),
+  //                   leading: Radio<String>(
+  //                     value: 'sms',
+  //                     groupValue: _selectedOption,
+  //                     onChanged: (value) {
+  //                       setState(() {
+  //                         _selectedOption = value!;
+  //                       });
+  //                     },
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text('Cancel'),
+  //               ),
+  //               TextButton(
+  //                 onPressed: () async {
+  //                   Navigator.of(context).pop();
+  //
+  //                   if (_selectedOption == 'sms') {
+  //                     await _sendOtp(); // Your SMS OTP method
+  //                   } else if (_selectedOption == 'email') {
+  //                     //await sendEmailOtp(); // You can replace this with your actual email OTP method
+  //                   }
+  //                 },
+  //                 child: Text('Continue'),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   void _showDeleteConfirmationDialog() {
     showDialog(
@@ -788,7 +935,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
-              if (userType == "M")
+              if (userType == "M" || userType =="A")
                 ListTile(
                   leading: Icon(Icons.admin_panel_settings),
                   title: Text('Admin '),

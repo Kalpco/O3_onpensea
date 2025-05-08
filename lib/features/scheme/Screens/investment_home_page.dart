@@ -20,6 +20,7 @@ import "package:video_player/video_player.dart";
 import "../../../utils/constants/colors.dart";
 import "../../Portfolio/description.dart";
 import "../../authentication/screens/login/Controller/LoginController.dart";
+import "../../authentication/screens/signUp/signupWidgets/FlipSignUp.dart";
 import "../models/investment_response_model.dart";
 import "ProductOrderFailSummaryPage.dart";
 import "ProductOrderSuccessSummaryPage.dart";
@@ -150,7 +151,7 @@ class _InvestmentHomePageState extends State<InvestmentHomePage>
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                                  MaterialPageRoute(builder: (context) =>  FlipSignupScreen()),
                                 );
                               },
                               child: Container(

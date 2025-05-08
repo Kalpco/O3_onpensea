@@ -19,4 +19,6 @@ class ApiConstants {
 
   static final String USER_LOGIN = "$AUTHENTICATION_URL/login";
   static final String USER_REGISTER = "$AUTHENTICATION_URL/register";
+  static final String USER_REGISTERATION_OTP = "$AUTHENTICATION_URL/registrationOTP";
+
 }

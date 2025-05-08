@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_share/flutter_share.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'package:onpensea/features/product/screen/product_list.dart';
 import 'package:onpensea/utils/constants/sizes.dart';
+import 'package:share_plus/share_plus.dart';
 
 
 class RatingnShare extends StatelessWidget {
@@ -39,10 +39,10 @@ class RatingnShare extends StatelessWidget {
 
   Future<void> _showShareDialog(BuildContext context) async {
     final String appLink = 'https://play.google.com/store/apps/details?id=com.intech.onpensea&hl=en';
-    final String message = 'Check out Kalpco app';
+    final String message = 'Check out Kalpco app : $appLink';
 
     // Share the app link and message using the share dialog
-    await FlutterShare.share(title: 'Share App', text: message, linkUrl: appLink);
+    await Share.share(message, subject: 'Share this app');
   }
   }
 

@@ -24,25 +24,30 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final dark = U_Helper.isDarkMode(context);
-
     return Scaffold(
       body: SingleChildScrollView(
-        child: Padding(
-          padding: C_SpacingStyle.paddingWithAppBarHeight,
-          child: Column(
-            children: [
-              const LoginHeader(),
+        child: Card(
+          color: Colors.white,
+          elevation: 4,
+          margin: EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          child: Padding(
+            padding: C_SpacingStyle.paddingWithAppBarHeight,
+            child: Column(
+              children: [
+                const LoginHeader(),
 
-              const LoginForm(),
+                const LoginForm(),
 
-              // W_Divider(dark: dark),
-              // const SizedBox(
-              //   height: U_Sizes.spaceBwtSections,
-              // ),
+                // W_Divider(dark: dark),
+                // const SizedBox(
+                //   height: U_Sizes.spaceBwtSections,
+                // ),
 
-              ///footer
-            //  const W_SocialButtons()
-            ],
+                ///footer
+              //  const W_SocialButtons()
+              ],
+            ),
           ),
         ),
       ),

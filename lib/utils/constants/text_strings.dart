@@ -21,7 +21,7 @@ class U_TextStrings {
   static const String pincode = "Pincode";
   static const String lastName = "Last Name";
   static const String fatherName = "father Name";
-  static const String email = "Email";
+  static const String email = "Email / Mobile";
   static const String gender = "Gender";
   static const String city = "City";
   static const String state = "State";
@@ -44,7 +44,7 @@ class U_TextStrings {
   static const String createAccount = "Create Account";
   static const String LoginGuest = "Login As Guest";
   static const String orSignUpWith = "or Sign Up with";
-  static const String agree = "I Agree To ";
+  static const String agree = " I Agree To ";
   static const String and = " and ";
   static const String privacyPolicy = "Privacy Policy";
   static const String termsOfUse = "Terms of use";
