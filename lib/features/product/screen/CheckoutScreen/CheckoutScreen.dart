@@ -566,7 +566,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               discountedPrice: finalPrice,
               discountPercentage: widget.product.discountPercentage?.toDouble(),
               goldAndDiamondPrice: widget.goldAndDiamondPrice,
-              discountApplied: widget.product.discountApplied),
+              discountApplied: widget.product.discountApplied,
+              deliveryStatus: 'Order Received'),
         ],
         transactionDTO: TransactionDTO(
             paymentGatewayTransactionId: paymentId,
@@ -879,7 +880,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                height: 170,
+                                height: 175,
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   itemCount: userData['address'].length,
@@ -1198,6 +1199,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           : Text(
                               'Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
                   style: ElevatedButton.styleFrom(
+                    side: BorderSide.none,
                     backgroundColor: deliverable == 'Y'
                         ? U_Colors.chatprimaryColor
                         : Colors.grey,

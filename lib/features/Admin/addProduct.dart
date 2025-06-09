@@ -47,7 +47,7 @@ class AddProductFormState extends State<AddProduct> {
   // List of Product Categories and Sub Categories
   final List<String> productCategories = ['Custom', 'Diamond'];
   final List<String> subCategories = ['Ring', 'Necklace','Pendant','Earing','Bracelet','Bangle','Chain'];
-  final List<String> diamondTypeCategories = ['Lab Grown', 'Natural Diamond'];
+  final List<String> diamondTypeCategories = ['Natural Diamond'];
 
   //For to get images from phone
   List<File> selectedImages = [];

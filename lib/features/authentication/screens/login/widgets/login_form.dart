@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:onpensea/commons/styles/spacing_style.dart';
 import 'package:onpensea/features/authentication/screens/forgot_password/forgot_password_screen.dart';
 import 'package:onpensea/features/authentication/screens/password_configuration/forgot_password.dart';
@@ -112,7 +114,13 @@ class _LoginFormState extends State<LoginForm> {
                           email, password);
 
                       if (success) {
-                        await saveLoginStatus();
+                        final userData = loginController.userData.value;
+                        await saveLoginStatus(
+                          userData: Map<String, dynamic>.from(userData),
+                          isGuest: false,
+                        );
+                        loginController.userType.value = userData['userType'];
+
                         Get.to(() => NavigationMenu());
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -196,9 +204,20 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 
-  Future<void> saveLoginStatus() async {
+  Future<void> saveLoginStatus({
+    required Map<String,dynamic> userData,
+    required bool isGuest,
+
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', true);
+    await prefs.setBool('isGuest', isGuest);
+
+    // Save entire userData as JSON string
+    final jsonString = jsonEncode(userData);
+    await prefs.setString('userData', jsonString);
+
   }
+
 }
 

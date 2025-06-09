@@ -48,6 +48,8 @@ class _AppState extends State<App> {
         showReleaseNotes: false,
         upgrader: Upgrader(
           // Hide release notes if you don't want them
+          debugDisplayAlways: true,
+          durationUntilAlertAgain: Duration(seconds: 0),
           messages: MyCustomUpgraderMessages(), // Custom messages
         ),
         child: widget.isLoggedIn ? const NavigationMenu() : const LoginScreen(),

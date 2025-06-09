@@ -958,127 +958,133 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: () => _showFullScreenImage(context),
-              child: FutureBuilder<String?>(
-                future: DioClient.getAuthToken(), // Fetch token dynamically
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return CircleAvatar(
-                      radius: 50,
-                      child:
-                          CircularProgressIndicator(), // Show loading if token is not ready
-                    );
-                  }
+      body: Card(
+        color: Colors.white,
+        elevation: 4,
+        margin: EdgeInsets.all(20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () => _showFullScreenImage(context),
+                child: FutureBuilder<String?>(
+                  future: DioClient.getAuthToken(), // Fetch token dynamically
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return CircleAvatar(
+                        radius: 50,
+                        child:
+                            CircularProgressIndicator(), // Show loading if token is not ready
+                      );
+                    }
 
-                  return CachedNetworkImage(
-                    imageUrl:
-                        "${API_CONSTANTS_1.ApiConstants.USERS_URL}${loginController.userData['photoUrl']}",
-                    // Ensure full URL
-                    httpHeaders: {
-                      "Authorization": "Bearer ${snapshot.data}",
-                      // Use the fetched token
-                    },
-                    imageBuilder: (context, imageProvider) => CircleAvatar(
-                      radius: 50,
-                      backgroundImage: imageProvider,
-                    ),
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => CircleAvatar(
-                      radius: 50,
-                      child: Icon(Icons.person, size: 40), // Fallback Icon
-                    ),
-                  );
-                },
+                    return CachedNetworkImage(
+                      imageUrl:
+                          "${API_CONSTANTS_1.ApiConstants.USERS_URL}${loginController.userData['photoUrl']}",
+                      // Ensure full URL
+                      httpHeaders: {
+                        "Authorization": "Bearer ${snapshot.data}",
+                        // Use the fetched token
+                      },
+                      imageBuilder: (context, imageProvider) => CircleAvatar(
+                        radius: 50,
+                        backgroundImage: imageProvider,
+                      ),
+                      placeholder: (context, url) => CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => CircleAvatar(
+                        radius: 50,
+                        child: Icon(Icons.person, size: 40), // Fallback Icon
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildProfileOption(
-                  icon: Icons.supervised_user_circle,
-                  text: 'Portfolio',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PortfolioScreen()),
-                    );
-                  },
-                ),
-                _buildProfileOption(
-                  icon: Iconsax.user_add,
-                  text: 'Update Profile',
-                  onTap: () => _showUpdateInfoSheet(context),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildProfileOption(
-                  icon: Icons.history,
-                  text: 'Order History',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => OrderHistory()),
-                    );
-                  },
-                ),
-                _buildProfileOption(
-                  icon: Icons.delete_forever,
-                  text: 'Delete Profile',
-                  onTap: () {
-                    _showDeleteConfirmationDialog();
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildProfileOption(
-                  icon: Icons.wallet,
-                  text: 'My Wallet',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Mywallet()),
-                    );
-                  },
-                ),
-                _buildProfileOption(
-                  icon: Icons.logout,
-                  text: 'Logout',
-                  onTap: () {
-                    Get.find<LoginController>().logout();
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
-                  child: _buildProfileOption(
-                    icon: Iconsax.user_add,
-                    text: 'Other Payments',
-                    onTap: () => _showUpdateOtherPaymentsSheet(context),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildProfileOption(
+                    icon: Icons.supervised_user_circle,
+                    text: 'Portfolio',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PortfolioScreen()),
+                      );
+                    },
                   ),
-                ),
-              ],
-            ),
-          ],
+                  _buildProfileOption(
+                    icon: Iconsax.user_add,
+                    text: 'Update Profile',
+                    onTap: () => _showUpdateInfoSheet(context),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildProfileOption(
+                    icon: Icons.history,
+                    text: 'Order History',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => OrderHistory()),
+                      );
+                    },
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.delete_forever,
+                    text: 'Delete Profile',
+                    onTap: () {
+                      _showDeleteConfirmationDialog();
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildProfileOption(
+                    icon: Icons.wallet,
+                    text: 'My Wallet',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Mywallet()),
+                      );
+                    },
+                  ),
+                  _buildProfileOption(
+                    icon: Icons.logout,
+                    text: 'Logout',
+                    onTap: () {
+                      Get.find<LoginController>().logout();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(30, 5, 12, 5),
+                    child: _buildProfileOption(
+                      icon: Iconsax.user_add,
+                      text: 'Other Payments',
+                      onTap: () => _showUpdateOtherPaymentsSheet(context),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1132,6 +1138,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Navigator.pop(context);
                           },
                           style: ElevatedButton.styleFrom(
+                            side: BorderSide.none,
                             backgroundColor: U_Colors.chatprimaryColor,
                           ),
                           child: Text('Submit'),

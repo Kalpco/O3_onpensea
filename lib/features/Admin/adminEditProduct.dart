@@ -172,7 +172,7 @@ class AdminEditProductFormState extends State<AdminEditProduct> {
   //       request.fields['discountPercentage'] =
   //       int.tryParse(discountPercentage.text) != null
   //           ? int.parse(discountPercentage.text).toString()
-  //           : '0';//For gems DTO
+  //           : '0';//For gems models
   //
   //       // Create the gemsDTO object
   //       Map<String, dynamic> gems = {

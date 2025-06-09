@@ -211,7 +211,7 @@ class _AdminProductDetailState extends State<AdminProductDetail> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text("Confirm Delete"),
+                                  title: Text("Confirm Delete ?"),
                                   content: Text("Are you sure want to delete?"),
                                   actions: [
                                     TextButton(

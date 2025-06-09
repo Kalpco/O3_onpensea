@@ -581,7 +581,8 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
               discountedPrice: totalFinalPrice,
               discountPercentage: item['discountPercentage']?.toDouble(),
               goldAndDiamondPrice: item['goldAndDiamondPrice'],
-              discountApplied: item['discountApplied']);
+              discountApplied: item['discountApplied'],
+              deliveryStatus: 'Order Received');
         }).toList(),
         transactionDTO: TransactionDTO(
             paymentGatewayTransactionId: paymentId,
@@ -860,6 +861,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                                   : Text(
                                       'Checkout \₹ ${_updatedTotalPrice.toStringAsFixed(2)}'),
                           style: ElevatedButton.styleFrom(
+                            side: BorderSide.none,
                             backgroundColor: deliverable == 'Y'
                                 ? U_Colors.chatprimaryColor
                                 : Colors.grey,
@@ -1057,7 +1059,7 @@ class _ProductCartCheckoutState extends State<ProductCartCheckout> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
-                                      height: 170,
+                                      height: 175,
                                       child: ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: userData['address'].length,

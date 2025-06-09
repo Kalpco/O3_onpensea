@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:onpensea/commons/config/api_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +13,14 @@ class LoginController extends GetxController {
   var userType = ''.obs;
   var userData = {}.obs; // Holds user data reactively
   var isLoading = false.obs; // ✅ Loading state
+  var isGuest = false.obs;
+
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadUserDataFromPrefs();
+  }
 
   /// **🔹 Login Function**
   static Future<bool> verifyUserCredentials(
@@ -47,7 +57,7 @@ class LoginController extends GetxController {
           print("❌ No token found in response!");
           return false;
         }
-
+        print("token : - $finalToken");
         // Store user data in controller
         Get.find<LoginController>().userData.value = data['data'];
         Get.find<LoginController>().userType.value = data['data']['userType'];
@@ -122,6 +132,16 @@ class LoginController extends GetxController {
       print('❌ Error during guest login: $e');
     } finally {
       isLoading.value = false; // ✅ Stop loading
+    }
+  }
+
+  Future<void> loadUserDataFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('userData');
+    if (jsonString != null) {
+      final userDataMap = jsonDecode(jsonString) as Map<String, dynamic>;
+      userData.value = userDataMap;
+      userType.value = userDataMap['userType'];
     }
   }
 }

@@ -178,6 +178,7 @@ class _AddAddressFormState extends State<AddAddressForm> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: U_Colors.chatprimaryColor,
+                  side: BorderSide.none,
                 ),
                 child: Text('Add Address'),
               ),

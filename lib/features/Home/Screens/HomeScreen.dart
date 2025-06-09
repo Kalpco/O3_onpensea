@@ -668,107 +668,107 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 70,
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(width: 20),
-                Text(
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: U_Colors.yaleBlue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  "Lab Grown Diamond Collection",
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 35.0, right: 35.0, top: 2.5, bottom: 5),
-              child: DividerWithAvatar(
-                  dividerThickness: 0.2,
-                  dividerColor: U_Colors.yaleBlue,
-                  imagePath: 'assets/logos/KALPCO_splash.png'),
-            ),
-            SizedBox(height: U_Sizes.spaceBtwItems),
-            GestureDetector(
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10.0,
-                      spreadRadius: 2.0,
-                      offset: Offset(2.0, 2.0),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: customJewelryImages.isNotEmpty
-                      ? buildImage(customJewelryImages[0])
-                      : Container(),
-                ),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProductHomeScreen(productCategory:"Diamond",
-                      subCategory:"Ring",typeOfStone:"Lab Grown")),
-                );
-              },
-            ),
-
-            SizedBox(height: U_Sizes.spaceBtwItems),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-              child: SizedBox(
-                height: 100, // Height of each square image
-                child: GridView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: shopByImages.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, // Show 2 boxes per row
-                    mainAxisSpacing: 5,
-                    crossAxisSpacing: 5,
-                  ),
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ProductHomeScreen(productCategory:"Diamond",
-                                  subCategory:"Ring",typeOfStone:"Lab Grown")),
-                        );
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black12, width: 0.3),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(5),
-                          child: Image.asset(
-                            shopByImages[index],
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                ),
-              ),
-            ),
+            // SizedBox(
+            //   height: 70,
+            // ),
+            //
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     SizedBox(width: 20),
+            //     Text(
+            //       style: GoogleFonts.poppins(
+            //         fontSize: 16,
+            //         color: U_Colors.yaleBlue,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //       "Lab Grown Diamond Collection",
+            //     ),
+            //   ],
+            // ),
+            // Padding(
+            //   padding: const EdgeInsets.only(
+            //       left: 35.0, right: 35.0, top: 2.5, bottom: 5),
+            //   child: DividerWithAvatar(
+            //       dividerThickness: 0.2,
+            //       dividerColor: U_Colors.yaleBlue,
+            //       imagePath: 'assets/logos/KALPCO_splash.png'),
+            // ),
+            // SizedBox(height: U_Sizes.spaceBtwItems),
+            // GestureDetector(
+            //   child: Container(
+            //     margin: EdgeInsets.symmetric(horizontal: 10),
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.circular(20),
+            //       boxShadow: [
+            //         BoxShadow(
+            //           color: Colors.black26,
+            //           blurRadius: 10.0,
+            //           spreadRadius: 2.0,
+            //           offset: Offset(2.0, 2.0),
+            //         ),
+            //       ],
+            //     ),
+            //     child: ClipRRect(
+            //       borderRadius: BorderRadius.circular(20),
+            //       child: customJewelryImages.isNotEmpty
+            //           ? buildImage(customJewelryImages[0])
+            //           : Container(),
+            //     ),
+            //   ),
+            //   onTap: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => ProductHomeScreen(productCategory:"Diamond",
+            //           subCategory:"Ring",typeOfStone:"Lab Grown")),
+            //     );
+            //   },
+            // ),
+            //
+            // SizedBox(height: U_Sizes.spaceBtwItems),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            //   child: SizedBox(
+            //     height: 100, // Height of each square image
+            //     child: GridView.builder(
+            //       scrollDirection: Axis.vertical,
+            //       itemCount: shopByImages.length,
+            //       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            //         crossAxisCount: 4, // Show 2 boxes per row
+            //         mainAxisSpacing: 5,
+            //         crossAxisSpacing: 5,
+            //       ),
+            //       itemBuilder: (context, index) {
+            //         return GestureDetector(
+            //           onTap: () {
+            //             Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                   builder: (context) => ProductHomeScreen(productCategory:"Diamond",
+            //                       subCategory:"Ring",typeOfStone:"Lab Grown")),
+            //             );
+            //           },
+            //           child: Container(
+            //             decoration: BoxDecoration(
+            //               border: Border.all(color: Colors.black12, width: 0.3),
+            //               borderRadius: BorderRadius.circular(10),
+            //             ),
+            //             child: ClipRRect(
+            //               borderRadius: BorderRadius.circular(5),
+            //               child: Image.asset(
+            //                 shopByImages[index],
+            //                 fit: BoxFit.fill,
+            //                 width: double.infinity,
+            //               ),
+            //             ),
+            //           ),
+            //         );
+            //       },
+            //       shrinkWrap: true,
+            //       physics: NeverScrollableScrollPhysics(),
+            //     ),
+            //   ),
+            // ),
             // SizedBox(
             //   height: 70,
             // ),

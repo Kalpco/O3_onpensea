@@ -250,7 +250,7 @@ class _DigiGoldBuySellScreenState extends State<DigiGoldBuySellScreen> {
         );
         return;
       }
-      // Prepare the DTO with dynamic values based on type
+      // Prepare the models with dynamic values based on type
       Map<String, dynamic> dto = {
         "userId": int.parse(loginController.userData['userId'].toString()),
         "pricePerMgNoGst": double.parse(pricePerMgNoGst),

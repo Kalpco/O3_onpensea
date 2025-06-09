@@ -76,7 +76,7 @@ class AdminCustomProductCartVertical extends StatelessWidget {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: const Text("Confirm Deletion"),
+                              title: const Text("Confirm Deletion ?"),
                               content: const Text(
                                   "Are you sure you want to delete this product?"),
                               actions: [
@@ -84,7 +84,7 @@ class AdminCustomProductCartVertical extends StatelessWidget {
                                   onPressed: () => Navigator.of(context)
                                       .pop(), // Close dialog
                                   child: const Text("No"),
-                                  style: ElevatedButton.styleFrom(backgroundColor: U_Colors.satinSheenGold),
+                                  style: ElevatedButton.styleFrom(backgroundColor: U_Colors.satinSheenGold,side: BorderSide.none,),
                                 ),
                                 ElevatedButton(
                                     onPressed: () async {
@@ -93,7 +93,7 @@ class AdminCustomProductCartVertical extends StatelessWidget {
                                       await deleteProductApiCall(context);
                                     },
                                     child: const Text("Yes"),
-                                  style: ElevatedButton.styleFrom(backgroundColor: U_Colors.yaleBlue),
+                                  style: ElevatedButton.styleFrom(backgroundColor: U_Colors.yaleBlue,side: BorderSide.none,),
                                 ),
                               ],
                             ),

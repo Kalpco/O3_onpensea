@@ -1,8 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:onpensea/commons/config/api_constants.dart';
 
+import '../../network/dio_client.dart';
 import '../../utils/constants/colors.dart';
+import 'goldRateMonthCalender.dart';
+import 'models/goldRateDTO.dart';
+import 'models/last7DaysGoldRateDTO.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -10,12 +16,14 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  var _selectedIndex = 0.obs;
+  var _selectedIndex = 1.obs;
+  final dio = DioClient.getInstance();
+
 
   //static const List<String> _titles = [ 'Year','Month','Week',];
   static const List<Color> _colors = [
     Colors.white, // Day color
-    Colors.greenAccent, // Week color
+    Colors.white, // Week color
     Colors.white ,// Year color
 
 
@@ -27,522 +35,185 @@ class _DashboardPageState extends State<DashboardPage> {
     print("index value is:$index");
   }
 
-  Widget yearGraph() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              "Gold Rate Without GST", // Title for the graph
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
-            ),
-            SizedBox(
-              height: 350,
-              width: double.infinity,
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: 25000,
-                  barTouchData: BarTouchData(
-                    enabled: true,
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.blueGrey,
-                    ),
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: SideTitles(showTitles: false),
-                    topTitles: SideTitles(showTitles: false),
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8,
-                      ),
-                      margin: 16,
-                      getTitles: (double value) {
-                        // Hardcoded sample date strings for x-axis labels
-                        const List<String> months = [
-                          'Jan\n2023',
-                          'Feb\n2023',
-                          'Mar\n2023',
-                          'Apr\n2023',
-                          'May\n2023',
-                          'Jun\n2023',
-                          'Jul\n2023',
-                          'Aug\n2023',
-                          'Sep\n2023',
-                          'Oct\n2023',
-                          'Nov\n2023',
-                          'Dec\n2023'
-                        ];
-                        if (value.toInt() - 1 < months.length) {
-                          return months[value.toInt() - 1];
-                        }
-                        return '';
-                      },
-                      reservedSize: 40,
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                      reservedSize: 30,
-                      getTitles: (value) {
-                        // Hardcoded y-axis labels
-                        switch (value.toInt()) {
-                          case 0:
-                            return '0';
-                          case 5000:
-                            return '5K';
-                          case 10000:
-                            return '10K';
-                          case 15000:
-                            return '15K';
-                          case 20000:
-                            return '20K';
-                          case 25000:
-                            return '25K';
-                          default:
-                            return '';
-                        }
-                      },
-                    ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 5000,
-                    verticalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.blueGrey,
-                        strokeWidth: 0.5,
-                        dashArray: [5, 5],
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return FlLine(
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                  barGroups: [
-                    for (int i = 0; i < 12; i++)
-                      BarChartGroupData(
-                        x: i + 1,
-                        barRods: [
-                          BarChartRodData(
-                            y: (i + 1) * 1000.0, // Hardcoded y-values for bars
-                            colors: [Colors.greenAccent],
-                            backDrawRodData:
-                                BackgroundBarChartRodData(show: false),
-                          )
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget yearGraphWithGST() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              "Gold Rate With GST", // Title for the graph
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
-            ),
-            SizedBox(
-              height: 350,
-              width: double.infinity,
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: 25000,
-                  barTouchData: BarTouchData(
-                    enabled: true,
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.blueGrey,
-                    ),
-                  ),
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: SideTitles(showTitles: false),
-                    topTitles: SideTitles(showTitles: false),
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8,
-                      ),
-                      margin: 16,
-                      getTitles: (double value) {
-                        // Hardcoded sample date strings for x-axis labels
-                        const List<String> months = [
-                          'Jan\n2023',
-                          'Feb\n2023',
-                          'Mar\n2023',
-                          'Apr\n2023',
-                          'May\n2023',
-                          'Jun\n2023',
-                          'Jul\n2023',
-                          'Aug\n2023',
-                          'Sep\n2023',
-                          'Oct\n2023',
-                          'Nov\n2023',
-                          'Dec\n2023'
-                        ];
-                        if (value.toInt() - 1 < months.length) {
-                          return months[value.toInt() - 1];
-                        }
-                        return '';
-                      },
-                      reservedSize: 40,
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                      reservedSize: 30,
-                      getTitles: (value) {
-                        // Hardcoded y-axis labels
-                        switch (value.toInt()) {
-                          case 0:
-                            return '0';
-                          case 5000:
-                            return '5K';
-                          case 10000:
-                            return '10K';
-                          case 15000:
-                            return '15K';
-                          case 20000:
-                            return '20K';
-                          case 25000:
-                            return '25K';
-                          default:
-                            return '';
-                        }
-                      },
-                    ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 5000,
-                    verticalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.blueGrey,
-                        strokeWidth: 0.5,
-                        dashArray: [5, 5],
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return FlLine(
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                  barGroups: [
-                    for (int i = 0; i < 12; i++)
-                      BarChartGroupData(
-                        x: i + 1,
-                        barRods: [
-                          BarChartRodData(
-                            y: (i + 1) * 1000.0, // Hardcoded y-values for bars
-                            colors: [Colors.greenAccent],
-                            backDrawRodData:
-                                BackgroundBarChartRodData(show: false),
-                          )
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget weekGraph(List<Last7DaysGoldRateDTO> last7Days) {
+    if (last7Days.isEmpty) {
+      return const Text("No data available");
+    }
 
-  Widget weekGraph() {
+    // Sort dates
+    last7Days.sort((a, b) => a.date.compareTo(b.date));
+    // Prepare spots for each carat
+    final spots24k = <FlSpot>[];
+    final spots22k = <FlSpot>[];
+    final spots18k = <FlSpot>[];
+
+    for (int i = 0; i < last7Days.length; i++) {
+      final data = last7Days[i];
+      spots24k.add(FlSpot(i.toDouble(), data.priceGram24k));
+      spots22k.add(FlSpot(i.toDouble(), data.priceGram22k));
+      spots18k.add(FlSpot(i.toDouble(), data.priceGram18k));
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text(
-              "Gold Rate Without GST", // Title for the graph
+            const Text(
+              "1 gm Gold Rate  (Last 7 Days)",
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
-                color: Colors.indigo,
+                color: U_Colors.yaleBlue,
               ),
             ),
+            SizedBox(height: 10,),
             SizedBox(
-              height: 350,
-              width: double.infinity,
+              height: 300,
+              width: double.maxFinite,
               child: LineChart(
                 LineChartData(
-                  maxY: 25000,
-                  minY: 0,
+                  minY: 5000,
+                  maxY: 12000,
+                  lineTouchData: LineTouchData(
+                    handleBuiltInTouches: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      tooltipBgColor: Colors.white, // Background color
+                      tooltipRoundedRadius: 12,
+                      tooltipPadding: const EdgeInsets.all(12),
+                      tooltipMargin: 12,
+                      fitInsideHorizontally: true,
+                      fitInsideVertically: true,
+
+                      getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                        return touchedSpots.map((spot) {
+                          String label;
+                          TextStyle style;
+
+                          if (spot.bar.colors.contains(U_Colors.yaleBlue)) {
+                            label = '24K: ₹${spot.y.toStringAsFixed(2)}';
+                            style = const TextStyle(
+                              color: U_Colors.yaleBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            );
+                          } else if (spot.bar.colors.contains(Colors.orange)) {
+                            label = '22K: ₹${spot.y.toStringAsFixed(2)}';
+                            style = const TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            );
+                          } else {
+                            label = '18K: ₹${spot.y.toStringAsFixed(2)}';
+                            style = const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            );
+                          }
+
+                          return LineTooltipItem(label, style);
+                        }).toList();
+                      },
+                    ),
+                  ),
+
                   lineBarsData: [
+                    //24K
                     LineChartBarData(
-                      spots: [
-                        for (int i = 0; i < 7; i++)
-                          FlSpot(i.toDouble() + 1,
-                              (i + 1) * 1000.0), // Hardcoded y-values
-                      ],
+                      spots: spots24k,
                       isCurved: true,
-                      colors: [Colors.greenAccent],
+                      colors: [U_Colors.yaleBlue],
                       barWidth: 3,
                       belowBarData: BarAreaData(
                         show: true,
-                        colors: [Colors.greenAccent.withOpacity(0.3)],
+                        colors: [Colors.white],
+                      ),
+                      dotData: FlDotData(show: true),
+                    ),
+                    // 22K
+                    LineChartBarData(
+                      spots: spots22k,
+                      isCurved: true,
+                      colors: [Colors.orange],
+                      barWidth: 3,
+                      belowBarData: BarAreaData(
+                        show: true,
+                        colors: [Colors.white],
+                      ),
+                      dotData: FlDotData(show: true),
+                    ),
+                    // 18K
+                    LineChartBarData(
+                      spots: spots18k,
+                      isCurved: true,
+                      colors: [Colors.green],
+                      barWidth: 3,
+                      belowBarData: BarAreaData(
+                        show: true,
+                        colors: [Colors.white],
                       ),
                       dotData: FlDotData(show: true),
                     ),
                   ],
                   titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: SideTitles(showTitles: false),
-                    topTitles: SideTitles(showTitles: false),
-                    bottomTitles: SideTitles(
+                    leftTitles: SideTitles(
                       showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8,
-                      ),
-                      margin: 16,
-                      getTitles: (double value) {
-                        const List<String> months = [
-                          'Monday',
-                          'Tuesday',
-                          'Wednesday',
-                          'Thursday',
-                          'Friday',
-                          'Saturday',
-                          'Sunday',
-                        ];
-                        if (value.toInt() - 1 < months.length) {
-                          return months[value.toInt() - 1];
+                      interval: 1000, // 👈 Forces the Y-axis to label every 2000 units
+                      getTitles: (value) {
+                        if (value % 1000 == 0 && value <= 12000) {
+                          return '${(value ~/ 1000)}K';
                         }
                         return '';
                       },
-                      reservedSize: 40,
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
                       getTextStyles: (context, value) => const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
                       ),
-                      reservedSize: 30,
-                      getTitles: (value) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return '0';
-                          case 5000:
-                            return '5K';
-                          case 10000:
-                            return '10K';
-                          case 15000:
-                            return '15K';
-                          case 20000:
-                            return '20K';
-                          case 25000:
-                            return '25K';
-                          default:
-                            return '';
-                        }
-                      },
+                      reservedSize: 35,
                     ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 5000,
-                    verticalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.blueGrey,
-                        strokeWidth: 0.5,
-                        dashArray: [5, 5],
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return FlLine(
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  Widget weekGraphWithGST() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              "Gold Rate With GST", // Title for the graph
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
-            ),
-            SizedBox(
-              height: 350,
-              width: double.infinity,
-              child: LineChart(
-                LineChartData(
-                  maxY: 25000,
-                  minY: 0,
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: [
-                        for (int i = 0; i < 7; i++)
-                          FlSpot(i.toDouble() + 1,
-                              (i + 1) * 1000.0), // Hardcoded y-values
-                      ],
-                      isCurved: true,
-                      colors: [Colors.greenAccent],
-                      barWidth: 3,
-                      belowBarData: BarAreaData(
-                        show: true,
-                        colors: [Colors.greenAccent.withOpacity(0.3)],
-                      ),
-                      dotData: FlDotData(show: true),
-                    ),
-                  ],
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: SideTitles(showTitles: false),
-                    topTitles: SideTitles(showTitles: false),
+
+
                     bottomTitles: SideTitles(
                       showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8,
-                      ),
-                      margin: 16,
-                      getTitles: (double value) {
-                        const List<String> months = [
-                          'Monday',
-                          'Tuesday',
-                          'Wednesday',
-                          'Thursday',
-                          'Friday',
-                          'Saturday',
-                          'Sunday',
-                        ];
-                        if (value.toInt() - 1 < months.length) {
-                          return months[value.toInt() - 1];
+                      getTitles: (value) {
+                        int index = value.toInt();
+                        if (index >= 0 && index < last7Days.length) {
+                          final date = last7Days[index].date;
+                          return DateFormat('dd/MM').format(date); // e.g., 2 Jun
                         }
                         return '';
                       },
-                      reservedSize: 40,
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
+                      interval: 1,
                       getTextStyles: (context, value) => const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontSize: 10,
                       ),
-                      reservedSize: 30,
-                      getTitles: (value) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return '0';
-                          case 5000:
-                            return '5K';
-                          case 10000:
-                            return '10K';
-                          case 15000:
-                            return '15K';
-                          case 20000:
-                            return '20K';
-                          case 25000:
-                            return '25K';
-                          default:
-                            return '';
-                        }
-                      },
+                      margin: 10,
                     ),
+                    topTitles: SideTitles(showTitles: false),
+                    rightTitles: SideTitles(showTitles: false),
                   ),
                   borderData: FlBorderData(show: true),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 5000,
-                    verticalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.blueGrey,
-                        strokeWidth: 0.5,
-                        dashArray: [5, 5],
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return FlLine(
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
+                  gridData: FlGridData(show: true),
                 ),
               ),
+            ),
+            const SizedBox(height: 10),
+            // Legend row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _legendDot(U_Colors.yaleBlue, '24K'),
+                const SizedBox(width: 10),
+                _legendDot(Colors.orange, '22K'),
+                const SizedBox(width: 10),
+                _legendDot(Colors.green, '18K'),
+              ],
             ),
           ],
         ),
@@ -551,336 +222,159 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
 
-  Widget monthGraph() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            SizedBox(height: 20,),
-            Text(
-              "Golds Rate Without GST", // Title for the graph
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
-            ),
-            SizedBox(
-              height: 350,
-              width: double.infinity,
-              child: LineChart(
-                LineChartData(
-                  maxY: 25000,
-                  minY: 0,
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots:  [
-                        FlSpot(1, 2000),
-                        FlSpot(2, 4000),
-                        FlSpot(3, 6000),
-                        FlSpot(4, 8000),
-                      ],
-                      isCurved: true,
-                      colors: [Colors.greenAccent],
-                      barWidth: 3,
-                      belowBarData: BarAreaData(
-                        show: true,
-                        colors: [Colors.greenAccent.withOpacity(0.3)],
-                      ),
-                      dotData: FlDotData(show: true),
-                    ),
-                  ],
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: SideTitles(showTitles: false),
-                    topTitles: SideTitles(showTitles: false),
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8,
-                      ),
-                      margin: 16,
-                      getTitles: (double value) {
-                        const List<String> months = [
-                          'Week1',
-                          'Week2',
-                          'Week3',
-                          'Week4'
-                        ];
-                        if (value.toInt() - 1 < months.length) {
-                          return months[value.toInt() - 1];
-                        }
-                        return '';
-                      },
-                      reservedSize: 40,
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                      reservedSize: 30,
-                      getTitles: (value) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return '0';
-                          case 5000:
-                            return '5K';
-                          case 10000:
-                            return '10K';
-                          case 15000:
-                            return '15K';
-                          case 20000:
-                            return '20K';
-                          case 25000:
-                            return '25K';
-                          default:
-                            return '';
-                        }
-                      },
-                    ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 5000,
-                    verticalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.blueGrey,
-                        strokeWidth: 0.5,
-                        dashArray: [5, 5],
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return FlLine(
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  Widget monthGraphWithGST() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            SizedBox(height: 20,),
-            Text(
-              "Gold Rate With GST", // Title for the graph
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Colors.indigo,
-              ),
-            ),
-            SizedBox(
-              height: 350,
-              width: double.infinity,
-              child: LineChart(
-                LineChartData(
-                  maxY: 25000,
-                  minY: 0,
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: [
-                        for (int i = 0; i < 4; i++)
-                          FlSpot(i.toDouble() + 1,
-                              (i + 1) * 2000.0), // Hardcoded y-values
-                      ],
-                      isCurved: true,
-                      colors: [Colors.greenAccent],
-                      barWidth: 3,
-                      belowBarData: BarAreaData(
-                        show: true,
-                        colors: [Colors.greenAccent.withOpacity(0.3)],
-                      ),
-                      dotData: FlDotData(show: true),
-                    ),
-                  ],
-                  titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: SideTitles(showTitles: false),
-                    topTitles: SideTitles(showTitles: false),
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8,
-                      ),
-                      margin: 16,
-                      getTitles: (double value) {
-                        const List<String> months = [
-                          'Week1',
-                          'Week2',
-                          'Week3',
-                          'Week4'
-                        ];
-                        if (value.toInt() - 1 < months.length) {
-                          return months[value.toInt() - 1];
-                        }
-                        return '';
-                      },
-                      reservedSize: 40,
-                    ),
-                    leftTitles: SideTitles(
-                      showTitles: true,
-                      getTextStyles: (context, value) => const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                      reservedSize: 30,
-                      getTitles: (value) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return '0';
-                          case 5000:
-                            return '5K';
-                          case 10000:
-                            return '10K';
-                          case 15000:
-                            return '15K';
-                          case 20000:
-                            return '20K';
-                          case 25000:
-                            return '25K';
-                          default:
-                            return '';
-                        }
-                      },
-                    ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  gridData: FlGridData(
-                    show: true,
-                    drawVerticalLine: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 5000,
-                    verticalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.blueGrey,
-                        strokeWidth: 0.5,
-                        dashArray: [5, 5],
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
-                      return FlLine(
-                        color: Colors.red,
-                        strokeWidth: 1,
-                        dashArray: [5, 5],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+
+  Future<List<GoldRateEntryDTO>> fetchGoldRates() async {
+    final response = await dio.get('${ApiConstants.PRODUCTS_BASE_URL}/fetch/goldRate');
+    if (response.statusCode == 200) {
+      return parseGoldRates(response.data);
+    } else {
+      throw Exception('Failed to load gold rate data');
+    }
   }
 
+  List<GoldRateEntryDTO> parseGoldRates(Map<String, dynamic> json) {
+    final today = json['today'];
+    final yesterday = json['yesterday'];
+    final last7Days = (json['last7Days'] as List)
+        .map((e) => Last7DaysGoldRateDTO.fromJson(e))
+        .toList();
+    final monthList = (json['monthRates'] as List)
+        .map((e) => Last7DaysGoldRateDTO.fromJson(e))
+        .toList();
+
+    return [
+      GoldRateEntryDTO(
+        carat: '24K',
+        todayPrice: today['price_gram_24k'],
+        yesterdayPrice: yesterday['price_gram_24k'],
+        last7DaysList: last7Days,
+        monthList: monthList
+      ),
+      GoldRateEntryDTO(
+        carat: '22K',
+        todayPrice: today['price_gram_22k'],
+        yesterdayPrice: yesterday['price_gram_22k'],
+        last7DaysList: last7Days,
+          monthList: monthList
+
+      ),
+      GoldRateEntryDTO(
+        carat: '18K',
+        todayPrice: today['price_gram_18k'],
+        yesterdayPrice: yesterday['price_gram_18k'],
+        last7DaysList: last7Days,
+          monthList: monthList
+
+      ),
+
+    ];
+  }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _colors[_selectedIndex.value],
-      appBar: AppBar(
-        title: Text('Admin Dashboard'),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(100.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  color: Colors.blue[700],
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return FutureBuilder<List<GoldRateEntryDTO>>(
+      future: fetchGoldRates(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator(color: U_Colors.yaleBlue,));
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (snapshot.hasData) {
+          final data = snapshot.data!;
+          print("Available carats: ${data.map((d) => d.carat).toList()}");
+
+
+          return Scaffold(
+            backgroundColor: _colors[_selectedIndex.value],
+            appBar: AppBar(
+              backgroundColor: Colors.white60,
+              title: const Text('Admin Dashboard'),
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(100.0),
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      navbarFunction('Year', 0),
-                      _buildVerticalDivider(),
-                     // navbarFunction('Month', 1),
-                      navbarFunction('Week', 2),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 15.0),
-                Container(
-                  color: U_Colors.satinSheenGold,
-                  padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: Center(
-                    child: Text(
-                      "Todays Gold Rate: \$7000",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                      Container(
+                        color: U_Colors.yaleBlue,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            navbarFunction('Month', 1),
+                            _buildVerticalDivider(),
+                            navbarFunction('Week', 2),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              SingleChildScrollView(
-                child: tableFunction(),
-              ),
-              if (_selectedIndex.value == 0)
-                SingleChildScrollView(
-                  child: Column(
-                    children: [yearGraph(), yearGraphWithGST()],
-                  ),
-                ),
-              if (_selectedIndex.value == 1)
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      monthGraph(),
-                      monthGraphWithGST(),
-                    ]),
-                ),
-              if (_selectedIndex.value == 2)
-                SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      weekGraph(),
-                      weekGraphWithGST()
+                      const SizedBox(height: 15.0),
+                      Container(
+                        color: U_Colors.satinSheenGold,
+                        padding: const EdgeInsets.symmetric(vertical: 5.0),
+                        child: Center(
+                          child: Text(
+                            "Today's Gold Rate: ₹${data.first.todayPrice.toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
+              ),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    tableFunction(data),
+                    // if (_selectedIndex.value == 0)
+                    //   Column(
+                    //     children: [yearGraph(), yearGraphWithGST()],
+                    //   ),
+                    if (_selectedIndex.value == 1)
+                      Column(
+                        children: [GoldRateMonthCalendar(monthRates: data.firstWhere((d) => d.carat == '24K').monthList ?? [],)],
+                      ),
+
+                    // 📈 Week Graph (with last 7 days data)
+                    if (_selectedIndex.value == 2) ...[
+                      Builder(
+                        builder: (context) {
+                          try {
+                            final gold24k = data.firstWhere((d) => d.carat == '24K');
+
+                            final last7List = gold24k.last7DaysList ?? [];
+                            if (last7List.isEmpty) {
+                              return const Text('No weekly data available');
+                            }
+                            return Column(
+                              children: [
+                                weekGraph(last7List),
+                                // weekGraphWithGST(), // Add similar logic if needed
+                              ],
+                            );
+                          } catch (e) {
+                            return const Text('24k data not available for week graph.');
+                          }
+                        },
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          );
+        } else {
+          return const Center(child: Text("No data available"));
+        }
+      },
     );
   }
 
@@ -992,91 +486,64 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget tableFunction() {
+  Widget tableFunction(List<GoldRateEntryDTO> rates) {
     return Container(
       child: Table(
-        border: TableBorder.all(
-          color: Colors.blueAccent, // Color of the border lines
-          width: 1.0, // Thickness of the border lines
-        ),
+        border: TableBorder.all(color: U_Colors.yaleBlue, width: 1.0),
         columnWidths: const {
           0: FlexColumnWidth(1),
           1: FlexColumnWidth(2),
           2: FlexColumnWidth(2),
-          3: FlexColumnWidth(2),
         },
         children: [
           TableRow(
-            decoration: BoxDecoration(color: Colors.green[300]),
+            decoration: BoxDecoration(color: U_Colors.satinSheenGold),
             children: [
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('Carat(K) ',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Center(child: Text('Carat(K)', style: TextStyle(fontWeight: FontWeight.bold))),
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('Todays Price',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Center(child: Text('Today\'s Price', style: TextStyle(fontWeight: FontWeight.bold))),
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('Yesterdays Price',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Center(child: Text('Yesterday\'s Price', style: TextStyle(fontWeight: FontWeight.bold))),
               ),
             ],
           ),
-          TableRow(
+          ...rates.map((rate) => TableRow(
             children: [
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('18K'),
+                child: Center(child: Text(rate.carat)),
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('₹ 6000'), // Sample image
+                child: Center(child: Text('₹ ${rate.todayPrice.toStringAsFixed(2)}')),
               ),
               Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Text('₹ 6100 '),
+                child: Center(child: Text('₹ ${rate.yesterdayPrice.toStringAsFixed(2)}')),
               ),
             ],
-          ),
-          TableRow(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('22K'),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('₹ 6500'), // Sample image
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('₹ 6400'),
-              ),
-            ],
-          ),
-          TableRow(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('24K'),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('₹ 7500'), // Sample image
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('₹ 7400'),
-              ),
-            ],
-          ),
-          // Add more TableRow widgets here as needed
+          )),
         ],
       ),
     );
   }
+
+
+
+}
+
+Widget _legendDot(Color color, String text) {
+  return Row(
+    children: [
+      Container(width: 12, height: 12, color: color),
+      const SizedBox(width: 4),
+      Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+    ],
+  );
 }
