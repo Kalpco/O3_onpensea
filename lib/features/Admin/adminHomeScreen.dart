@@ -93,7 +93,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
             imgList = [
               fetchedImages[8], // First image
-              fetchedImages[9],
+              fetchedImages[1],
               fetchedImages[4], // Seventh image
             ];
 

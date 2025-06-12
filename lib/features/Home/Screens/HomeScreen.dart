@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             imgList = [
               fetchedImages[8], // First image
-              fetchedImages[9],
+              fetchedImages[1],
               fetchedImages[4], // Seventh image
             ];
 
